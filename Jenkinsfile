@@ -10,10 +10,10 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building..'
-								dir 'uniknowledge-rest-api' {
-									sh 'mvn clean install'
-								}
             }
+						dir ('uniknowledge-rest-api') {
+							sh 'mvn clean install'
+						}
         }
         stage('Test') {
             steps {
