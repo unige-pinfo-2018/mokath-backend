@@ -1,6 +1,0 @@
-# Modèle créé le : Tue Apr 03 16:23:55 CEST 2018 
-User (UserId_User, FirstName_User, LastName_User, NickName_User, Email_User, MemberSince_User, Login_User, Pass_User, EducationLevel_User) 
-Question (QuestionId_Question, Title_Question, Question_Question, State_Question, Views_Question, likes_Question, #UserId_User) 
-Answer (AnswerId_Answer, Message_Answer, Upvotes_Answer, DownVOtes_Answer) 
-Tag (TagId_Tag, Tag_Tag) 
-Contain (QuestionId_Question, AnswerId_Answer, TagId_Tag) 

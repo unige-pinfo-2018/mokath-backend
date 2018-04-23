@@ -18,5 +18,5 @@ fi
 if [[ "$(docker ps -a -q -f "name=mariadb-test-admin" 2> /dev/null)" != "" ]]; then
   			docker start mariadb-test-admin
 else
-				docker run -d -p 8080:80 --net mariadb-network -e MYSQL_ROOT_PASSWORD=Pinfo2018 -e PMA_HOST="mariadb-test" -e PMA_PORT=3306 --name mariadb-test-admin phpmyadmin/phpmyadmin
+				docker run -d -p 8081:80 --net mariadb-network -e MYSQL_ROOT_PASSWORD=Pinfo2018 -e PMA_HOST="mariadb-test" -e PMA_PORT=3306 --name mariadb-test-admin phpmyadmin/phpmyadmin
 fi
