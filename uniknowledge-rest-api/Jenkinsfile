@@ -1,0 +1,42 @@
+import groovy.json.JsonSlurperClassic
+
+@NonCPS
+def jsonParse(def json) {
+    new groovy.json.JsonSlurperClassic().parseText(json)
+}
+
+node {
+	def projectName = "uniknowledge-rest-api"
+	def repositoryName = 'MOKATH-Backend'
+	def dockerImageName = 'uniknowledge-rest-api'
+	def dockerImageVersion = 'latest'
+	def numberOfTaskToRun = 1
+	def projectPath = "/home/jenkins/build/src/${projectName}/"
+
+	stage('Checkout SCM') {
+		checkout scm
+		sh("git clone https://github.com/unige-pinfo-2018/MOKATH-Backend.git")
+	}
+
+	stage('Unit Test') {
+		sh "echo $JOB_NAME"
+		sh "echo $BUILD_ID"
+
+		sh "rm -Rf ${projectPath}"
+		sh "mkdir -p ${projectPath} && cp -r -t ${projectPath} *"
+		// run tests here
+	}
+
+	stage('Build') {
+        sh "cd ${projectPath} && mvn clean install"
+    }
+
+    stage()
+	stage('API Test') {
+		// API test in real environment (with Postman or other solutions)
+	}
+
+	stage('Cleanup') {
+		// sh "rm -Rf ${projectPath}"
+	}
+}
