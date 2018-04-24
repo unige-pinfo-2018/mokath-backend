@@ -13,4 +13,31 @@
     <module>search-service</module>
     <module>utils</module>
   </modules>
+  <build>
+	<plugins>
+		<plugin>
+			<artifactId>maven-clean-plugin</artifactId>
+			<version>3.0.0</version>
+			<inherited>false</inherited>
+			<configuration>
+				<filesets>
+					<fileset>
+						<directory>/tmp/wildfly-deployments</directory>
+						<includes>
+							<include>*</include>
+						</includes>
+					</fileset>
+				</filesets>
+			</configuration>
+		</plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-war-plugin</artifactId>
+			<version>3.2.0</version>
+			<configuration>
+				<outputDirectory>/tmp/wildfly-deployments</outputDirectory>
+			</configuration>
+		</plugin>
+	</plugins>
+  </build>
 </project>
