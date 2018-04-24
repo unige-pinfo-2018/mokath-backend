@@ -2,6 +2,10 @@
 # Project Ignores                       #
 #---------------------------------------#
 
+# Ignore dotfiles
+.*
+!/.gitignore
+
 # Maven
 /uniknowledge-rest-api/target/*
 target/
