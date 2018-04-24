@@ -6,7 +6,9 @@
     <groupId>com.mokath.uniknowledgerestapi</groupId>
     <version>1.0-SNAPSHOT</version>
   </parent>
-    <artifactId>posts-service</artifactId>
+    <groupId>com.mokath.uniknowledgerestapi</groupId>
+    <artifactId>users-service</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
     <dependencies>
         <dependency>
@@ -17,7 +19,7 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>posts-service</finalName>
+        <finalName>users-service</finalName>
     </build>
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
