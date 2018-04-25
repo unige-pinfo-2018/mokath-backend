@@ -31,3 +31,14 @@ You can launch a test database (MariaDB) and a web interface (phpMyAdmin) with d
 2. Go to docker-config/mariadb-test/
 3. Run the script run_testdb.sh with a user having docker rights
 4. Go to http://localhost:8080 to connect to phpMyAdmin (user = root , password = Pinfo2018)
+
+## Maven Commands
+
+1. Build and Deploy WARs
+`mvn clean install`
+
+2. Clean and remove WARs
+`mvn clean`
+
+3. Update dependencies versions to use latest releases in pom.xml
+`mvn versions:use-latest-releases`
