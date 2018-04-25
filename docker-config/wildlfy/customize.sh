@@ -25,6 +25,30 @@ echo "=> Waiting for the server to boot"
 wait_for_server
 
 echo "=> Executing the commands"
+export UNIKNOWLEDGE_DS="java:/UniknowledgeDS"
+export MYSQL_URI="jdbc:mariadb://172.18.0.3:3306/uniknowledge"
+export MYSQL_USER="uni-user"
+export MYSQL_PWD="Uniknowledge-2018"
+
+$JBOSS_CLI -c << EOF
+batch
+
+echo "Connection URL: " $CONNECTION_URL
+
+# Add MySQL module
+module add --name=com.mysql --resources=/opt/jboss/wildfly/mysql-connector-java-8.0.11.jar --dependencies=javax.api,javax.transaction.api
+
+# Add MySQL driver
+/subsystem=datasources/jdbc-driver=mysql:add(driver-name=mysql,driver-module-name=com.mysql,driver-xa-datasource-class-name=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource)
+
+# Add the datasource
+data-source add --name=StudentsDS --driver-name=mysql --jndi-name=$UNIKNOWLEDGE_DS --connection-url=$MYSQL_URI?useUnicode=true&amp;characterEncoding=UTF-8 --user-name=$MYSQL_USER --password=$MYSQL_PWD --use-ccm=false --max-pool-size=25 --blocking-timeout-wait-millis=5000
+
+# Execute the batch
+run-batch
+EOF
+
+echo "=> Executing the commands"
 $JBOSS_CLI -c --file=`dirname "$0"`/commands.cli
 $JBOSS_HOME/bin/add-user.sh -u "admin" -p "pinfo2018" -s
 
