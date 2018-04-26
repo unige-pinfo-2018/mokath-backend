@@ -12,6 +12,7 @@
     <module>auth-service</module>
     <module>posts-service</module>
     <module>search-service</module>
+    <module>institutions-service</module>
     <module>utils</module>
   </modules>
   <build>
