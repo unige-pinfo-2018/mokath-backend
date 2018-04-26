@@ -26,7 +26,7 @@ wait_for_server
 
 echo "=> Executing the commands"
 export UNIKNOWLEDGE_DS="java:/UniknowledgeDS"
-export MYSQL_URI="jdbc:mariadb://172.18.0.3:3306/uniknowledge"
+export MYSQL_URI="jdbc:mysql://172.18.0.3:3306/uniknowledge"
 export MYSQL_USER="uni-user"
 export MYSQL_PWD="Uniknowledge-2018"
 

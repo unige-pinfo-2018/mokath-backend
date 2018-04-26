@@ -9,14 +9,13 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
-import javax.xml.registry.infomodel.User;
-
-import org.hibernate.annotations.GenericGenerator;
 
 /**
  * @author tv0g
@@ -27,14 +26,21 @@ import org.hibernate.annotations.GenericGenerator;
 public class Institution implements Serializable {
 	
 	private static final long serialVersionUID = 2636792944511323510L;
+	
+	@ElementCollection(targetClass=String.class)
 	private Set<String> administrators;
+	
+	@ElementCollection(targetClass=String.class)
 	private Set<String> repliers;
+	
+	@ElementCollection(targetClass=String.class)
 	private Set<String> askers;
+	
+	@ElementCollection(targetClass=String.class)
 	private Set<String> domains;
 
 	@Id
-	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-	@GeneratedValue(generator = "UUID")
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id", updatable = false, nullable = false)
 	private UUID UUID;
 
@@ -66,7 +72,7 @@ public class Institution implements Serializable {
 	public String toString() {
 		return "Institution Name: '" + this.name + "', Logo URL: '" + this.logoPictureURL + "', Contact Email: '" + this.contactEmail+ "'";
 	}
-
+	
 	public Set<String> getAdministrators() {
 		return administrators;
 	}
