@@ -3,13 +3,12 @@
  */
 package ch.mokath.uniknowledgerestapi.dom;
 
-import java.util.Date;
-import java.util.Set;
-import java.util.UUID;
-
-import javax.mail.Address;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 import javax.xml.registry.infomodel.User;
 
+import java.util.HashSet;
 import org.junit.Assert;
 import org.junit.Test;
 /**
@@ -17,20 +16,24 @@ import org.junit.Test;
  *
  */
 public class InstitutionTest {
-	
+
+	@PersistenceContext
+	private EntityManager entityManager;
+
 	@Test
 	public void institutionBuilderShouldReturnInstitution() {
-	
+
 		Institution institution = new Institution.Builder()
-		        .with($ -> {
-		            $.name = "InsName";
-		            $.logoPictureURL = "InsLogo";
-		            $.contactEmail = "contact@institution.com";
-		        })
-		        .build();
-		
-		System.out.println(institution);
+				.with($ -> {
+					$.name = "InsName";
+					$.logoPictureURL = "InsLogo";
+					$.contactEmail = "contact@institution.com";
+					$.administrators = new HashSet<String>();
+					$.askers = new HashSet<String>();
+					$.repliers = new HashSet<String>();
+				})
+				.build();
+
 		Assert.assertEquals(institution.getName(),"InsName");
-		Assert.assertNull(institution.getAdministrators());
 	}
 }

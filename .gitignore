@@ -5,6 +5,7 @@
 # Ignore dotfiles
 .*
 !/.gitignore
+!/docker-config/wildfly
 
 # Maven
 /uniknowledge-rest-api/target/*

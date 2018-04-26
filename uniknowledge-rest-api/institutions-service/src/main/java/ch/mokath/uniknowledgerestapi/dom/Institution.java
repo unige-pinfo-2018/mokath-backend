@@ -8,16 +8,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import javax.management.relation.Role;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.registry.infomodel.User;
 
@@ -30,15 +25,16 @@ import org.hibernate.annotations.GenericGenerator;
 @Entity
 @Table(name = "INSTITUTIONS")
 public class Institution implements Serializable {
-
-	private Set<User> administrators;
-	private Set<User> repliers;
-	private Set<User> askers;
+	
+	private static final long serialVersionUID = 2636792944511323510L;
+	private Set<String> administrators;
+	private Set<String> repliers;
+	private Set<String> askers;
 	private Set<String> domains;
 
 	@Id
-	@GeneratedValue(generator = "UUID")
 	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+	@GeneratedValue(generator = "UUID")
 	@Column(name = "id", updatable = false, nullable = false)
 	private UUID UUID;
 
@@ -52,8 +48,11 @@ public class Institution implements Serializable {
 	@Column(name = "contactEmail")
 	private String contactEmail;
 
+	public Institution() {
+		// TODO Auto-generated constructor stub
+	}
 	public Institution(String name, String logoPictureURL, String contactEmail, Set<String> domains,
-			Set<User> administrators, Set<User> repliers, Set<User> askers) {
+			Set<String> administrators, Set<String> repliers, Set<String> askers) {
 		this.name = name;
 		this.logoPictureURL = logoPictureURL;
 		this.contactEmail = contactEmail;
@@ -63,19 +62,20 @@ public class Institution implements Serializable {
 		this.repliers = repliers;
 	}
 
+	@Override
 	public String toString() {
 		return "Institution Name: '" + this.name + "', Logo URL: '" + this.logoPictureURL + "', Contact Email: '" + this.contactEmail+ "'";
 	}
 
-	public Set<User> getAdministrators() {
+	public Set<String> getAdministrators() {
 		return administrators;
 	}
 
-	public Set<User> getRepliers() {
+	public Set<String> getRepliers() {
 		return repliers;
 	}
 
-	public Set<User> getAskers() {
+	public Set<String> getAskers() {
 		return askers;
 	}
 
@@ -99,15 +99,15 @@ public class Institution implements Serializable {
 		return contactEmail;
 	}
 
-	public void setAdministrators(Set<User> administrators) {
+	public void setAdministrators(Set<String> administrators) {
 		this.administrators = administrators;
 	}
 
-	public void setRepliers(Set<User> repliers) {
+	public void setRepliers(Set<String> repliers) {
 		this.repliers = repliers;
 	}
 
-	public void setAskers(Set<User> askers) {
+	public void setAskers(Set<String> askers) {
 		this.askers = askers;
 	}
 
@@ -129,9 +129,9 @@ public class Institution implements Serializable {
 
 	public static class Builder {
 
-		public Set<User> administrators;
-		public Set<User> repliers;
-		public Set<User> askers;
+		public Set<String> administrators;
+		public Set<String> repliers;
+		public Set<String> askers;
 		public Set<String> domains;
 		public String name;
 		public String logoPictureURL;

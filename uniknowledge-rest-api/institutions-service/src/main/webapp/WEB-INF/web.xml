@@ -3,7 +3,7 @@
 	xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
     http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
-	<display-name>Uniknowledge-REST-API-AuthService-RS</display-name>
+	<display-name>Uniknowledge-REST-API-InstitutionsService-RS</display-name>
 
 	<servlet>
 		<servlet-name>javax.ws.rs.core.Application</servlet-name>

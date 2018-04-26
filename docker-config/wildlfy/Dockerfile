@@ -4,7 +4,7 @@ FROM jboss/wildfly:latest
 
 ADD ./customize.sh /opt/jboss/wildfly/
 ADD ./commands.cli /opt/jboss/wildfly/
-ADD ./mysql-connector-java-8.0.11.jar /opt/jboss/wildfly
+ADD ./mysql-connector-java-5.1.32.jar /opt/jboss/wildfly/
 
 USER root
 RUN groupadd -r wildfly-logs -g 433 && \
