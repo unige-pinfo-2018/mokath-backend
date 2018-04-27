@@ -19,7 +19,7 @@ import javax.ws.rs.core.Response;
  * @author tv0g
  *
  */
-@Path("auth")
+@Path("")
 public class AuthServiceRs {
 
 	@Inject

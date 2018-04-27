@@ -12,41 +12,31 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Table;
 import javax.validation.constraints.Size;
+
+import org.hibernate.annotations.GenericGenerator;
+
+import com.google.gson.Gson;
 
 /**
  * @author tv0g
  *
  */
 @Entity
-@Table(name = "INSTITUTIONS")
 public class Institution implements Serializable {
-	
+
 	private static final long serialVersionUID = 2636792944511323510L;
-	
-	@ElementCollection(targetClass=String.class)
-	private Set<String> administrators;
-	
-	@ElementCollection(targetClass=String.class)
-	private Set<String> repliers;
-	
-	@ElementCollection(targetClass=String.class)
-	private Set<String> askers;
-	
-	@ElementCollection(targetClass=String.class)
-	private Set<String> domains;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(generator = "UUID")
+	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
 	@Column(name = "id", updatable = false, nullable = false)
-	private UUID UUID;
+	private UUID id;
 
 	@Size(max = 100)
-	@Column(name = "name")
-	private String name;
+	@Column(name = "institution_name")
+	private String institutionName;
 
 	@Column(name = "logoPictureURL")
 	private String logoPictureURL;
@@ -54,12 +44,24 @@ public class Institution implements Serializable {
 	@Column(name = "contactEmail")
 	private String contactEmail;
 
+	@ElementCollection(targetClass = String.class)
+	private Set<String> domains;
+
+	@ElementCollection(targetClass = String.class)
+	private Set<String> administrators;
+
+	@ElementCollection(targetClass = String.class)
+	private Set<String> repliers;
+
+	@ElementCollection(targetClass = String.class)
+	private Set<String> askers;
+
 	public Institution() {
-		// TODO Auto-generated constructor stub
 	}
-	public Institution(String name, String logoPictureURL, String contactEmail, Set<String> domains,
+
+	public Institution(String institutionName, String logoPictureURL, String contactEmail, Set<String> domains,
 			Set<String> administrators, Set<String> repliers, Set<String> askers) {
-		this.name = name;
+		this.institutionName = institutionName;
 		this.logoPictureURL = logoPictureURL;
 		this.contactEmail = contactEmail;
 		this.domains = domains;
@@ -70,9 +72,9 @@ public class Institution implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Institution Name: '" + this.name + "', Logo URL: '" + this.logoPictureURL + "', Contact Email: '" + this.contactEmail+ "'";
+		return new Gson().toJson(this);
 	}
-	
+
 	public Set<String> getAdministrators() {
 		return administrators;
 	}
@@ -89,12 +91,12 @@ public class Institution implements Serializable {
 		return domains;
 	}
 
-	public UUID getUUID() {
-		return UUID;
+	public UUID getId() {
+		return id;
 	}
 
-	public String getName() {
-		return name;
+	public String getInstitutionName() {
+		return institutionName;
 	}
 
 	public String getLogoPictureURL() {
@@ -121,8 +123,8 @@ public class Institution implements Serializable {
 		this.domains = domains;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setName(String institutionName) {
+		this.institutionName = institutionName;
 	}
 
 	public void setLogoPictureURL(String logoPictureURL) {
@@ -139,7 +141,7 @@ public class Institution implements Serializable {
 		public Set<String> repliers;
 		public Set<String> askers;
 		public Set<String> domains;
-		public String name;
+		public String institutionName;
 		public String logoPictureURL;
 		public String contactEmail;
 
@@ -149,7 +151,8 @@ public class Institution implements Serializable {
 		}
 
 		public Institution build() {
-			return new Institution(name, logoPictureURL, contactEmail, domains, administrators, repliers, askers);
+			return new Institution(institutionName, logoPictureURL, contactEmail, domains, administrators, repliers,
+					askers);
 		}
 	}
 

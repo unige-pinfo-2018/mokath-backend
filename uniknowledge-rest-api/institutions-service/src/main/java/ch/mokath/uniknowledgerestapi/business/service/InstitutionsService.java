@@ -15,10 +15,9 @@ import ch.mokath.uniknowledgerestapi.dom.Institution;
 public interface InstitutionsService {
 
 	/**
-	 * Create an institution in database
-	 * @param i Institution to store in database
-	 * @return True iff institution was created in database
+	 * Store an institution to database
+	 * @param i Institution to store
 	 */
-	public void createInstitution(Institution i);
+	void createInstitution(Institution i);
 
 }
