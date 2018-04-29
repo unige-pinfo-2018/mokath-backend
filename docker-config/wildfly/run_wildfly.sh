@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CONT_NAME="wildfly-prod"
+CONT_NAME="uniknowledge-wildfly"
 
 
 echoerr() { echo "$1" 1>&2; }
