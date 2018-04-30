@@ -3,13 +3,15 @@
  */
 package ch.mokath.uniknowledgerestapi.business.service;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Optional;
 import java.util.Set;
 
 import javax.ejb.Local;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.core.StreamingOutput;
 
+import ch.mokath.uniknowledgerestapi.dom.AuthInfos;
 import ch.mokath.uniknowledgerestapi.dom.User;
 
 /**
@@ -18,12 +20,32 @@ import ch.mokath.uniknowledgerestapi.dom.User;
  */
 @Local
 public interface UsersService {
-	
-	Optional<Set<User>> getAllUsers();
-	Optional<User> getUserWithJWT(String JWToken);
-	Boolean createUser(@NotNull final User user);
-	Boolean deleteUser(@NotNull final String userUUID);
-	Optional<User> updateUserInformations(@NotNull final User user);
-	Optional<Set<User>> getRepliersFromInstitution(@NotNull final User user);
-	
+
+	/**
+	 * Return a session token iff provided credentials are correct
+	 * @param a Provided Autentication Credentials
+	 * @return JWToken iff login is successful
+	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidKeySpecException
+	 */
+	Optional<String> login(AuthInfos a) throws NoSuchAlgorithmException, InvalidKeySpecException;
+
+	/**
+	 * Revoke provided JWToken. As an effect, the session associated with this token
+	 * will be invalidated.
+	 * 
+	 * @param JWToken
+	 *            Valid JSON Web Token
+	 * @return true iff JWT has been revoked
+	 */
+	Boolean logout(String JWToken);
+
+	/**
+	 * Stores a user in database
+	 * 
+	 * @param user
+	 *            User to store
+	 */
+	void createUser(@NotNull final User u);
+
 }

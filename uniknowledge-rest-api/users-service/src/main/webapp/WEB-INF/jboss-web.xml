@@ -1,0 +1,3 @@
+<jboss-web>
+    <context-root>/users-service</context-root>
+</jboss-web>

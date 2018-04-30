@@ -37,8 +37,7 @@ public class InstitutionsServiceRs {
 		try {
 			institutionsService.createInstitution(i);
 		} catch (JsonSyntaxException e) {
-
-			return Response.status(400, "Invalid JSON for Resource").build();
+			return Response.status(Response.Status.BAD_REQUEST).entity("Invalid JSON for Resource").build();
 		}
 
 		return Response.ok(i.toString()).build();
