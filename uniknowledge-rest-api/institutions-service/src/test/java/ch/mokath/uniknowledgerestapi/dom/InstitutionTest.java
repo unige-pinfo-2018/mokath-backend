@@ -17,9 +17,6 @@ import org.junit.Test;
  */
 public class InstitutionTest {
 
-	@PersistenceContext
-	private EntityManager entityManager;
-
 	@Test
 	public void institutionBuilderShouldReturnInstitution() {
 
