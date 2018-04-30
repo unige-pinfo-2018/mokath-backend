@@ -6,8 +6,6 @@
     <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
     <jta-data-source>java:/UniknowledgeDS</jta-data-source>
 	<class>ch.mokath.uniknowledgerestapi.dom.User</class>
-	<class>ch.mokath.uniknowledgerestapi.dom.Question</class>
-	<class>ch.mokath.uniknowledgerestapi.dom.Answer</class>
 
 
     <properties>

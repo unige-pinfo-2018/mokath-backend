@@ -5,8 +5,10 @@ package ch.mokath.uniknowledgerestapi.dom;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -40,7 +42,7 @@ public class Question implements Serializable {
 
 	// TODO Change type to User once implemented !!!
 	@Column(name = "author")
-	private String author;
+	private User author;
 
 	@ElementCollection(targetClass = String.class)
 	private Set<String> domains;
@@ -78,10 +80,9 @@ public class Question implements Serializable {
 	 * @param text
 	 *            Text of the Question
 	 */
-	public Question(UUID id, Timestamp timestamp, String author, Set<String> domains, String title, String text) {
+	public Question(User author, Set<String> domains, String title, String text) {
 		super();
-		this.id = id;
-		this.timestamp = timestamp;
+		this.timestamp = new Timestamp(new Date().getTime());
 		this.author = author;
 		this.domains = domains;
 		this.title = title;
@@ -93,27 +94,16 @@ public class Question implements Serializable {
 	 * Getters/ Setters
 	 */
 
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(UUID id) {
-		this.id = id;
-	}
 
 	public Timestamp getTimestamp() {
 		return timestamp;
 	}
 
-	public void setTimestamp(Timestamp timestamp) {
-		this.timestamp = timestamp;
-	}
-
-	public String getAuthor() {
+	public User getAuthor() {
 		return author;
 	}
 
-	public void setAuthor(String author) {
+	public void setAuthor(User author) {
 		this.author = author;
 	}
 
@@ -151,6 +141,22 @@ public class Question implements Serializable {
 
 	public void setOpen() {
 		this.isClosed = false;
+	}
+	
+	public static class Builder{
+		public User author;
+		public Set<String> domains;
+		public String title;
+		public String text;
+		
+		public Question.Builder with(Consumer<Question.Builder> builder){
+			builder.accept(this);
+			return this;
+		}
+		
+		public Question build() {
+			return new Question(author, domains, title, text);
+		}
 	}
 
 }
