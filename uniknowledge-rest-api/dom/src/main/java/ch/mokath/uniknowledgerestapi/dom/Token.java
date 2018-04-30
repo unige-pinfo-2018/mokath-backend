@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package ch.mokath.uniknowledgerestapi.dom;
 
@@ -23,32 +23,32 @@ public class Token implements Serializable {
 	// ================================================================================
 	// Properties
 	// ================================================================================
-	
+
 	@Id
 	@OneToOne
     @JoinColumn(name = "user_id")
     private User user;
-   
+
 	@Column(name = "token")
 	private String token;
-	
+
 	@Column(name = "signingKey")
 	private String signingKey;
-	
+
 	// ================================================================================
 	// Constructor(s)
 	// ================================================================================
-	
+
 	public Token(String token, String signingKey, User user) {
 		this.token = token;
 		this.signingKey = signingKey;
 		this.user = user;
 	}
-	
+
 	// ================================================================================
 	// Getter(s) & Setter(s)
 	// ================================================================================
-	
+
 	public User getUser() {
 		return user;
 	}
@@ -72,12 +72,12 @@ public class Token implements Serializable {
 	public void setSigningKey(String signingKey) {
 		this.signingKey = signingKey;
 	}
-	
-	
+
+
 	// ================================================================================
 	// Builder
 	// ================================================================================
-	
+
 	public static class Builder {
 
 		public String token;

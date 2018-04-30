@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package ch.mokath.uniknowledgerestapi.dom;
 
@@ -118,7 +118,7 @@ public class User implements Serializable {
 	public String getProfilePictureURL() {
 		return profilePictureURL;
 	}
-	
+
 	public static class Builder {
 
 		public String username;
