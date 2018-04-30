@@ -1,18 +1,30 @@
 package ch.mokath.uniknowledgerestapi.dom;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Date;
+import java.util.List;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
 
 import org.hibernate.annotations.common.util.impl.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 public class AuthInfos implements Serializable {
 
@@ -27,7 +39,13 @@ public class AuthInfos implements Serializable {
 	public static final int PRF_BYTES_SIZE = 64;
 	public static final int ITERATIONS_NUMBER = 10000;
 
-	// Properties Declaration
+	// 256-bits Signing key
+	public static final int JWT_SIGNING_KEY_SIZE = 32;
+
+	// ================================================================================
+	// Properties
+	// ================================================================================
+	
 	private static final long serialVersionUID = -6723694555578759181L;
 	private String email;
 	private String password;
@@ -77,9 +95,9 @@ public class AuthInfos implements Serializable {
 	public String createHash(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
 
 		// Generate random crypto secure salt
-		SecureRandom random = new SecureRandom();
+		SecureRandom rand = new SecureRandom();
 		byte[] salt = new byte[SALT_BYTES_SIZE];
-		random.nextBytes(salt);
+		rand.nextBytes(salt);
 
 		// Hash password
 		byte[] hash = pbkdf2(password.toCharArray(), salt, ITERATIONS_NUMBER, PRF_BYTES_SIZE * 8);
@@ -100,21 +118,58 @@ public class AuthInfos implements Serializable {
 	 * @throws NoSuchAlgorithmException
 	 * @throws InvalidKeySpecException
 	 */
-	public boolean validatePassword(String expectedHash)
-			throws NoSuchAlgorithmException, InvalidKeySpecException {
+	public boolean validatePassword(String expectedHash) throws NoSuchAlgorithmException, InvalidKeySpecException {
 
 		// Split hash from DB into iterations, salt and hash parameters
 		String[] p = expectedHash.split(":");
 		int iterations = Integer.parseInt(p[0]);
 		byte[] salt = fromBase64(p[1]);
 		byte[] correctHash = fromBase64(p[2]);
-		
+
 		// Compute hash of provided password
 		byte[] providedPasswordHash = pbkdf2(this.password.toCharArray(), salt, iterations, correctHash.length * 8);
-		
+
 		// MessageDigest.isEqual is timing attack proof since
 		// http://www.oracle.com/technetwork/java/javase/6u17-141447.html
 		return MessageDigest.isEqual(correctHash, providedPasswordHash);
+	}
+
+	/**
+	 * Create and sign a valid JWT given the userID and ttl in milliseconds
+	 * 
+	 * @param userID
+	 *            User ID for whom the token is issued
+	 * @param ttl
+	 *            Time-To-Live of the token
+	 * @return An array containing the token at index 0 and the base64 encoded
+	 *         signing key at index 1
+	 */
+	public List<String> createJWT(String userID, long ttl) {
+
+		// The JWT signature algorithm we will be using to sign the token
+		SignatureAlgorithm algo = SignatureAlgorithm.HS256;
+
+		long timestamp = System.currentTimeMillis();
+		Date now = new Date(timestamp);
+
+		// Generate random crypto secure signing key
+		SecureRandom rand = new SecureRandom();
+		byte[] sKey = new byte[JWT_SIGNING_KEY_SIZE];
+		rand.nextBytes(sKey);
+
+		Key signingKey = new SecretKeySpec(sKey, algo.getJcaName());
+		JwtBuilder builder = Jwts.builder().setIssuedAt(now).setAudience(userID).signWith(algo, signingKey);
+
+		// if it has been specified, let's add the expiration
+		if (ttl >= 0) {
+			long expiration = timestamp + ttl;
+			Date exp = new Date(expiration);
+			builder.setExpiration(exp);
+		}
+
+		// Return both the JWT as string and the encoded signing key to store in db
+		return new ArrayList<String>(Arrays.asList(builder.compact(), toBase64(signingKey.getEncoded())));
+
 	}
 
 	// ================================================================================

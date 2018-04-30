@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.mokath.uniknowledgerestapi.dom.AuthInfos;
+import ch.mokath.uniknowledgerestapi.dom.Token;
 import ch.mokath.uniknowledgerestapi.dom.User;
 
 /**
@@ -50,7 +51,14 @@ public class UsersServiceImpl implements UsersService {
 		if (matchedUsers.isPresent() == true) {
 			User u = matchedUsers.get().get(0);
 			if (a.validatePassword(u.getPassword())) {
-				return Optional.of("JWToken_example");
+				
+				// Create JWT with 24 hours expiration, return both the token and its signing key
+				List<String> JWTokenComponents = a.createJWT(u.getId().toString(), 86400000);
+				Token JWTObject = new Token(JWTokenComponents.get(0), JWTokenComponents.get(1), u);
+				
+				// Store JWT in DB
+				em.persist(JWTObject);
+				return Optional.of(JWTObject.getToken());
 			}
 		}
 

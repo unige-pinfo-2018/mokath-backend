@@ -16,7 +16,9 @@ public enum CustomErrorResponse{
 	
 	INVALID_JSON_OBJECT(Response.Status.BAD_REQUEST, "Invalid JSON for Object"),
 	ERROR_OCCURED(Response.Status.INTERNAL_SERVER_ERROR, "An error occured"),
-	INVALID_CREDS(Response.Status.NOT_FOUND, "Invalid username or password");
+	INVALID_CREDS(Response.Status.NOT_FOUND, "Invalid username or password"),
+	ALREADY_LOGGED_IN(Response.Status.BAD_REQUEST, "You're already logged in !");
+
 	
 	private String errorMessage;
 	private Response.Status status;

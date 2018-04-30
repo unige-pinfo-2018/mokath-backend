@@ -8,6 +8,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.persistence.EntityExistsException;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -32,7 +33,7 @@ public class UsersServiceRs {
 
 	@Inject
 	private UsersService usersService;
-		
+
 	@POST
 	@Path("/register")
 	@Produces("application/json")
@@ -47,18 +48,18 @@ public class UsersServiceRs {
 			u.setPassword(passToStore);
 		} catch (NoSuchAlgorithmException e) {
 
-			return Response.status(400, "Invalid Algorithm").build();
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 
 		} catch (InvalidKeySpecException e) {
 
-			return Response.status(400, "Invalid Key Spec").build();
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 
 		try {
 			usersService.createUser(u);
 		} catch (JsonSyntaxException e) {
 
-			return Response.status(400, "Invalid JSON for Resource").build();
+			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
 		}
 
 		return Response.ok(u.toString()).build();
@@ -74,22 +75,24 @@ public class UsersServiceRs {
 		try {
 
 			Optional<String> token = usersService.login(a);
-			
+
 			if (token.isPresent()) {
 				JsonObject tokenJSON = new JsonObject();
 				tokenJSON.addProperty("token", token.get());
 				return Response.ok(tokenJSON.toString()).build();
-				
+
 			} else {
 				return CustomErrorResponse.INVALID_CREDS.getHTTPResponse();
 			}
-			
+
 		} catch (JsonSyntaxException e) {
 			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
 		} catch (NoSuchAlgorithmException e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		} catch (InvalidKeySpecException e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		} catch(EntityExistsException e) {
+			return CustomErrorResponse.ALREADY_LOGGED_IN.getHTTPResponse();
 		}
 	}
 }
