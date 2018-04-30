@@ -6,6 +6,7 @@ package ch.mokath.uniknowledgerestapi.dom;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -55,6 +56,15 @@ public class Question implements Serializable {
 
 	@Column(name = "isClosed")
 	private boolean isClosed;
+	
+	@ElementCollection(targetClass = Answer.class)
+	private Set<Answer> answers;
+	
+	@ElementCollection(targetClass = User.class)
+	private Set<User> likes;
+	
+	@ElementCollection(targetClass = User.class)
+	private Set<User> followers;
 
 	/*
 	 * Constructors
@@ -88,12 +98,45 @@ public class Question implements Serializable {
 		this.title = title;
 		this.text = text;
 		this.isClosed = false;
+		
+		//TODO choose between HashSet or SortedSet
+		this.answers = new HashSet<Answer>();
+		this.likes = new HashSet<User>();
+		this.followers =  new HashSet<User>();
 	}
 
 	/*
 	 * Getters/ Setters
 	 */
 
+
+	public UUID getId() {
+		return id;
+	}
+
+	public Set<User> getFollowers() {
+		return followers;
+	}
+	
+	public void addFollower(User follow) {
+		this.followers.add(follow);
+	}
+
+	public Set<Answer> getAnswers() {
+		return answers;
+	}
+
+	public void addAnswer(Answer ans) {
+		this.answers.add(ans);
+	}
+
+	public Set<User> getLikes() {
+		return likes;
+	}
+
+	public void addLike(User like) {
+		this.likes.add(like);
+	}
 
 	public Timestamp getTimestamp() {
 		return timestamp;
