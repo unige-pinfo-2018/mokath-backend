@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package ch.mokath.uniknowledgerestapi.dom;
 
@@ -11,11 +11,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -41,7 +43,6 @@ public class Question implements Serializable {
 	@Column(name = "timestamp")
 	private Timestamp timestamp;
 
-	// TODO Change type to User once implemented !!!
 	@Column(name = "author")
 	private User author;
 
@@ -54,15 +55,13 @@ public class Question implements Serializable {
 	@Column(name = "text")
 	private String text;
 
-	@Column(name = "isClosed")
-	private boolean isClosed;
-	
 	@ElementCollection(targetClass = Answer.class)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "question", orphanRemoval = true)
 	private Set<Answer> answers;
-	
+
 	@ElementCollection(targetClass = User.class)
 	private Set<User> likes;
-	
+
 	@ElementCollection(targetClass = User.class)
 	private Set<User> followers;
 
@@ -76,7 +75,7 @@ public class Question implements Serializable {
 
 	/**
 	 * Create a new instance of Question. By default a question is open.
-	 * 
+	 *
 	 * @param id
 	 *            Unique ID of the Question
 	 * @param timestamp
@@ -97,8 +96,7 @@ public class Question implements Serializable {
 		this.domains = domains;
 		this.title = title;
 		this.text = text;
-		this.isClosed = false;
-		
+
 		//TODO choose between HashSet or SortedSet
 		this.answers = new HashSet<Answer>();
 		this.likes = new HashSet<User>();
@@ -117,7 +115,7 @@ public class Question implements Serializable {
 	public Set<User> getFollowers() {
 		return followers;
 	}
-	
+
 	public void addFollower(User follow) {
 		this.followers.add(follow);
 	}
@@ -174,29 +172,18 @@ public class Question implements Serializable {
 		this.text = text;
 	}
 
-	public boolean isClosed() {
-		return isClosed;
-	}
 
-	public void setClosed() {
-		this.isClosed = true;
-	}
-
-	public void setOpen() {
-		this.isClosed = false;
-	}
-	
 	public static class Builder{
 		public User author;
 		public Set<String> domains;
 		public String title;
 		public String text;
-		
+
 		public Question.Builder with(Consumer<Question.Builder> builder){
 			builder.accept(this);
 			return this;
 		}
-		
+
 		public Question build() {
 			return new Question(author, domains, title, text);
 		}
