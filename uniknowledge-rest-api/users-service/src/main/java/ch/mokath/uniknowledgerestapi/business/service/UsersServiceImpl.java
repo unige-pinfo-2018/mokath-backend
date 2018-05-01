@@ -33,9 +33,8 @@ public class UsersServiceImpl implements UsersService {
 
 	@PersistenceContext
 	private EntityManager em;
-	
-	private Logger log = LoggerFactory.getLogger(UsersServiceImpl.class);
 
+	private Logger log = LoggerFactory.getLogger(UsersServiceImpl.class);
 
 	@Override
 	public void createUser(@NotNull User user) {
@@ -49,14 +48,23 @@ public class UsersServiceImpl implements UsersService {
 
 		// If no user matched, return an empty Optional object
 		if (matchedUsers.isPresent() == true) {
+
 			User u = matchedUsers.get().get(0);
+
 			if (a.validatePassword(u.getPassword())) {
-				
-				// Create JWT with 24 hours expiration, return both the token and its signing key
-				List<String> JWTokenComponents = a.createJWT(u.getId().toString(), 86400000);
+
+				// Create JWT with 24 hours expiration, return both the token and its signing
+				// key
+				List<String> JWTokenComponents = a.createJWT(u.getId(), 86400000);
 				Token JWTObject = new Token(JWTokenComponents.get(0), JWTokenComponents.get(1), u);
+
+				// Check if Token already exists for user, if yes revoke it and generate a new token
+				Optional<List<Token>> previousToken = getTokenForUser(JWTObject.getUser());
+
+				if (previousToken.isPresent()) {
+					revokeToken(previousToken.get().get(0));   
+				}
 				
-				// Store JWT in DB
 				em.persist(JWTObject);
 				return Optional.of(JWTObject.getToken());
 			}
@@ -66,9 +74,8 @@ public class UsersServiceImpl implements UsersService {
 	}
 
 	@Override
-	public Boolean logout(String JWToken) {
-		// TODO Auto-generated method stub
-		return null;
+	public void logout(Token JWToken) {
+		revokeToken(JWToken);
 	}
 
 	private <T> Optional<List<User>> getUsersFrom(String field, T value) {
@@ -90,6 +97,31 @@ public class UsersServiceImpl implements UsersService {
 		// If users list is not empty, return list of users wrapped in Optional object
 		// else, return an empty Optional object
 		return matchedUsers.isEmpty() ? Optional.empty() : Optional.of(matchedUsers);
+	}
+
+	private Optional<List<Token>> getTokenForUser(User user) {
+
+		// Create the Critera Builder
+		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+
+		// Link Query to Token Class
+		CriteriaQuery<Token> criteriaQuery = criteriaBuilder.createQuery(Token.class);
+		Root<Token> from = criteriaQuery.from(Token.class);
+
+		// Modify and create the query to match given field/value pairs entries
+		criteriaQuery.where(criteriaBuilder.equal(from.get("user"), user));
+		TypedQuery<Token> finalQuery = em.createQuery(criteriaQuery);
+
+		log.info("QUERY : " + finalQuery.toString());
+		// Execute SELECT request on previous defined query predicates
+
+		List<Token> matchedTokens = finalQuery.getResultList();
+		return matchedTokens.isEmpty() ? Optional.empty() : Optional.of(matchedTokens);
+
+	}
+	
+	private void revokeToken(Token token) {
+		em.remove(em.contains(token) ? token : em.merge(token));
 	}
 
 }

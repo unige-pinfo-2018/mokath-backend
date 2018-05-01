@@ -13,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+
 /**
  * @author tv0g
  *
@@ -39,6 +41,10 @@ public class Token implements Serializable {
 	// Constructor(s)
 	// ================================================================================
 
+	public Token() {
+		
+	}
+	
 	public Token(String token, String signingKey, User user) {
 		this.token = token;
 		this.signingKey = signingKey;
@@ -71,6 +77,10 @@ public class Token implements Serializable {
 
 	public void setSigningKey(String signingKey) {
 		this.signingKey = signingKey;
+	}
+	
+	public String toString() {
+		return this.getToken().toString();
 	}
 
 
