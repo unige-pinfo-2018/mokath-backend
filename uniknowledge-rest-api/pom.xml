@@ -12,7 +12,6 @@
 		<module>search-service</module>
 		<module>institutions-service</module>
 		<module>utils</module>
-		<module>dom</module>
 	</modules>
 	<build>
 		<plugins>

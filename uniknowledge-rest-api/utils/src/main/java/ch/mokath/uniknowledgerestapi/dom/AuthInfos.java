@@ -1,7 +1,6 @@
 package ch.mokath.uniknowledgerestapi.dom;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -12,16 +11,16 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.util.StringJoiner;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
 
-import org.hibernate.annotations.common.util.impl.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.mokath.uniknowledgerestapi.utils.CustomDecoder;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -103,7 +102,7 @@ public class AuthInfos implements Serializable {
 		byte[] hash = pbkdf2(password.toCharArray(), salt, ITERATIONS_NUMBER, PRF_BYTES_SIZE * 8);
 
 		// Return string to store in db
-		return ITERATIONS_NUMBER + ":" + toBase64(salt) + ":" + toBase64(hash);
+		return ITERATIONS_NUMBER + ":" + CustomDecoder.toBase64(salt) + ":" + CustomDecoder.toBase64(hash);
 	}
 
 	/**
@@ -123,8 +122,8 @@ public class AuthInfos implements Serializable {
 		// Split hash from DB into iterations, salt and hash parameters
 		String[] p = expectedHash.split(":");
 		int iterations = Integer.parseInt(p[0]);
-		byte[] salt = fromBase64(p[1]);
-		byte[] correctHash = fromBase64(p[2]);
+		byte[] salt = CustomDecoder.fromBase64(p[1]);
+		byte[] correctHash = CustomDecoder.fromBase64(p[2]);
 
 		// Compute hash of provided password
 		byte[] providedPasswordHash = pbkdf2(this.password.toCharArray(), salt, iterations, correctHash.length * 8);
@@ -144,9 +143,9 @@ public class AuthInfos implements Serializable {
 	 * @return An array containing the token at index 0 and the base64 encoded
 	 *         signing key at index 1
 	 */
-	public List<String> createJWT(String userID, long ttl) {
+	public List<String> createJWT(long userID, long ttl) {
 
-		// The JWT signature algorithm we will be using to sign the token
+		// The JWT signature algorithm to use
 		SignatureAlgorithm algo = SignatureAlgorithm.HS256;
 
 		long timestamp = System.currentTimeMillis();
@@ -158,9 +157,11 @@ public class AuthInfos implements Serializable {
 		rand.nextBytes(sKey);
 
 		Key signingKey = new SecretKeySpec(sKey, algo.getJcaName());
-		JwtBuilder builder = Jwts.builder().setIssuedAt(now).setAudience(userID).signWith(algo, signingKey);
-
-		// if it has been specified, let's add the expiration
+		
+		// Set claims and sign token
+		JwtBuilder builder = Jwts.builder().setIssuedAt(now).setAudience(String.valueOf(userID)).signWith(algo, signingKey);
+		
+		// Add expiration
 		if (ttl >= 0) {
 			long expiration = timestamp + ttl;
 			Date exp = new Date(expiration);
@@ -168,22 +169,14 @@ public class AuthInfos implements Serializable {
 		}
 
 		// Return both the JWT as string and the encoded signing key to store in db
-		return new ArrayList<String>(Arrays.asList(builder.compact(), toBase64(signingKey.getEncoded())));
+		return new ArrayList<String>(Arrays.asList(builder.compact(), CustomDecoder.toBase64(signingKey.getEncoded())));
 
 	}
 
 	// ================================================================================
 	// Utilities Private Functions
 	// ================================================================================
-
-	private String toBase64(byte[] s) {
-		return new String(Base64.getEncoder().encode(s));
-	}
-
-	private byte[] fromBase64(String s) {
-		return Base64.getDecoder().decode(s);
-	}
-
+	
 	private byte[] pbkdf2(char[] password, byte[] salt, int iterations, int bytes)
 			throws NoSuchAlgorithmException, InvalidKeySpecException {
 

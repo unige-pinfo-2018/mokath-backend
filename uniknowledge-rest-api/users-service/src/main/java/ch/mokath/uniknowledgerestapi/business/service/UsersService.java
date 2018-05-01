@@ -12,6 +12,7 @@ import javax.ejb.Local;
 import javax.validation.constraints.NotNull;
 
 import ch.mokath.uniknowledgerestapi.dom.AuthInfos;
+import ch.mokath.uniknowledgerestapi.dom.Token;
 import ch.mokath.uniknowledgerestapi.dom.User;
 
 /**
@@ -38,7 +39,7 @@ public interface UsersService {
 	 *            Valid JSON Web Token
 	 * @return true iff JWT has been revoked
 	 */
-	Boolean logout(String JWToken);
+	void logout(Token JWToken);
 
 	/**
 	 * Stores a user in database
