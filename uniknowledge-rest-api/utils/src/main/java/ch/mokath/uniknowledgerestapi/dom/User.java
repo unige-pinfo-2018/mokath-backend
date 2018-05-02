@@ -4,10 +4,13 @@
 package ch.mokath.uniknowledgerestapi.dom;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -25,7 +28,7 @@ public class User implements Serializable {
 	private static final long serialVersionUID = -7683341736850458090L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@Column(name = "username")
@@ -43,8 +46,14 @@ public class User implements Serializable {
 	@Column(name = "email")
 	private String email;
 
-	@Column(name = "password", length=128)
+	@Column(name = "password", length = 128)
 	private String password;
+
+	@ElementCollection(targetClass = Question.class)
+	private Set<Question> questions;
+
+	@ElementCollection(targetClass = Answer.class)
+	private Set<Answer> answers;
 
 	public User() {
 	}
@@ -57,6 +66,8 @@ public class User implements Serializable {
 		this.profilePictureURL = profilePictureURL;
 		this.email = email;
 		this.password = password;
+		this.answers = new HashSet<Answer>();
+		this.questions = new HashSet<Question>();
 	}
 
 	@Override
@@ -114,6 +125,22 @@ public class User implements Serializable {
 
 	public String getProfilePictureURL() {
 		return profilePictureURL;
+	}
+
+	public Set<Question> getQuestions() {
+		return questions;
+	}
+
+	public Set<Answer> getAnswers() {
+		return answers;
+	}
+
+	public void addQuestion(Question q) {
+		this.questions.add(q);
+	}
+	
+	public void addAnswer(Answer a) {
+		this.answers.add(a);
 	}
 
 	public static class Builder {
