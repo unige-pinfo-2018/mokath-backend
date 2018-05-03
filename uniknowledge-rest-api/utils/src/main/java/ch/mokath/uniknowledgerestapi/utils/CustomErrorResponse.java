@@ -21,7 +21,8 @@ public enum CustomErrorResponse {
 	INVALID_CREDS(false, Response.Status.NOT_FOUND, "Invalid username or password"), 
 	ALREADY_LOGGED_IN(false, Response.Status.BAD_REQUEST,"You're already logged in !"), 
 	INVALID_TOKEN(false, Response.Status.BAD_REQUEST,"Invalid Token !"),
-	QUESTION_NOT_FOUND(false, Response.Status.NOT_FOUND, "Question not found !"),
+	RESSOURCE_NOT_FOUND(false, Response.Status.NOT_FOUND, "Ressource not found !"),
+	INVALID_ACTION(false, Response.Status.BAD_REQUEST, "Invalid action !"),
 	
 	// SUCCESS
 	LOGOUT_SUCCESS(true,Response.Status.OK, "Logout Successful !");

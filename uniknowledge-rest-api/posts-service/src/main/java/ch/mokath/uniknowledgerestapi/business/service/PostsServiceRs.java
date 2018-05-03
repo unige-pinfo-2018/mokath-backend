@@ -21,8 +21,10 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -31,6 +33,7 @@ import ch.mokath.uniknowledgerestapi.dom.Question;
 import ch.mokath.uniknowledgerestapi.dom.User;
 import ch.mokath.uniknowledgerestapi.utils.CustomErrorResponse;
 import ch.mokath.uniknowledgerestapi.utils.Secured;
+
 
 /**
  * @author matteo113
@@ -72,7 +75,9 @@ public class PostsServiceRs {
 	@Secured
 	@Path("/questions/{id}")
 	@Produces("application/json")
-	public Response likeQuestion(@Context HttpServletRequest req, @PathParam("id") String id) {
+	public Response onQuestion(@Context HttpServletRequest req, @PathParam("id") String id, @Context UriInfo info) {
+		String action = info.getQueryParameters().getFirst("action");
+		
 		Question question;
 		User user;
 		
@@ -82,10 +87,27 @@ public class PostsServiceRs {
 			long userId = (long) req.getAttribute("userID");
 			user = getUsersFrom("id", userId).get().get(0);
 			
-			postsService.likeQuestion(question, user);
 		} catch (JsonSyntaxException e) {
-			return CustomErrorResponse.QUESTION_NOT_FOUND.getHTTPResponse();
+			return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 		}
+		
+		if (action == null) {
+			//TODO add update user
+		} else {
+			switch (action) {
+			case "upvote":
+				postsService.upvoteQuestion(question, user);
+				break;
+			
+			case "follow":
+				postsService.followQuestion(question, user);
+				break;
+
+			default:
+				return CustomErrorResponse.INVALID_ACTION.getHTTPResponse();
+			}
+		}
+		
 		//TODO add toString
 		return Response.ok().build();
 	}

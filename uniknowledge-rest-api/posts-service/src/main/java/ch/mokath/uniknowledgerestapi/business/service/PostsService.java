@@ -25,11 +25,11 @@ public interface PostsService {
 
 	void validateAnswer(Answer a);
 
-	void likeQuestion(Question q, User u);
+	void upvoteQuestion(Question q, User u);
 
 	void likeAnswer(Answer a);
 
-	void followQuestion(Question q);
+	void followQuestion(Question q, User u);
 
 	void deleteQuestion(Question q);
 

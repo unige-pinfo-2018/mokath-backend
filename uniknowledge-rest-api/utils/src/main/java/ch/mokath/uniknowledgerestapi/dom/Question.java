@@ -66,8 +66,9 @@ public class Question implements Serializable {
 	
 	@ManyToMany(mappedBy = "likedQuestions")
 	@ElementCollection(targetClass = User.class)
-	private Set<User> likes;
-
+	private Set<User> upvote;
+	
+	@ManyToMany(mappedBy = "followedQuestions")
 	@ElementCollection(targetClass = User.class)
 	private Set<User> followers;
 
@@ -102,7 +103,7 @@ public class Question implements Serializable {
 
 		//TODO choose between HashSet or SortedSet
 		this.answers = new HashSet<Answer>();
-		this.likes = new HashSet<User>();
+		this.upvote = new HashSet<User>();
 		this.followers =  new HashSet<User>();
 	}
 	
@@ -137,11 +138,11 @@ public class Question implements Serializable {
 	}
 
 	public Set<User> getLikes() {
-		return likes;
+		return upvote;
 	}
 
 	public void addLike(User like) {
-		this.likes.add(like);
+		this.upvote.add(like);
 	}
 
 	public Date getCreated() {

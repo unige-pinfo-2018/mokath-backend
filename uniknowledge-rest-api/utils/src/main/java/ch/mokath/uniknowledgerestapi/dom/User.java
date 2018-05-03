@@ -6,14 +6,12 @@ package ch.mokath.uniknowledgerestapi.dom;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -71,6 +69,10 @@ public class User implements Serializable {
 	@ElementCollection(targetClass = Question.class)
 	private Set<Question> likedQuestions;
 	
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "user_follow_question",
+	joinColumns = @JoinColumn(name = "user_id"),
+	inverseJoinColumns = @JoinColumn(name = "question_id"))
 	@ElementCollection(targetClass = Question.class)
 	private Set<Question> followedQuestions;
 	
@@ -180,7 +182,19 @@ public class User implements Serializable {
 		return this.likedQuestions;
 	}
 	
-	//TODO Implements add, remove, get for LikedAnswers and FollowedQuestions
+	public void addFollowedQuestion(Question q) {
+		this.likedQuestions.add(q);
+	}
+	
+	public void removeFollowedQuestion(Question q) {
+		this.likedQuestions.remove(q);
+	}
+	
+	public Set<Question> getFollowedQuestion() {
+		return this.followedQuestions;
+	}
+	
+	//TODO Implements add, remove, get for LikedAnswers
 
 	public static class Builder {
 

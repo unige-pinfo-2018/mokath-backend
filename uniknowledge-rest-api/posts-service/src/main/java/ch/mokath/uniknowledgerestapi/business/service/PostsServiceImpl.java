@@ -50,17 +50,19 @@ public class PostsServiceImpl implements PostsService {
 	}
 	
 	@Override
-	public void likeQuestion(Question q, User u) throws NoSuchElementException {
+	public void upvoteQuestion(Question q, User u) throws NoSuchElementException {
 		User user = em.merge(u);
 		Question question = em.merge(q);
-		user.addLikedQuestions(question);
 		
+		user.addLikedQuestions(question);	
 	}
 	
 	@Override
-	public void followQuestion(Question q) {
-		// TODO Auto-generated method stub
-
+	public void followQuestion(Question q, User u) throws NoSuchElementException{
+		User user = em.merge(u);
+		Question question = em.merge(q);
+		
+		user.addFollowedQuestion(question);
 	}
 
 	@Override
