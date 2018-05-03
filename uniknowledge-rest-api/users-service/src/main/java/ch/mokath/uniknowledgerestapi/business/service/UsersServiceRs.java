@@ -12,6 +12,7 @@ import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -115,15 +116,21 @@ public class UsersServiceRs {
 	// Secured Endpoints
 	// ================================================================================
 
-	@GET
+	@POST
 	@Secured
 	@Path("/logout")
 	@Produces("application/json")
 	public Response logout(@Context HttpServletRequest req) {
 
 		Token token = (Token) req.getAttribute("token");
-		usersService.logout(token);
-		return CustomErrorResponse.LOGOUT_SUCCESS.getHTTPResponse();
+		
+		try {
+			usersService.logout(token);
+			return CustomErrorResponse.LOGOUT_SUCCESS.getHTTPResponse();
+		} catch(Exception e) {
+			log.error("Exception thrown while logging out : "+e.getMessage());
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
 	}
 
 	/**
@@ -160,6 +167,7 @@ public class UsersServiceRs {
 
 		if (requestUpdatedUser.getId() != null) {
 			Long untrustedID = requestUpdatedUser.getId();
+			
 			// If the issuer of the request is not the targeted user
 			if (trustedUser.getId() != untrustedID) {
 				return CustomErrorResponse.PERMISSION_DENIED.getHTTPResponse();
@@ -176,6 +184,28 @@ public class UsersServiceRs {
 			return Response.ok(updatedUser.toString()).build();
 		} catch (Exception e) {
 			log.info("Exception thrown while updating user with id : " + requestUpdatedUser.getId() + " : " + e.getMessage());
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+	
+	@DELETE
+	@Secured
+	@Path("/users")
+	@Produces("application/json")
+	@Consumes("application/json")
+	public Response deleteUser(@Context HttpServletRequest req, @NotNull final String requestBody) {
+		
+		// Retrieve user from trusted Token
+		User trustedUser = (User) req.getAttribute("user");
+		Token trustedToken = (Token) req.getAttribute("token");
+		
+		// Revoke the session and delete the user
+		try {
+			usersService.logout(trustedToken);
+			usersService.deleteUser(trustedUser);
+			return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
+		} catch(Exception e) {
+			log.error("Exception thrown while deleting user with id : "+trustedUser.getId()+ " : "+e.getMessage());
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 	}

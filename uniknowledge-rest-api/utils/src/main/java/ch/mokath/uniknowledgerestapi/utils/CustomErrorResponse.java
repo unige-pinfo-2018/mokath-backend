@@ -24,7 +24,8 @@ public enum CustomErrorResponse {
 	PERMISSION_DENIED(false, Response.Status.UNAUTHORIZED, "Permission Denied !"),
 	
 	// SUCCESS
-	LOGOUT_SUCCESS(true,Response.Status.OK, "Logout Successful !");
+	LOGOUT_SUCCESS(true,Response.Status.OK, "Logout Successful !"),
+	DELETE_SUCCESS(true, Response.Status.OK, "Deleted resource Successfully");
 
 	private String successOrError;
 	private String message;
