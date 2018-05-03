@@ -1,23 +1,30 @@
 /**
- * 
+ *
  */
 package ch.mokath.uniknowledgerestapi.dom;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Consumer;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
-import org.hibernate.annotations.GenericGenerator;
+import com.google.gson.Gson;
 
 /**
  * @author matteo113
@@ -30,19 +37,18 @@ public class Question implements Serializable {
 	 * Fields
 	 */
 
-	private static final long serialVersionUID = -5214738664315670513L;
+	private static final long serialVersionUID = -2547210886311246487L;
 
 	@Id
-	@GeneratedValue(generator = "UUID")
-	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-	@Column(name = "id", updatable = false, nullable = false)
-	private UUID id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
 
-	@Column(name = "timestamp")
-	private Timestamp timestamp;
+    @Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "created")
+	private Date created;
 
-	// TODO Change type to User once implemented !!!
-	@Column(name = "author")
+    @ManyToOne()
+    @JoinColumn(name = "author_id")
 	private User author;
 
 	@ElementCollection(targetClass = String.class)
@@ -54,15 +60,15 @@ public class Question implements Serializable {
 	@Column(name = "text")
 	private String text;
 
-	@Column(name = "isClosed")
-	private boolean isClosed;
-	
 	@ElementCollection(targetClass = Answer.class)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "question", orphanRemoval = true)
 	private Set<Answer> answers;
 	
+	@ManyToMany(mappedBy = "likedQuestions")
 	@ElementCollection(targetClass = User.class)
-	private Set<User> likes;
+	private Set<User> upvote;
 	
+	@ManyToMany(mappedBy = "followedQuestions")
 	@ElementCollection(targetClass = User.class)
 	private Set<User> followers;
 
@@ -76,7 +82,7 @@ public class Question implements Serializable {
 
 	/**
 	 * Create a new instance of Question. By default a question is open.
-	 * 
+	 *
 	 * @param id
 	 *            Unique ID of the Question
 	 * @param timestamp
@@ -90,19 +96,20 @@ public class Question implements Serializable {
 	 * @param text
 	 *            Text of the Question
 	 */
-	public Question(User author, Set<String> domains, String title, String text) {
-		super();
-		this.timestamp = new Timestamp(new Date().getTime());
-		this.author = author;
+	public Question(Set<String> domains, String title, String text) {
 		this.domains = domains;
 		this.title = title;
 		this.text = text;
-		this.isClosed = false;
-		
+
 		//TODO choose between HashSet or SortedSet
 		this.answers = new HashSet<Answer>();
-		this.likes = new HashSet<User>();
+		this.upvote = new HashSet<User>();
 		this.followers =  new HashSet<User>();
+	}
+	
+	@Override
+	public String toString() {
+		return new Gson().toJson(this);
 	}
 
 	/*
@@ -110,14 +117,14 @@ public class Question implements Serializable {
 	 */
 
 
-	public UUID getId() {
+	public long getId() {
 		return id;
 	}
 
 	public Set<User> getFollowers() {
 		return followers;
 	}
-	
+
 	public void addFollower(User follow) {
 		this.followers.add(follow);
 	}
@@ -131,19 +138,23 @@ public class Question implements Serializable {
 	}
 
 	public Set<User> getLikes() {
-		return likes;
+		return upvote;
 	}
 
 	public void addLike(User like) {
-		this.likes.add(like);
+		this.upvote.add(like);
 	}
 
-	public Timestamp getTimestamp() {
-		return timestamp;
+	public Date getCreated() {
+		return created;
+	}
+	
+	public void setCreated(Date date) {
+		this.created = date;
 	}
 
-	public User getAuthor() {
-		return author;
+	public User getAuthorId() {
+		return this.author;
 	}
 
 	public void setAuthor(User author) {
@@ -174,31 +185,19 @@ public class Question implements Serializable {
 		this.text = text;
 	}
 
-	public boolean isClosed() {
-		return isClosed;
-	}
 
-	public void setClosed() {
-		this.isClosed = true;
-	}
-
-	public void setOpen() {
-		this.isClosed = false;
-	}
-	
 	public static class Builder{
-		public User author;
 		public Set<String> domains;
 		public String title;
 		public String text;
-		
+
 		public Question.Builder with(Consumer<Question.Builder> builder){
 			builder.accept(this);
 			return this;
 		}
-		
+
 		public Question build() {
-			return new Question(author, domains, title, text);
+			return new Question( domains, title, text);
 		}
 	}
 

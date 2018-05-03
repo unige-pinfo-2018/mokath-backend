@@ -4,20 +4,27 @@
 package ch.mokath.uniknowledgerestapi.dom;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
-
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 
 /**
  * @author tv0g
+ * @author matteo113
  *
  */
 @Entity
@@ -50,8 +57,33 @@ public class User implements Serializable {
 	@Expose(serialize = true, deserialize= true)
 	private String email;
 
+
 	@Column(name = "password", length=128, nullable = false)
 	private String password;
+	
+	@OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+	@ElementCollection(targetClass = Question.class)
+	private Set<Question> questions;
+
+	@ElementCollection(targetClass = Answer.class)
+	private Set<Answer> answers;
+	
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "user_like_question",
+	joinColumns = @JoinColumn(name = "user_id"),
+	inverseJoinColumns = @JoinColumn(name = "question_id"))
+	@ElementCollection(targetClass = Question.class)
+	private Set<Question> likedQuestions;
+	
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "user_follow_question",
+	joinColumns = @JoinColumn(name = "user_id"),
+	inverseJoinColumns = @JoinColumn(name = "question_id"))
+	@ElementCollection(targetClass = Question.class)
+	private Set<Question> followedQuestions;
+	
+	@ElementCollection(targetClass = Answer.class)
+	private Set<Answer> likedAnswers;
 
 	public User() {
 	}
@@ -64,6 +96,11 @@ public class User implements Serializable {
 		this.profilePictureURL = profilePictureURL;
 		this.email = email;
 		this.password = password;
+		this.answers = new HashSet<Answer>();
+		this.questions = new HashSet<Question>();
+		this.likedQuestions = new HashSet<Question>();
+		this.followedQuestions = new HashSet<Question>();
+		this.likedAnswers = new HashSet<Answer>();
 	}
 
 	@Override
@@ -131,6 +168,48 @@ public class User implements Serializable {
 	public String getProfilePictureURL() {
 		return profilePictureURL;
 	}
+
+	public Set<Question> getQuestions() {
+		return questions;
+	}
+
+	public Set<Answer> getAnswers() {
+		return answers;
+	}
+
+	public void addQuestion(Question q) {
+		this.questions.add(q);
+	}
+	
+	public void addAnswer(Answer a) {
+		this.answers.add(a);
+	}
+	
+	public void addLikedQuestions(Question q) {
+		this.likedQuestions.add(q);
+	}
+	
+	public void removeLikedQuestion(Question q) {
+		this.likedQuestions.remove(q);
+	}
+	
+	public Set<Question> getLikedQuestions(){
+		return this.likedQuestions;
+	}
+	
+	public void addFollowedQuestion(Question q) {
+		this.likedQuestions.add(q);
+	}
+	
+	public void removeFollowedQuestion(Question q) {
+		this.likedQuestions.remove(q);
+	}
+	
+	public Set<Question> getFollowedQuestion() {
+		return this.followedQuestions;
+	}
+	
+	//TODO Implements add, remove, get for LikedAnswers
 
 	public static class Builder {
 
