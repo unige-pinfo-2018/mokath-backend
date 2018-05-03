@@ -15,6 +15,7 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
@@ -28,14 +29,11 @@ import org.hibernate.annotations.GenericGenerator;
 public class Answer implements Serializable {
 
 
-	private static final long serialVersionUID = -2043208173651292955L;
-
+	private static final long serialVersionUID = 6765067732764896403L;
 
 	@Id
-	@GeneratedValue(generator = "UUID")
-	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-	@Column(name = "id", updatable= false, nullable = false)
-	private UUID id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
 
 //	@Column(name = "question")
 	@ManyToOne
@@ -52,6 +50,9 @@ public class Answer implements Serializable {
 
 	@ElementCollection(targetClass = User.class)
 	private Set<User> likes;
+	
+	@Column(name = "validated")
+	private boolean validated;
 
 	public Answer() {
 
@@ -63,6 +64,7 @@ public class Answer implements Serializable {
 		this.text = text;
 		this.question = question;
 		this.likes = new HashSet<User>();
+		this.validated = false;
 	}
 
 	public User getAuthor() {
@@ -81,7 +83,7 @@ public class Answer implements Serializable {
 		this.text = text;
 	}
 
-	public UUID getId() {
+	public long getId() {
 		return id;
 	}
 
@@ -99,6 +101,18 @@ public class Answer implements Serializable {
 
 	public void addLike(User like) {
 		this.likes.add(like);
+	}
+	
+	public void validate() {
+		this.validated = true;
+	}
+	
+	public void unvalidate() {
+		this.validated = false;
+	}
+	
+	public boolean isValidated() {
+		return this.validated;
 	}
 
 	public static class Builder{

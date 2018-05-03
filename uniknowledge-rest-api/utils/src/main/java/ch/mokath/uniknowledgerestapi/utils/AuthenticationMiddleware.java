@@ -69,7 +69,7 @@ public class AuthenticationMiddleware implements ContainerRequestFilter {
 						.setParameter(1, u).getSingleResult();
 				try {
 					Claims tokenClaims = validateToken(token, resToken.getSigningKey());
-			        requestContext.setProperty("userID", tokenClaims.getAudience());
+			        requestContext.setProperty("userID", Long.parseLong(tokenClaims.getAudience()));
 			        requestContext.setProperty("token", resToken);
 				} catch (Exception e) {
 					requestContext.abortWith(CustomErrorResponse.INVALID_TOKEN.getHTTPResponse());

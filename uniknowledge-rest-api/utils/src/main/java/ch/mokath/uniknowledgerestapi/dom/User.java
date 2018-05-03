@@ -9,12 +9,14 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import com.google.gson.Gson;
 
@@ -50,6 +52,7 @@ public class User implements Serializable {
 	private String password;
 
 	@ElementCollection(targetClass = Question.class)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "author", orphanRemoval = true)
 	private Set<Question> questions;
 
 	@ElementCollection(targetClass = Answer.class)

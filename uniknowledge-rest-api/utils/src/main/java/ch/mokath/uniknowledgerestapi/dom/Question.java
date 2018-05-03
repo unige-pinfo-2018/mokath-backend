@@ -16,8 +16,13 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -32,18 +37,17 @@ public class Question implements Serializable {
 	 * Fields
 	 */
 
-	private static final long serialVersionUID = -5214738664315670513L;
+	private static final long serialVersionUID = -2547210886311246487L;
 
 	@Id
-	@GeneratedValue(generator = "UUID")
-	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-	@Column(name = "id", updatable = false, nullable = false)
-	private UUID id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
 
+    @Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "timestamp")
-	private Timestamp timestamp;
+	private Date timestamp;
 
-	@Column(name = "author")
+    @JoinColumn(name = "author", nullable = false)
 	private User author;
 
 	@ElementCollection(targetClass = String.class)
@@ -90,8 +94,7 @@ public class Question implements Serializable {
 	 *            Text of the Question
 	 */
 	public Question(User author, Set<String> domains, String title, String text) {
-		super();
-		this.timestamp = new Timestamp(new Date().getTime());
+		this.timestamp = new Date();
 		this.author = author;
 		this.domains = domains;
 		this.title = title;
@@ -108,7 +111,7 @@ public class Question implements Serializable {
 	 */
 
 
-	public UUID getId() {
+	public long getId() {
 		return id;
 	}
 
@@ -136,12 +139,12 @@ public class Question implements Serializable {
 		this.likes.add(like);
 	}
 
-	public Timestamp getTimestamp() {
+	public Date getTimestamp() {
 		return timestamp;
 	}
 
-	public User getAuthor() {
-		return author;
+	public User getAuthorId() {
+		return this.author;
 	}
 
 	public void setAuthor(User author) {
