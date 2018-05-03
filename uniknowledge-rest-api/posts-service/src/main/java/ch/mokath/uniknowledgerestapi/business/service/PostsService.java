@@ -5,6 +5,7 @@ package ch.mokath.uniknowledgerestapi.business.service;
 
 import ch.mokath.uniknowledgerestapi.dom.Answer;
 import ch.mokath.uniknowledgerestapi.dom.Question;
+import ch.mokath.uniknowledgerestapi.dom.User;
 
 import javax.ejb.Local;
 import javax.validation.constraints.NotNull;
@@ -18,13 +19,13 @@ import javax.validation.constraints.NotNull;
 public interface PostsService {
 
 
-	void createQuestion(@NotNull Question q, long id);
+	void createQuestion(@NotNull Question q, User u);
 
 	void createAnswer(Question q, Answer a);
 
 	void validateAnswer(Answer a);
 
-	void likeQuestion(Question q);
+	void likeQuestion(Question q, User u);
 
 	void likeAnswer(Answer a);
 

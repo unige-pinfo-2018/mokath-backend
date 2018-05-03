@@ -13,16 +13,21 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+
 
 import com.google.gson.Gson;
 
 /**
  * @author tv0g
+ * @author matteo113
  *
  */
 @Entity
@@ -52,12 +57,25 @@ public class User implements Serializable {
 	@Column(name = "password", length = 128)
 	private String password;
 	
-	@OneToMany(mappedBy = "author")
+	@OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
 	@ElementCollection(targetClass = Question.class)
 	private Set<Question> questions;
 
 	@ElementCollection(targetClass = Answer.class)
 	private Set<Answer> answers;
+	
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "user_like_question",
+	joinColumns = @JoinColumn(name = "user_id"),
+	inverseJoinColumns = @JoinColumn(name = "question_id"))
+	@ElementCollection(targetClass = Question.class)
+	private Set<Question> likedQuestions;
+	
+	@ElementCollection(targetClass = Question.class)
+	private Set<Question> followedQuestions;
+	
+	@ElementCollection(targetClass = Answer.class)
+	private Set<Answer> likedAnswers;
 
 	public User() {
 	}
@@ -72,6 +90,9 @@ public class User implements Serializable {
 		this.password = password;
 		this.answers = new HashSet<Answer>();
 		this.questions = new HashSet<Question>();
+		this.likedQuestions = new HashSet<Question>();
+		this.followedQuestions = new HashSet<Question>();
+		this.likedAnswers = new HashSet<Answer>();
 	}
 
 	@Override
@@ -146,6 +167,20 @@ public class User implements Serializable {
 	public void addAnswer(Answer a) {
 		this.answers.add(a);
 	}
+	
+	public void addLikedQuestions(Question q) {
+		this.likedQuestions.add(q);
+	}
+	
+	public void removeLikedQuestion(Question q) {
+		this.likedQuestions.remove(q);
+	}
+	
+	public Set<Question> getLikedQuestions(){
+		return this.likedQuestions;
+	}
+	
+	//TODO Implements add, remove, get for LikedAnswers and FollowedQuestions
 
 	public static class Builder {
 

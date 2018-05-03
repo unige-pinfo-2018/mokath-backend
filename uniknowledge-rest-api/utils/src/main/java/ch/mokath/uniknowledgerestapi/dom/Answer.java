@@ -35,7 +35,6 @@ public class Answer implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-//	@Column(name = "question")
 	@ManyToOne
 	private Question question;
 

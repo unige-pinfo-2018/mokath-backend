@@ -4,11 +4,9 @@
 package ch.mokath.uniknowledgerestapi.dom;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 import javax.persistence.CascadeType;
@@ -20,13 +18,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.hibernate.annotations.GenericGenerator;
+import com.google.gson.Gson;
 
 /**
  * @author matteo113
@@ -65,7 +63,8 @@ public class Question implements Serializable {
 	@ElementCollection(targetClass = Answer.class)
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "question", orphanRemoval = true)
 	private Set<Answer> answers;
-
+	
+	@ManyToMany(mappedBy = "likedQuestions")
 	@ElementCollection(targetClass = User.class)
 	private Set<User> likes;
 
@@ -105,6 +104,11 @@ public class Question implements Serializable {
 		this.answers = new HashSet<Answer>();
 		this.likes = new HashSet<User>();
 		this.followers =  new HashSet<User>();
+	}
+	
+	@Override
+	public String toString() {
+		return new Gson().toJson(this);
 	}
 
 	/*

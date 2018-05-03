@@ -35,15 +35,49 @@ public class PostsServiceImpl implements PostsService {
 	private EntityManager em;
 
 	private Logger log = LoggerFactory.getLogger(PostsServiceImpl.class);
+	
+	/**********************************************************************
+	 *                            QUESTIONS                               *
+	 **********************************************************************/
 
 	@Override
-	public void createQuestion(@NotNull Question question, long userId) throws NoSuchElementException {
-		User author = getUserById(userId);
+	public void createQuestion(@NotNull Question question, User user) throws NoSuchElementException {
+		User author = em.merge(user);
 		author.addQuestion(question);
 		question.setAuthor(author);
 		question.setCreated(new Date());
 		em.persist(question);
 	}
+	
+	@Override
+	public void likeQuestion(Question q, User u) throws NoSuchElementException {
+		User user = em.merge(u);
+		Question question = em.merge(q);
+		user.addLikedQuestions(question);
+		
+	}
+	
+	@Override
+	public void followQuestion(Question q) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void deleteQuestion(Question q) {
+		// TODO Auto-generated method stub
+
+	}
+	
+	@Override
+	public void editQuestion(Question q) {
+		// TODO Auto-generated method stub
+
+	}
+	
+	/**********************************************************************
+	 *                              ANSWERS                               *
+	 **********************************************************************/
 
 	@Override
 	public void createAnswer(Question question, Answer answer) {
@@ -59,37 +93,13 @@ public class PostsServiceImpl implements PostsService {
 	}
 
 	@Override
-	public void likeQuestion(Question q) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void likeAnswer(Answer a) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void followQuestion(Question q) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void deleteQuestion(Question q) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void deleteAnswer(Answer a) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void editQuestion(Question q) {
 		// TODO Auto-generated method stub
 
 	}
@@ -125,5 +135,6 @@ public class PostsServiceImpl implements PostsService {
 		
 		return matchedUsers.get().get(0);
 	}
+		
 
 }
