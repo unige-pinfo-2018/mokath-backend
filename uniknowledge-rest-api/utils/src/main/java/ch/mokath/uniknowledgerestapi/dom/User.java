@@ -7,7 +7,6 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -19,9 +18,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-
-
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 
 /**
  * @author tv0g
@@ -34,25 +33,32 @@ public class User implements Serializable {
 	private static final long serialVersionUID = -7683341736850458090L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Expose(serialize = false, deserialize= true)
 	private Long id;
 
 	@Column(name = "username")
+	@Expose(serialize = true, deserialize= true)
 	private String username;
 
 	@Column(name = "first_name")
+	@Expose(serialize = true, deserialize= true)
 	private String firstName;
 
 	@Column(name = "last_name")
+	@Expose(serialize = true, deserialize= true)
 	private String lastName;
 
 	@Column(name = "profile_picture_url")
+	@Expose(serialize = true, deserialize= true)
 	private String profilePictureURL;
 
 	@Column(name = "email")
+	@Expose(serialize = true, deserialize= true)
 	private String email;
 
-	@Column(name = "password", length = 128)
+
+	@Column(name = "password", length=128, nullable = false)
 	private String password;
 	
 	@OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
@@ -99,7 +105,16 @@ public class User implements Serializable {
 
 	@Override
 	public String toString() {
-		return new Gson().toJson(this);
+		
+		GsonBuilder builder = new GsonBuilder();  
+	    builder.excludeFieldsWithoutExposeAnnotation();
+		Gson gson = builder.create();  
+		
+		return gson.toJson(this);
+	}
+
+	public void setID(Long id) {
+		this.id = id;
 	}
 
 	public void setUsername(String username) {

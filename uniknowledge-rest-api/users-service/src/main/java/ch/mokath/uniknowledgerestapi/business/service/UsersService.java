@@ -24,12 +24,14 @@ public interface UsersService {
 
 	/**
 	 * Return a session token iff provided credentials are correct
-	 * @param a Provided Autentication Credentials
+	 * 
+	 * @param a
+	 *            Provided Autentication Credentials
 	 * @return JWToken iff login is successful
 	 * @throws NoSuchAlgorithmException
 	 * @throws InvalidKeySpecException
 	 */
-	Optional<String> login(AuthInfos a) throws NoSuchAlgorithmException, InvalidKeySpecException;
+	Optional<String> login(@NotNull AuthInfos a) throws NoSuchAlgorithmException, InvalidKeySpecException;
 
 	/**
 	 * Revoke provided JWToken. As an effect, the session associated with this token
@@ -39,7 +41,7 @@ public interface UsersService {
 	 *            Valid JSON Web Token
 	 * @return true iff JWT has been revoked
 	 */
-	void logout(Token JWToken);
+	void logout(@NotNull Token t);
 
 	/**
 	 * Stores a user in database
@@ -48,5 +50,21 @@ public interface UsersService {
 	 *            User to store
 	 */
 	void createUser(@NotNull final User u);
+
+	/**
+	 * Delete user from database
+	 * 
+	 * @param u
+	 *            User to delete
+	 */
+	void deleteUser(@NotNull final User u);
+
+	/**
+	 * Update user informations except password and id due to security reason
+	 * 
+	 * @param u
+	 *            New user informations
+	 */
+	User updateUser(@NotNull final User u);
 
 }

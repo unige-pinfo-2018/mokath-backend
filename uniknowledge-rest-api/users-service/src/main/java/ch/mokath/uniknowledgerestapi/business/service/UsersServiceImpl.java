@@ -74,8 +74,8 @@ public class UsersServiceImpl implements UsersService {
 	}
 
 	@Override
-	public void logout(Token JWToken) {
-		revokeToken(JWToken);
+	public void logout(Token t) {
+		revokeToken(t);
 	}
 
 	private <T> Optional<List<User>> getUsersFrom(String field, T value) {
@@ -114,14 +114,24 @@ public class UsersServiceImpl implements UsersService {
 
 		log.info("QUERY : " + finalQuery.toString());
 		// Execute SELECT request on previous defined query predicates
-
+		
 		List<Token> matchedTokens = finalQuery.getResultList();
 		return matchedTokens.isEmpty() ? Optional.empty() : Optional.of(matchedTokens);
 
 	}
 	
-	private void revokeToken(Token token) {
-		em.remove(em.contains(token) ? token : em.merge(token));
+	private void revokeToken(Token t) {
+		em.remove(em.contains(t) ? t : em.merge(t));
+	}
+
+	@Override
+	public User updateUser(@NotNull User u) {
+		return (User) em.merge(u);
+	}
+
+	@Override
+	public void deleteUser(@NotNull User u) {
+		em.remove(em.contains(u) ? u : em.merge(u));		
 	}
 
 }
