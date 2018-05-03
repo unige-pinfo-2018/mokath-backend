@@ -124,4 +124,9 @@ public class UsersServiceImpl implements UsersService {
 		em.remove(em.contains(token) ? token : em.merge(token));
 	}
 
+	@Override
+	public User updateUser(@NotNull User u) {
+		return (User) em.merge(u);
+	}
+
 }

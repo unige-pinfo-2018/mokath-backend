@@ -1,8 +1,6 @@
 package ch.mokath.uniknowledgerestapi.utils;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Priority;
@@ -16,10 +14,11 @@ import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
-import ch.mokath.uniknowledgerestapi.dom.Institution;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.mokath.uniknowledgerestapi.dom.Token;
 import ch.mokath.uniknowledgerestapi.dom.User;
 import io.jsonwebtoken.Claims;
@@ -34,6 +33,8 @@ public class AuthenticationMiddleware implements ContainerRequestFilter {
 
 	@PersistenceContext
 	private EntityManager em;
+
+	private Logger log = LoggerFactory.getLogger(AuthenticationMiddleware.class);
 
 	private static final String AUTHENTICATION_SCHEME = "Bearer";
 
@@ -50,33 +51,42 @@ public class AuthenticationMiddleware implements ContainerRequestFilter {
 		}
 
 		// Extract the token from the Authorization header
-		String token = authorizationHeader.substring(AUTHENTICATION_SCHEME.length()).trim();
+		String untrustedToken = authorizationHeader.substring(AUTHENTICATION_SCHEME.length()).trim();
 
-		int i = token.lastIndexOf('.');
-		String withoutSignature = token.substring(0, i+1);
-		
+		int i = untrustedToken.lastIndexOf('.');
+		String withoutSignature = untrustedToken.substring(0, i + 1);
+
 		try {
-			Jwt<Header,Claims> untrusted = Jwts.parser().parseClaimsJwt(withoutSignature);
-			long userID = Integer.parseInt(untrusted.getBody().getAudience());
+			Jwt<Header, Claims> untrustedClaims = Jwts.parser().parseClaimsJwt(withoutSignature);
+			long untrustedUserID = Long.parseLong(untrustedClaims.getBody().getAudience());
 
-			Optional<List<User>> matchedUsers = getUsersFrom("id", userID);
-			
-			if (matchedUsers.isPresent()) {
-				
-				User u = matchedUsers.get().get(0);
+			Optional<User> matchedUntrustedUser = getUserFromId(untrustedUserID);
 
-				Token resToken = em.createQuery("SELECT x FROM Token x WHERE x.user = ?1", Token.class)
+			if (matchedUntrustedUser.isPresent()) {
+
+				User u = matchedUntrustedUser.get();
+
+				Token trustedToken = em.createQuery("SELECT x FROM Token x WHERE x.user = ?1", Token.class)
 						.setParameter(1, u).getSingleResult();
 				try {
-					Claims tokenClaims = validateToken(token, resToken.getSigningKey());
-			        requestContext.setProperty("userID", tokenClaims.getAudience());
-			        requestContext.setProperty("token", resToken);
+					Claims tokenClaims = validateToken(untrustedToken, trustedToken.getSigningKey());
+
+					// Now that the token is validated and trusted, we can query the user and pass
+					// the informations in the context
+					Optional<User> matchedTrustedUser = getUserFromId(Long.parseLong(tokenClaims.getAudience()));
+
+					if (matchedTrustedUser.isPresent()) {
+						requestContext.setProperty("user", matchedTrustedUser.get());
+						requestContext.setProperty("token", trustedToken);
+					} else {
+						requestContext.abortWith(CustomErrorResponse.ERROR_OCCURED.getHTTPResponse());
+					}
 				} catch (Exception e) {
 					requestContext.abortWith(CustomErrorResponse.INVALID_TOKEN.getHTTPResponse());
 				}
 			}
 
-		} catch(Exception e) {
+		} catch (Exception e) {
 			requestContext.abortWith(CustomErrorResponse.INVALID_TOKEN.getHTTPResponse());
 		}
 	}
@@ -96,13 +106,13 @@ public class AuthenticationMiddleware implements ContainerRequestFilter {
 	private Claims validateToken(String token, String base64SigningKey) throws Exception {
 
 		// This line will throw an exception if it is not a signed JWS (as expected)
-		Claims claims = Jwts.parser().setSigningKey(CustomDecoder.fromBase64(base64SigningKey))
-				.parseClaimsJws(token).getBody();
-		
+		Claims claims = Jwts.parser().setSigningKey(CustomDecoder.fromBase64(base64SigningKey)).parseClaimsJws(token)
+				.getBody();
+
 		return claims;
 	}
-	
-	private <T> Optional<List<User>> getUsersFrom(String field, T value) {
+
+	private <T> Optional<User> getUserFromId(Long id) {
 
 		// Create the Critera Builder
 		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
@@ -112,13 +122,17 @@ public class AuthenticationMiddleware implements ContainerRequestFilter {
 		Root<User> from = criteriaQuery.from(User.class);
 
 		// Modify and create the query to match given field/value pairs entries
-		criteriaQuery.where(criteriaBuilder.equal(from.get(field), value));
+		criteriaQuery.where(criteriaBuilder.equal(from.get("id"), id));
 		TypedQuery<User> finalQuery = em.createQuery(criteriaQuery);
 
 		// Execute SELECT request on previous defined query predicates
-		List<User> matchedUsers = finalQuery.getResultList();
-		// If users list is not empty, return list of users wrapped in Optional object
-		// else, return an empty Optional object
-		return matchedUsers.isEmpty() ? Optional.empty() : Optional.of(matchedUsers);
+		try {
+			User matchedUser = finalQuery.getSingleResult();
+			return Optional.of(matchedUser);
+		} catch (Exception e) {
+			log.info("Exception thrown while querying user with id : " + id + " : " + e.getMessage());
+			return Optional.empty();
+		}
+
 	}
 }

@@ -24,7 +24,9 @@ public interface UsersService {
 
 	/**
 	 * Return a session token iff provided credentials are correct
-	 * @param a Provided Autentication Credentials
+	 * 
+	 * @param a
+	 *            Provided Autentication Credentials
 	 * @return JWToken iff login is successful
 	 * @throws NoSuchAlgorithmException
 	 * @throws InvalidKeySpecException
@@ -48,5 +50,13 @@ public interface UsersService {
 	 *            User to store
 	 */
 	void createUser(@NotNull final User u);
+
+	/**
+	 * Update user informations except password and id due to security reason
+	 * 
+	 * @param u
+	 *            New user informations
+	 */
+	User updateUser(@NotNull final User u);
 
 }

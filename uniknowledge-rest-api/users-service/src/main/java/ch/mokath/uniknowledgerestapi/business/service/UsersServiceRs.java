@@ -14,16 +14,17 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
@@ -45,11 +46,15 @@ public class UsersServiceRs {
 
 	private Logger log = LoggerFactory.getLogger(UsersServiceImpl.class);
 
+	// ================================================================================
+	// Public Endpoints
+	// ================================================================================
+
 	@POST
-	@Path("/register")
+	@Path("/users")
 	@Produces("application/json")
 	@Consumes("application/json")
-	public Response register(@NotNull final String requestBody) {
+	public Response registerUser(@NotNull final String requestBody) {
 
 		User u = new Gson().fromJson(requestBody, User.class);
 		AuthInfos a = new AuthInfos(u.getEmail(), u.getPassword());
@@ -106,6 +111,10 @@ public class UsersServiceRs {
 		}
 	}
 
+	// ================================================================================
+	// Secured Endpoints
+	// ================================================================================
+
 	@GET
 	@Secured
 	@Path("/logout")
@@ -115,5 +124,59 @@ public class UsersServiceRs {
 		Token token = (Token) req.getAttribute("token");
 		usersService.logout(token);
 		return CustomErrorResponse.LOGOUT_SUCCESS.getHTTPResponse();
+	}
+
+	/**
+	 * Update user according to provided information in request body. MAKE SURE to
+	 * check if the targeted user is the user querying the update by checking the
+	 * match between user ID from request (if provided) and trusted user ID from
+	 * token (Verified by AuthenticationMiddleware) IF not checked, this can lead to
+	 * IDOR vulnerability
+	 * (https://www.owasp.org/index.php/Top_10_2013-A4-Insecure_Direct_Object_References)
+	 * 
+	 * @param req
+	 *            Request Context inherited from AuthenticationMiddleware
+	 * @param requestBody
+	 *            Request JSON Body
+	 * @return HTTP Responses : 401 if unauthorized update, 500 if internal error,
+	 *         200 if update was successful
+	 */
+	@PUT
+	@Secured
+	@Path("/users")
+	@Produces("application/json")
+	@Consumes("application/json")
+	public Response updateUser(@Context HttpServletRequest req, @NotNull final String requestBody) {
+
+		// Retrieve user from signed Token
+		User trustedUser = (User) req.getAttribute("user");
+
+		GsonBuilder builder = new GsonBuilder();  
+		builder.excludeFieldsWithoutExposeAnnotation();  
+		Gson gson = builder.create();  
+		
+		// Retrieve User informations from request body
+		User requestUpdatedUser = gson.fromJson(requestBody, User.class);
+
+		if (requestUpdatedUser.getId() != null) {
+			Long untrustedID = requestUpdatedUser.getId();
+			// If the issuer of the request is not the targeted user
+			if (trustedUser.getId() != untrustedID) {
+				return CustomErrorResponse.PERMISSION_DENIED.getHTTPResponse();
+			}
+		}
+		
+		// Make sure ID and password remain unchanged
+		requestUpdatedUser.setID(trustedUser.getId());
+		requestUpdatedUser.setPassword(trustedUser.getPassword());
+
+		// If all checks pass, we update the user
+		try {
+			User updatedUser = usersService.updateUser(requestUpdatedUser);
+			return Response.ok(updatedUser.toString()).build();
+		} catch (Exception e) {
+			log.info("Exception thrown while updating user with id : " + requestUpdatedUser.getId() + " : " + e.getMessage());
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
 	}
 }
