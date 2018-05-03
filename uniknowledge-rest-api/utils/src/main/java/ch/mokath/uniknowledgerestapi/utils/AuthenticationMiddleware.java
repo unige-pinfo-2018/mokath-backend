@@ -1,6 +1,10 @@
 package ch.mokath.uniknowledgerestapi.utils;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Priority;
@@ -9,6 +13,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -35,6 +40,7 @@ public class AuthenticationMiddleware implements ContainerRequestFilter {
 	private EntityManager em;
 
 	private Logger log = LoggerFactory.getLogger(AuthenticationMiddleware.class);
+	private CRUDOperator crudOperator = new CRUDOperator();
 
 	private static final String AUTHENTICATION_SCHEME = "Bearer";
 
@@ -60,7 +66,9 @@ public class AuthenticationMiddleware implements ContainerRequestFilter {
 			Jwt<Header, Claims> untrustedClaims = Jwts.parser().parseClaimsJwt(withoutSignature);
 			long untrustedUserID = Long.parseLong(untrustedClaims.getBody().getAudience());
 
-			Optional<User> matchedUntrustedUser = getUserFromId(untrustedUserID);
+			Map<String, Object> untrustedSelectors = new HashMap<String, Object>();
+			untrustedSelectors.put("id", untrustedUserID);
+			Optional<User> matchedUntrustedUser = crudOperator.getEntityFromFields(untrustedSelectors, User.class, em);
 
 			if (matchedUntrustedUser.isPresent()) {
 
@@ -73,17 +81,25 @@ public class AuthenticationMiddleware implements ContainerRequestFilter {
 
 					// Now that the token is validated and trusted, we can query the user and pass
 					// the informations in the context
-					Optional<User> matchedTrustedUser = getUserFromId(Long.parseLong(tokenClaims.getAudience()));
+
+					Map<String, Object> trustedSelectors = new HashMap<String, Object>();
+					trustedSelectors.put("id", Long.parseLong(tokenClaims.getAudience()));
+
+					Optional<User> matchedTrustedUser = crudOperator.getEntityFromFields(trustedSelectors, User.class, em);
 
 					if (matchedTrustedUser.isPresent()) {
+						log.info(matchedTrustedUser.get().toString());
 						requestContext.setProperty("user", matchedTrustedUser.get());
 						requestContext.setProperty("token", trustedToken);
 					} else {
 						requestContext.abortWith(CustomErrorResponse.ERROR_OCCURED.getHTTPResponse());
 					}
 				} catch (Exception e) {
+					log.error(e.getMessage());
 					requestContext.abortWith(CustomErrorResponse.INVALID_TOKEN.getHTTPResponse());
 				}
+			} else {
+				requestContext.abortWith(CustomErrorResponse.INVALID_TOKEN.getHTTPResponse());
 			}
 
 		} catch (Exception e) {
@@ -110,29 +126,5 @@ public class AuthenticationMiddleware implements ContainerRequestFilter {
 				.getBody();
 
 		return claims;
-	}
-
-	private <T> Optional<User> getUserFromId(Long id) {
-
-		// Create the Critera Builder
-		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-
-		// Link Query to User Class
-		CriteriaQuery<User> criteriaQuery = criteriaBuilder.createQuery(User.class);
-		Root<User> from = criteriaQuery.from(User.class);
-
-		// Modify and create the query to match given field/value pairs entries
-		criteriaQuery.where(criteriaBuilder.equal(from.get("id"), id));
-		TypedQuery<User> finalQuery = em.createQuery(criteriaQuery);
-
-		// Execute SELECT request on previous defined query predicates
-		try {
-			User matchedUser = finalQuery.getSingleResult();
-			return Optional.of(matchedUser);
-		} catch (Exception e) {
-			log.info("Exception thrown while querying user with id : " + id + " : " + e.getMessage());
-			return Optional.empty();
-		}
-
 	}
 }
