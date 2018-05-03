@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -16,9 +15,9 @@ import javax.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CRUDOperator {
+public class DBHelper {
 
-	private Logger log = LoggerFactory.getLogger(CRUDOperator.class);
+	private Logger log = LoggerFactory.getLogger(DBHelper.class);
 
 	/**
 	 * Execute a SELECT request in entityClass associated table with defined

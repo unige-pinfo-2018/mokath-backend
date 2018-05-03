@@ -1,20 +1,13 @@
 package ch.mokath.uniknowledgerestapi.utils;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Priority;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -40,7 +33,7 @@ public class AuthenticationMiddleware implements ContainerRequestFilter {
 	private EntityManager em;
 
 	private Logger log = LoggerFactory.getLogger(AuthenticationMiddleware.class);
-	private CRUDOperator crudOperator = new CRUDOperator();
+	private DBHelper DBHelper = new DBHelper();
 
 	private static final String AUTHENTICATION_SCHEME = "Bearer";
 
@@ -68,7 +61,7 @@ public class AuthenticationMiddleware implements ContainerRequestFilter {
 
 			Map<String, Object> untrustedSelectors = new HashMap<String, Object>();
 			untrustedSelectors.put("id", untrustedUserID);
-			Optional<User> matchedUntrustedUser = crudOperator.getEntityFromFields(untrustedSelectors, User.class, em);
+			Optional<User> matchedUntrustedUser = DBHelper.getEntityFromFields(untrustedSelectors, User.class, em);
 
 			if (matchedUntrustedUser.isPresent()) {
 
@@ -79,13 +72,11 @@ public class AuthenticationMiddleware implements ContainerRequestFilter {
 				try {
 					Claims tokenClaims = validateToken(untrustedToken, trustedToken.getSigningKey());
 
-					// Now that the token is validated and trusted, we can query the user and pass
-					// the informations in the context
-
+					// Now that the token is validated and trusted, we can query the user and pass the informations in the context
 					Map<String, Object> trustedSelectors = new HashMap<String, Object>();
 					trustedSelectors.put("id", Long.parseLong(tokenClaims.getAudience()));
 
-					Optional<User> matchedTrustedUser = crudOperator.getEntityFromFields(trustedSelectors, User.class, em);
+					Optional<User> matchedTrustedUser = DBHelper.getEntityFromFields(trustedSelectors, User.class, em);
 
 					if (matchedTrustedUser.isPresent()) {
 						log.info(matchedTrustedUser.get().toString());
