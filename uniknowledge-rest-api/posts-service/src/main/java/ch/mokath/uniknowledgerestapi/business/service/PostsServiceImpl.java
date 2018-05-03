@@ -3,6 +3,7 @@
  */
 package ch.mokath.uniknowledgerestapi.business.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -39,6 +40,8 @@ public class PostsServiceImpl implements PostsService {
 	public void createQuestion(@NotNull Question question, long userId) throws NoSuchElementException {
 		User author = getUserById(userId);
 		author.addQuestion(question);
+		question.setAuthor(author);
+		question.setCreated(new Date());
 		em.persist(question);
 	}
 

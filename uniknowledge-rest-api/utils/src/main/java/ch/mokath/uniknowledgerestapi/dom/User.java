@@ -16,6 +16,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 
 import com.google.gson.Gson;
@@ -50,9 +51,9 @@ public class User implements Serializable {
 
 	@Column(name = "password", length = 128)
 	private String password;
-
+	
+	@OneToMany(mappedBy = "author")
 	@ElementCollection(targetClass = Question.class)
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "author", orphanRemoval = true)
 	private Set<Question> questions;
 
 	@ElementCollection(targetClass = Answer.class)

@@ -15,12 +15,14 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -44,10 +46,11 @@ public class Question implements Serializable {
 	private long id;
 
     @Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "timestamp")
-	private Date timestamp;
+	@Column(name = "created")
+	private Date created;
 
-    @JoinColumn(name = "author", nullable = false)
+    @ManyToOne()
+    @JoinColumn(name = "author_id")
 	private User author;
 
 	@ElementCollection(targetClass = String.class)
@@ -93,9 +96,7 @@ public class Question implements Serializable {
 	 * @param text
 	 *            Text of the Question
 	 */
-	public Question(User author, Set<String> domains, String title, String text) {
-		this.timestamp = new Date();
-		this.author = author;
+	public Question(Set<String> domains, String title, String text) {
 		this.domains = domains;
 		this.title = title;
 		this.text = text;
@@ -139,8 +140,12 @@ public class Question implements Serializable {
 		this.likes.add(like);
 	}
 
-	public Date getTimestamp() {
-		return timestamp;
+	public Date getCreated() {
+		return created;
+	}
+	
+	public void setCreated(Date date) {
+		this.created = date;
 	}
 
 	public User getAuthorId() {
@@ -177,7 +182,6 @@ public class Question implements Serializable {
 
 
 	public static class Builder{
-		public User author;
 		public Set<String> domains;
 		public String title;
 		public String text;
@@ -188,7 +192,7 @@ public class Question implements Serializable {
 		}
 
 		public Question build() {
-			return new Question(author, domains, title, text);
+			return new Question( domains, title, text);
 		}
 	}
 
