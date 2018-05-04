@@ -6,6 +6,8 @@
 .*
 !/.gitignore
 !/docker-config/wildfly
+!mysql-connector-java-5.1.32.jar
+
 
 # Maven
 /uniknowledge-rest-api/target/*
@@ -84,7 +86,7 @@ RemoteSystemsTempFiles/
 # CDT-specific (C/C++ Development Tooling)
 .cproject
 
-# CDT- autotools 
+# CDT- autotools
 .autotools
 
 # Java annotation processor (APT)
