@@ -64,19 +64,19 @@ public class UsersServiceRs {
 			String passToStore = a.createHash(a.getPassword());
 			u.setPassword(passToStore);
 		} catch (NoSuchAlgorithmException e) {
-
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
-
 		} catch (InvalidKeySpecException e) {
-
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 
 		try {
 			usersService.createUser(u);
 		} catch (JsonSyntaxException e) {
-
+			log.error("Invalid JSON Format for object : " + u.toString()+ " : "+e.getMessage());
 			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
+		} catch (Exception e) {
+			log.error("Error thrown while creating a new user : "+e.getMessage());
+			return CustomErrorResponse.IDENTIFIER_ALREADY_USED.getHTTPResponse();
 		}
 
 		return Response.ok(u.toString()).build();
@@ -184,10 +184,10 @@ public class UsersServiceRs {
 			return Response.ok(updatedUser.toString()).build();
 		} catch (Exception e) {
 			log.info("Exception thrown while updating user with id : " + requestUpdatedUser.getId() + " : " + e.getMessage());
-			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+			return CustomErrorResponse.IDENTIFIER_ALREADY_USED.getHTTPResponse();
 		}
 	}
-	
+
 	@DELETE
 	@Secured
 	@Path("/users")

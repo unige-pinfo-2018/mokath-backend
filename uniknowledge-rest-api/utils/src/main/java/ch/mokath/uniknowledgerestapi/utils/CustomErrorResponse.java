@@ -23,7 +23,8 @@ public enum CustomErrorResponse {
 	INVALID_TOKEN(false, Response.Status.BAD_REQUEST,"Invalid Token !"),
 	RESSOURCE_NOT_FOUND(false, Response.Status.NOT_FOUND, "Ressource not found !"),
 	INVALID_ACTION(false, Response.Status.BAD_REQUEST, "Invalid action !"),
-  PERMISSION_DENIED(false, Response.Status.UNAUTHORIZED, "Permission Denied !"),
+	PERMISSION_DENIED(false, Response.Status.UNAUTHORIZED, "Permission Denied !"),
+	IDENTIFIER_ALREADY_USED(false, Response.Status.BAD_REQUEST, "Email or Username already in use !"),
 	
 	// SUCCESS
 	LOGOUT_SUCCESS(true,Response.Status.OK, "Logout Successful !"),

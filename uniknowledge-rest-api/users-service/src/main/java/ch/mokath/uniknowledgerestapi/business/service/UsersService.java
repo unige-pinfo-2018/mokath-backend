@@ -6,9 +6,9 @@ package ch.mokath.uniknowledgerestapi.business.service;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.ejb.Local;
+import javax.persistence.EntityExistsException;
 import javax.validation.constraints.NotNull;
 
 import ch.mokath.uniknowledgerestapi.dom.AuthInfos;
@@ -49,7 +49,7 @@ public interface UsersService {
 	 * @param user
 	 *            User to store
 	 */
-	void createUser(@NotNull final User u);
+	void createUser(@NotNull final User u) throws EntityExistsException;
 
 	/**
 	 * Delete user from database
