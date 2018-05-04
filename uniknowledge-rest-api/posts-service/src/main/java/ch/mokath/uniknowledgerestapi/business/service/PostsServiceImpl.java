@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import ch.mokath.uniknowledgerestapi.dom.Answer;
 import ch.mokath.uniknowledgerestapi.dom.Question;
 import ch.mokath.uniknowledgerestapi.dom.User;
+import ch.mokath.uniknowledgerestapi.utils.DBHelper;
 
 /**
  * @author matteo113
@@ -33,9 +34,9 @@ public class PostsServiceImpl implements PostsService {
 
 	@PersistenceContext
 	private EntityManager em;
-
 	private Logger log = LoggerFactory.getLogger(PostsServiceImpl.class);
-	
+	private DBHelper DBHelper = new DBHelper();
+
 	/**********************************************************************
 	 *                            QUESTIONS                               *
 	 **********************************************************************/
