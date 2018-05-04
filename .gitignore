@@ -6,7 +6,8 @@
 .*
 !/.gitignore
 !/docker-config/wildfly
-!mysql-connector-java-5.1.45-bin.jar
+!mysql-connector-java-5.1.32.jar
+
 
 # Maven
 /uniknowledge-rest-api/target/*
