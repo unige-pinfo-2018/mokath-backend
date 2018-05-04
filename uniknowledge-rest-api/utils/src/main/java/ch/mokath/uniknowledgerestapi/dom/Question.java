@@ -26,6 +26,7 @@ import javax.persistence.TemporalType;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 
 /**
@@ -106,7 +107,7 @@ public class Question implements Serializable {
 	 * @param text
 	 *            Text of the Question
 	 */
-	public Question(Set<String> domains, String title, String text) {
+	public Question(HashSet<String> domains, String title, String text) {
 		this.domains = domains;
 		this.title = title;
 		this.text = text;
@@ -120,11 +121,18 @@ public class Question implements Serializable {
 	@Override
 	public String toString() {
 		
-		GsonBuilder builder = new GsonBuilder();  
-	    builder.excludeFieldsWithoutExposeAnnotation();
-		Gson gson = builder.create();  
+		JsonObject questionJSON = new JsonObject();
+		questionJSON.addProperty("id", this.id);
+		questionJSON.addProperty("date", this.created.toString());
+		questionJSON.addProperty("author", this.author.getId());
+		questionJSON.addProperty("domains", this.domains.toArray().toString());
+		questionJSON.addProperty("title", this.title);
+		questionJSON.addProperty("text", this.text);
+		questionJSON.addProperty("answers", this.answers.toArray().toString());
+		questionJSON.addProperty("upvote", this.upvote.toArray().toString());
+		questionJSON.addProperty("followers", this.followers.toArray().toString());
 		
-		return gson.toJson(this);
+		return questionJSON.toString();
 	}
 
 
@@ -255,7 +263,7 @@ public class Question implements Serializable {
 
 
 	public static class Builder{
-		public Set<String> domains;
+		public HashSet<String> domains;
 		public String title;
 		public String text;
 

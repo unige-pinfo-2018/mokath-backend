@@ -29,6 +29,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
@@ -50,6 +53,7 @@ public class PostsServiceRs {
 	@Inject
 	private PostsService postsService;
 	private DBHelper DBHelper = new DBHelper();
+	private Logger log = LoggerFactory.getLogger(PostsServiceRs.class);
 
 	@POST
 	@Secured
@@ -168,6 +172,7 @@ public class PostsServiceRs {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
 		} catch (Exception e) {
+			log.info("Exception thrown while querying question with id : "+id+" : "+e.getMessage());
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 		return Response.ok(unwrappedQuestion.toString()).build();
