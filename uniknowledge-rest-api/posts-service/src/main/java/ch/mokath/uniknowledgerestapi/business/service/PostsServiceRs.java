@@ -18,6 +18,8 @@ import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -115,5 +117,59 @@ public class PostsServiceRs {
 
 		// TODO add toString
 		return Response.ok().build();
+	}
+	
+	
+	@DELETE
+	@Secured
+	@Path("/questions/{id}")
+	@Produces("application/json")
+	public Response deleteQuestion(@Context HttpServletRequest req, @PathParam("id") String id) {
+		User trustedUser = (User) req.getAttribute("user");
+		
+		try {
+			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+			wherePredicatesMap.put("id", id);
+			Optional<Question> wrappedQuestion = DBHelper.getEntityFromFields(wherePredicatesMap, Question.class, em);
+			
+			if (wrappedQuestion.isPresent()) {
+				Question unwrappedQuestion = wrappedQuestion.get();
+				
+				if (unwrappedQuestion.getAuthor().equals(trustedUser)) {
+					postsService.deleteQuestion(unwrappedQuestion, trustedUser);
+				} else {
+					return CustomErrorResponse.PERMISSION_DENIED.getHTTPResponse();
+				}
+			} else {
+				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
+			}
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+		
+		// TODO add toString
+		return Response.ok().build();
+	}
+	
+	
+	@GET
+	@Path("/questions/{id}")
+	@Produces("application/json")
+	public Response getQuestion(@PathParam("id") String id) {
+		Question unwrappedQuestion;
+		try {
+			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+			wherePredicatesMap.put("id", id);
+			Optional<Question> wrappedQuestion = DBHelper.getEntityFromFields(wherePredicatesMap, Question.class, em);
+			
+			if (wrappedQuestion.isPresent()) {
+				unwrappedQuestion = wrappedQuestion.get();
+			} else {
+				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
+			}
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+		return Response.ok(unwrappedQuestion.toString()).build();
 	}
 }

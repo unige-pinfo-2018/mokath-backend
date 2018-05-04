@@ -31,7 +31,7 @@ public interface PostsService {
 
 	void followQuestion(Question q, User u);
 
-	void deleteQuestion(Question q);
+	void deleteQuestion(Question q, User u);
 
 	void deleteAnswer(Answer a);
 
