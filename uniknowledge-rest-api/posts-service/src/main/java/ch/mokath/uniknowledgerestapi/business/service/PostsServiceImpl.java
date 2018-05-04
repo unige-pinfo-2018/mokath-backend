@@ -67,9 +67,12 @@ public class PostsServiceImpl implements PostsService {
 	}
 
 	@Override
-	public void deleteQuestion(Question q) {
-		// TODO Auto-generated method stub
-
+	public void deleteQuestion(Question q, User u) {
+		User user = em.merge(u);
+		Question question = em.merge(q);
+		
+		user.removeQuestion(question);
+		em.remove(question);
 	}
 	
 	@Override
