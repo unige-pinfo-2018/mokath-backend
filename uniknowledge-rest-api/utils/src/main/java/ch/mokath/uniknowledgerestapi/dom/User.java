@@ -69,7 +69,7 @@ public class User implements Serializable {
 	private Set<Answer> answers;
 	
 	@ManyToMany(cascade = CascadeType.ALL)
-	@JoinTable(name = "user_like_question",
+	@JoinTable(name = "user_upvote_question",
 	joinColumns = @JoinColumn(name = "user_id"),
 	inverseJoinColumns = @JoinColumn(name = "question_id"))
 	@ElementCollection(targetClass = Question.class)
@@ -185,7 +185,7 @@ public class User implements Serializable {
 		this.answers.add(a);
 	}
 	
-	public void addLikedQuestions(Question q) {
+	public void addLikedQuestion(Question q) {
 		this.likedQuestions.add(q);
 	}
 	
@@ -198,14 +198,14 @@ public class User implements Serializable {
 	}
 	
 	public void addFollowedQuestion(Question q) {
-		this.likedQuestions.add(q);
+		this.followedQuestions.add(q);
 	}
 	
 	public void removeFollowedQuestion(Question q) {
-		this.likedQuestions.remove(q);
+		this.followedQuestions.remove(q);
 	}
 	
-	public Set<Question> getFollowedQuestion() {
+	public Set<Question> getFollowedQuestions() {
 		return this.followedQuestions;
 	}
 	

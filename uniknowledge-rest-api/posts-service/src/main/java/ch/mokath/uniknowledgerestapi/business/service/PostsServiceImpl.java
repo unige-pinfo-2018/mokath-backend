@@ -55,7 +55,7 @@ public class PostsServiceImpl implements PostsService {
 		User user = em.merge(u);
 		Question question = em.merge(q);
 		
-		user.addLikedQuestions(question);	
+		user.addLikedQuestion(question);	
 	}
 	
 	@Override
