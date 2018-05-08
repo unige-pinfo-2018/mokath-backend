@@ -84,7 +84,7 @@ public class PostsServiceRs {
 	@Path("/questions/{id}")
 	@Produces("application/json")
 	@Consumes("application/json")
-	public Response onQuestion(@Context HttpServletRequest req, @PathParam("id") String id, @Context UriInfo info,
+	public Response modifyQuestion(@Context HttpServletRequest req, @PathParam("id") String id, @Context UriInfo info,
 			final String requestBody) {
 
 		String action = info.getQueryParameters().getFirst("action");
@@ -214,7 +214,50 @@ public class PostsServiceRs {
 		} catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
+		return Response.ok().build();
+	}
 
+	@PUT
+	@Secured
+	@Path("/questions/{qid}/answers/{aid}")
+	@Consumes("application/json")
+	public Response modifyAnswer(@PathParam("qid") String questionId, @PathParam("aid") String answerId,
+			@Context UriInfo info, @Context HttpServletRequest req, final String requestBody) {
+		
+		String action = info.getQueryParameters().getFirst("action");
+		User trustedUser = (User) req.getAttribute("user");
+		Answer unwrappedAnswer;
+		
+		try {
+			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+			wherePredicatesMap.put("id", answerId);
+			Optional<Answer> wrappedAnswer = DBHelper.getEntityFromFields(wherePredicatesMap, Answer.class, em);
+			
+			if (wrappedAnswer.isPresent()) {
+				unwrappedAnswer = wrappedAnswer.get();
+			} else {
+				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
+			}
+			
+			if (action == null) {
+				
+			} else {
+				switch (action) {
+				case "validate":
+					postsService.validateAnswer(unwrappedAnswer);
+					break;
+
+				default:
+					return CustomErrorResponse.INVALID_ACTION.getHTTPResponse();
+				}
+			}
+			
+		} catch (JsonSyntaxException e) {
+			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+		
 		return Response.ok().build();
 	}
 }
