@@ -21,7 +21,7 @@ public interface PostsService {
 
 	void createQuestion(@NotNull Question q, User u);
 
-	void createAnswer(Question q, Answer a);
+	void createAnswer(Question q, Answer a, User u);
 
 	void validateAnswer(Answer a);
 
@@ -35,7 +35,7 @@ public interface PostsService {
 
 	void deleteAnswer(Answer a);
 
-	void editQuestion(Question q);
+	void editQuestion(Question oq, Question uq, User u);
 
 	void editAnswer(Answer a);
 

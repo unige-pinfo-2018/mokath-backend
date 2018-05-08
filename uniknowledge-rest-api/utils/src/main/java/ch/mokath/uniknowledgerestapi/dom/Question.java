@@ -56,7 +56,7 @@ public class Question implements Serializable {
     @Expose(serialize = true, deserialize= true)
 	private User author;
 
-	@ElementCollection(targetClass = String.class)
+	@ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
 	@Expose(serialize = true, deserialize= true)
 	private Set<String> domains;
 
@@ -69,16 +69,16 @@ public class Question implements Serializable {
 	private String text;
 
 	@ElementCollection(targetClass = Answer.class)
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "question", orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "question", orphanRemoval = true, fetch = FetchType.EAGER)
 	@Expose(serialize = true, deserialize= true)
 	private Set<Answer> answers;
 	
-	@ManyToMany(mappedBy = "likedQuestions")
+	@ManyToMany(mappedBy = "likedQuestions", fetch = FetchType.EAGER)
 	@ElementCollection(targetClass = User.class)
 	@Expose(serialize = true, deserialize= true)
-	private Set<User> upvote;
+	private Set<User> upvotes;
 	
-	@ManyToMany(mappedBy = "followedQuestions")
+	@ManyToMany(mappedBy = "followedQuestions", fetch = FetchType.EAGER)
 	@ElementCollection(targetClass = User.class)
 	@Expose(serialize = true, deserialize= true)
 	private Set<User> followers;
@@ -114,25 +114,17 @@ public class Question implements Serializable {
 
 		//TODO choose between HashSet or SortedSet
 		this.answers = new HashSet<Answer>();
-		this.upvote = new HashSet<User>();
+		this.upvotes = new HashSet<User>();
 		this.followers =  new HashSet<User>();
 	}
 	
 	@Override
 	public String toString() {
+		GsonBuilder builder = new GsonBuilder();  
+	    builder.excludeFieldsWithoutExposeAnnotation();
+		Gson gson = builder.create();  
 		
-		JsonObject questionJSON = new JsonObject();
-		questionJSON.addProperty("id", this.id);
-		questionJSON.addProperty("date", this.created.toString());
-		questionJSON.addProperty("author", this.author.getId());
-		questionJSON.addProperty("domains", this.domains.toArray().toString());
-		questionJSON.addProperty("title", this.title);
-		questionJSON.addProperty("text", this.text);
-		questionJSON.addProperty("answers", this.answers.toArray().toString());
-		questionJSON.addProperty("upvote", this.upvote.toArray().toString());
-		questionJSON.addProperty("followers", this.followers.toArray().toString());
-		
-		return questionJSON.toString();
+		return gson.toJson(this);
 	}
 
 
@@ -214,11 +206,11 @@ public class Question implements Serializable {
 	}
 
 	public Set<User> getLikes() {
-		return upvote;
+		return upvotes;
 	}
 
 	public void addLike(User like) {
-		this.upvote.add(like);
+		this.upvotes.add(like);
 	}
 
 	public Date getCreated() {

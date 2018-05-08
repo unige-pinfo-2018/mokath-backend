@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
+import ch.mokath.uniknowledgerestapi.dom.Answer;
 import ch.mokath.uniknowledgerestapi.dom.Question;
 import ch.mokath.uniknowledgerestapi.dom.User;
 import ch.mokath.uniknowledgerestapi.utils.CustomErrorResponse;
@@ -82,7 +83,9 @@ public class PostsServiceRs {
 	@Secured
 	@Path("/questions/{id}")
 	@Produces("application/json")
-	public Response onQuestion(@Context HttpServletRequest req, @PathParam("id") String id, @Context UriInfo info) {
+	@Consumes("application/json")
+	public Response onQuestion(@Context HttpServletRequest req, @PathParam("id") String id, @Context UriInfo info,
+			final String requestBody) {
 
 		String action = info.getQueryParameters().getFirst("action");
 		User trustedUser = (User) req.getAttribute("user");
@@ -97,6 +100,12 @@ public class PostsServiceRs {
 
 				if (action == null) {
 					// TODO add update user
+					try {
+						Question updatedQuestion = new Gson().fromJson(requestBody, Question.class);
+						postsService.editQuestion(unwrappedQuestion, updatedQuestion, trustedUser);
+					} catch (JsonSyntaxException e) {
+						return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
+					}
 				} else {
 					switch (action) {
 					case "upvote":
@@ -122,23 +131,22 @@ public class PostsServiceRs {
 		// TODO add toString
 		return Response.ok().build();
 	}
-	
-	
+
 	@DELETE
 	@Secured
 	@Path("/questions/{id}")
 	@Produces("application/json")
 	public Response deleteQuestion(@Context HttpServletRequest req, @PathParam("id") String id) {
 		User trustedUser = (User) req.getAttribute("user");
-		
+
 		try {
 			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
 			wherePredicatesMap.put("id", id);
 			Optional<Question> wrappedQuestion = DBHelper.getEntityFromFields(wherePredicatesMap, Question.class, em);
-			
+
 			if (wrappedQuestion.isPresent()) {
 				Question unwrappedQuestion = wrappedQuestion.get();
-				
+
 				if (unwrappedQuestion.getAuthor().equals(trustedUser)) {
 					postsService.deleteQuestion(unwrappedQuestion, trustedUser);
 				} else {
@@ -150,12 +158,11 @@ public class PostsServiceRs {
 		} catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
-		
+
 		// TODO add toString
 		return Response.ok().build();
 	}
-	
-	
+
 	@GET
 	@Path("/questions/{id}")
 	@Produces("application/json")
@@ -165,16 +172,49 @@ public class PostsServiceRs {
 			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
 			wherePredicatesMap.put("id", id);
 			Optional<Question> wrappedQuestion = DBHelper.getEntityFromFields(wherePredicatesMap, Question.class, em);
-			
+
 			if (wrappedQuestion.isPresent()) {
 				unwrappedQuestion = wrappedQuestion.get();
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
 		} catch (Exception e) {
-			log.info("Exception thrown while querying question with id : "+id+" : "+e.getMessage());
+			log.info("Exception thrown while querying question with id : " + id + " : " + e.getMessage());
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 		return Response.ok(unwrappedQuestion.toString()).build();
+	}
+
+	@POST
+	@Secured
+	@Path("/questions/{qid}/answers")
+	@Consumes("application/json")
+	public Response newAnswer(@PathParam("qid") String id, @Context HttpServletRequest req,
+			@NotNull final String requestBody) {
+		Question unwrappedQuestion;
+		User trustedUser = (User) req.getAttribute("user");
+		Answer answer;
+
+		try {
+			answer = new Gson().fromJson(requestBody, Answer.class);
+
+			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+			wherePredicatesMap.put("id", id);
+			Optional<Question> wrappedQuestion = DBHelper.getEntityFromFields(wherePredicatesMap, Question.class, em);
+
+			if (wrappedQuestion.isPresent()) {
+				unwrappedQuestion = wrappedQuestion.get();
+			} else {
+				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
+			}
+
+			postsService.createAnswer(unwrappedQuestion, answer, trustedUser);
+		} catch (JsonSyntaxException e) {
+			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+
+		return Response.ok().build();
 	}
 }

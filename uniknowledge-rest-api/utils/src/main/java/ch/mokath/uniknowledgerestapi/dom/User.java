@@ -32,7 +32,7 @@ public class User implements Serializable {
 
 	private static final long serialVersionUID = -7683341736850458090L;
 
-	@Id
+	@Id 
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Expose(serialize = false, deserialize= true)
 	private Long id;
@@ -82,8 +82,13 @@ public class User implements Serializable {
 	@ElementCollection(targetClass = Question.class)
 	private Set<Question> followedQuestions;
 	
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "user_upvote_answer",
+	joinColumns = @JoinColumn(name = "user_id"),
+	inverseJoinColumns = @JoinColumn(name = "answer_id"))
 	@ElementCollection(targetClass = Answer.class)
 	private Set<Answer> likedAnswers;
+	
 
 	public User() {
 	}

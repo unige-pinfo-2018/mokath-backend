@@ -14,9 +14,12 @@ import java.util.function.Consumer;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -28,28 +31,30 @@ import org.hibernate.annotations.GenericGenerator;
 @Entity
 public class Answer implements Serializable {
 
-
 	private static final long serialVersionUID = 6765067732764896403L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	@ManyToOne
+	@ManyToOne()
+	@JoinColumn(name = "question_id")
 	private Question question;
 
 	@Column(name = "timestamp")
-	private Timestamp timestamp;
+	private Date created;
 
-	@Column(name = "author")
+	@ManyToOne
+	@JoinColumn(name = "author_id")
 	private User author;
 
 	@Column(name = "text")
 	private String text;
 
+	@ManyToMany(mappedBy = "likedAnswers", fetch = FetchType.EAGER)
 	@ElementCollection(targetClass = User.class)
-	private Set<User> likes;
-	
+	private Set<User> upvotes;
+
 	@Column(name = "validated")
 	private boolean validated;
 
@@ -57,12 +62,10 @@ public class Answer implements Serializable {
 
 	}
 
-	public Answer(User author, String text, Question question) {
-		this.timestamp = new Timestamp(new Date().getTime());
-		this.author = author;
+	public Answer(String text, Question question) {
 		this.text = text;
 		this.question = question;
-		this.likes = new HashSet<User>();
+		this.upvotes = new HashSet<User>();
 		this.validated = false;
 	}
 
@@ -86,46 +89,54 @@ public class Answer implements Serializable {
 		return id;
 	}
 
-	public Question getQuestion() {
-		return question;
+	public void setQuestion(Question question) {
+		this.question = question;
 	}
 
-	public Timestamp getTimestamp() {
-		return timestamp;
+	public Question getQuestion() {
+		return this.question;
+	}
+
+	public Date getCreated() {
+		return this.created;
+	}
+
+	public void setCreated(Date created) {
+		this.created = created;
 	}
 
 	public Set<User> getLikes() {
-		return likes;
+		return upvotes;
 	}
 
 	public void addLike(User like) {
-		this.likes.add(like);
+		this.upvotes.add(like);
 	}
-	
+
 	public void validate() {
 		this.validated = true;
 	}
-	
+
 	public void unvalidate() {
 		this.validated = false;
 	}
-	
+
 	public boolean isValidated() {
 		return this.validated;
 	}
 
-	public static class Builder{
+	public static class Builder {
 		public User author;
 		public String text;
 		public Question question;
 
-		public Answer.Builder with(Consumer<Answer.Builder> builder){
+		public Answer.Builder with(Consumer<Answer.Builder> builder) {
 			builder.accept(this);
 			return this;
 		}
 
 		public Answer build() {
-			return new Answer(author, text, question);
+			return new Answer(text, question);
 		}
 	}
 }

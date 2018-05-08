@@ -76,9 +76,16 @@ public class PostsServiceImpl implements PostsService {
 	}
 	
 	@Override
-	public void editQuestion(Question q) {
-		// TODO Auto-generated method stub
-
+	public void editQuestion(Question oq, Question uq, User u) {
+		User user = em.merge(u);
+		Question question = em.merge(oq);
+		
+		if (user.equals(question.getAuthor())) {
+			question.setText(uq.getText());
+			question.setTitle(uq.getTitle());
+			question.setDomains(uq.getDomains());
+		}
+		em.merge(question);
 	}
 	
 	/**********************************************************************
@@ -86,10 +93,17 @@ public class PostsServiceImpl implements PostsService {
 	 **********************************************************************/
 
 	@Override
-	public void createAnswer(Question question, Answer answer) {
-		em.persist(answer);
-		question.addAnswer(answer);
-		em.merge(question);
+	public void createAnswer(Question q, Answer a, User u) {
+		User user = em.merge(u);
+		Question question = em.merge(q);
+		
+		user.addAnswer(a);
+		question.addAnswer(a);
+		a.setQuestion(question);
+		a.setAuthor(user);
+		a.setCreated(new Date());
+		
+		em.persist(a);
 	}
 
 	@Override
@@ -100,8 +114,7 @@ public class PostsServiceImpl implements PostsService {
 
 	@Override
 	public void likeAnswer(Answer a) {
-		// TODO Auto-generated method stub
-
+				
 	}
 
 	@Override
@@ -134,12 +147,6 @@ public class PostsServiceImpl implements PostsService {
 		// If users list is not empty, return list of users wrapped in Optional object
 		// else, return an empty Optional object
 		return matchedUsers.isEmpty() ? Optional.empty() : Optional.of(matchedUsers);
-	}
-	
-	private User getUserById(long id) throws NoSuchElementException {
-		Optional<List<User>> matchedUsers = getUsersFrom("id", id);
-		
-		return matchedUsers.get().get(0);
 	}
 		
 
