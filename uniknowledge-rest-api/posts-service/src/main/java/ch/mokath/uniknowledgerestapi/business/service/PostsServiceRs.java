@@ -240,11 +240,15 @@ public class PostsServiceRs {
 			}
 			
 			if (action == null) {
-				
+				Answer updatedAnswer = new Gson().fromJson(requestBody, Answer.class);
+				postsService.editAnswer(unwrappedAnswer, updatedAnswer, trustedUser);
 			} else {
 				switch (action) {
 				case "validate":
-					postsService.validateAnswer(unwrappedAnswer);
+					postsService.validateAnswer(unwrappedAnswer, trustedUser);
+					break;
+				case "upvote":
+					postsService.upvoteAnswer(unwrappedAnswer, trustedUser);
 					break;
 
 				default:

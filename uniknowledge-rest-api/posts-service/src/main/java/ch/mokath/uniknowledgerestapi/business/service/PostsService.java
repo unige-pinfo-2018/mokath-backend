@@ -23,11 +23,11 @@ public interface PostsService {
 
 	void createAnswer(Question q, Answer a, User u);
 
-	void validateAnswer(Answer a);
+	void validateAnswer(Answer a, User u);
 
 	void upvoteQuestion(Question q, User u);
 
-	void likeAnswer(Answer a);
+	void upvoteAnswer(Answer a, User u);
 
 	void followQuestion(Question q, User u);
 
@@ -37,6 +37,6 @@ public interface PostsService {
 
 	void editQuestion(Question oq, Question uq, User u);
 
-	void editAnswer(Answer a);
+	void editAnswer(Answer oa, Answer na, User u);
 
 }

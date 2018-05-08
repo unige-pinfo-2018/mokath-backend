@@ -205,11 +205,11 @@ public class Question implements Serializable {
 		this.answers.add(ans);
 	}
 
-	public Set<User> getLikes() {
+	public Set<User> getUpvotes() {
 		return upvotes;
 	}
 
-	public void addLike(User like) {
+	public void addUpvote(User like) {
 		this.upvotes.add(like);
 	}
 

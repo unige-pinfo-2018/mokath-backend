@@ -275,8 +275,18 @@ public class User implements Serializable {
 		return this.followedQuestions;
 	}
 	
-	//TODO Implements add, remove, get for LikedAnswers
-
+	public void addLikedAnswer(Answer a) {
+		this.likedAnswers.add(a);
+	}
+	
+	public void removeLikedAnswer(Answer a) {
+		this.likedAnswers.remove(a);
+	}
+	
+	public Set<Answer> getLikedAnswers() {
+		return this.getLikedAnswers();
+	}
+	
 	public static class Builder {
 
 		public String username;

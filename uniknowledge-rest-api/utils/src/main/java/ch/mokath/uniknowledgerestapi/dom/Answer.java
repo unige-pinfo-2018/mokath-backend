@@ -105,11 +105,11 @@ public class Answer implements Serializable {
 		this.created = created;
 	}
 
-	public Set<User> getLikes() {
+	public Set<User> getUpvotes() {
 		return upvotes;
 	}
 
-	public void addLike(User like) {
+	public void addUpvote(User like) {
 		this.upvotes.add(like);
 	}
 

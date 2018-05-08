@@ -55,7 +55,8 @@ public class PostsServiceImpl implements PostsService {
 		User user = em.merge(u);
 		Question question = em.merge(q);
 		
-		user.addLikedQuestion(question);	
+		user.addLikedQuestion(question);
+		question.addUpvote(user);
 	}
 	
 	@Override
@@ -107,14 +108,22 @@ public class PostsServiceImpl implements PostsService {
 	}
 
 	@Override
-	public void validateAnswer(Answer a) {
+	public void validateAnswer(Answer a, User u) {
+		User user = em.merge(u);
 		Answer answer = em.merge(a);
-		answer.validate();
+		
+		if (user.equals(answer.getAuthor())) {
+			answer.validate();
+		}
 	}
 
 	@Override
-	public void likeAnswer(Answer a) {
-				
+	public void upvoteAnswer(Answer a, User u) {
+		User user = em.merge(u);
+		Answer answer = em.merge(a);
+		
+		user.addLikedAnswer(answer);
+		answer.addUpvote(user);
 	}
 
 	@Override
@@ -124,9 +133,14 @@ public class PostsServiceImpl implements PostsService {
 	}
 
 	@Override
-	public void editAnswer(Answer a) {
-		// TODO Auto-generated method stub
-
+	public void editAnswer(Answer oa, Answer ua, User u) {
+		User user = em.merge(u);
+		Answer answer = em.merge(oa);
+		
+		if (user.equals(answer.getAuthor())) {
+			answer.setText(ua.getText());
+		}
+		em.merge(answer);
 	}
 	
 }
