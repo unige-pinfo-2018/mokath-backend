@@ -240,11 +240,15 @@ public class PostsServiceRs {
 			}
 			
 			if (action == null) {
-				
+				Answer updatedAnswer = new Gson().fromJson(requestBody, Answer.class);
+				postsService.editAnswer(unwrappedAnswer, updatedAnswer, trustedUser);
 			} else {
 				switch (action) {
 				case "validate":
-					postsService.validateAnswer(unwrappedAnswer);
+					postsService.validateAnswer(unwrappedAnswer, trustedUser);
+					break;
+				case "upvote":
+					postsService.upvoteAnswer(unwrappedAnswer, trustedUser);
 					break;
 
 				default:
@@ -258,6 +262,39 @@ public class PostsServiceRs {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 		
+		return Response.ok().build();
+	}
+	
+	@DELETE
+	@Secured
+	@Path("/questions/{qid}/answers/{aid}")
+	public Response deleteAnswer(@Context HttpServletRequest req, @PathParam("qid") String questionId, @PathParam("aid") String answerId) {
+		User trustedUser = (User) req.getAttribute("user");
+		Question unwrappedQuestion;
+		Answer unwrappedAnswer;
+		
+		try {
+			Map<String, Object> wherePredicatesMapAnswer = new HashMap<String, Object>();
+			wherePredicatesMapAnswer.put("id", answerId);
+			Optional<Answer> wrappedAnswer = DBHelper.getEntityFromFields(wherePredicatesMapAnswer, Answer.class, em);
+			
+			Map<String, Object> wherePredicatesMapquestion = new HashMap<String, Object>();
+			wherePredicatesMapquestion.put("id", questionId);
+			Optional<Question> wrappedQuestion = DBHelper.getEntityFromFields(wherePredicatesMapquestion, Question.class, em);
+			
+			if (wrappedAnswer.isPresent() && wrappedQuestion.isPresent()) {
+				unwrappedAnswer = wrappedAnswer.get();
+				unwrappedQuestion = wrappedQuestion.get();
+			} else {
+				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
+			}
+			
+			postsService.deleteAnswer(unwrappedAnswer, trustedUser, unwrappedQuestion);
+			
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+
 		return Response.ok().build();
 	}
 }

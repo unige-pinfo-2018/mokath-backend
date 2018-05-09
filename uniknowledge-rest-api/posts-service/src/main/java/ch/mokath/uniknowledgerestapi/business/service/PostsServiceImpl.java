@@ -55,7 +55,8 @@ public class PostsServiceImpl implements PostsService {
 		User user = em.merge(u);
 		Question question = em.merge(q);
 		
-		user.addLikedQuestion(question);	
+		user.addLikedQuestion(question);
+		question.addUpvote(user);
 	}
 	
 	@Override
@@ -71,8 +72,11 @@ public class PostsServiceImpl implements PostsService {
 		User user = em.merge(u);
 		Question question = em.merge(q);
 		
-		user.removeQuestion(question);
-		em.remove(question);
+		// TODO externalize check
+		if (user.equals(question.getAuthor())) {
+			user.removeQuestion(question);
+			em.remove(question);
+		}
 	}
 	
 	@Override
@@ -107,26 +111,46 @@ public class PostsServiceImpl implements PostsService {
 	}
 
 	@Override
-	public void validateAnswer(Answer a) {
+	public void validateAnswer(Answer a, User u) {
+		User user = em.merge(u);
 		Answer answer = em.merge(a);
-		answer.validate();
+		
+		if (user.equals(answer.getAuthor())) {
+			answer.validate();
+		}
 	}
 
 	@Override
-	public void likeAnswer(Answer a) {
-				
+	public void upvoteAnswer(Answer a, User u) {
+		User user = em.merge(u);
+		Answer answer = em.merge(a);
+		
+		user.addLikedAnswer(answer);
+		answer.addUpvote(user);
 	}
 
 	@Override
-	public void deleteAnswer(Answer a) {
-		// TODO Auto-generated method stub
-
+	public void deleteAnswer(Answer a, User u, Question q) {
+		User user = em.merge(u);
+		Answer answer = em.merge(a);
+		Question question = em.merge(q);
+		
+		// TODO add owner check PARTOUT !!!!!!!!!
+		user.removeAnswer(answer);
+		question.removeAnswer(answer);
+		em.remove(answer);
 	}
 
 	@Override
-	public void editAnswer(Answer a) {
-		// TODO Auto-generated method stub
-
+	public void editAnswer(Answer oa, Answer ua, User u) {
+		User user = em.merge(u);
+		Answer answer = em.merge(oa);
+		
+		// TODO externalise check
+		if (user.equals(answer.getAuthor())) {
+			answer.setText(ua.getText());
+		}
+		em.merge(answer);
 	}
 	
 }

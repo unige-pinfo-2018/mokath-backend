@@ -201,15 +201,19 @@ public class Question implements Serializable {
 		return answers;
 	}
 
-	public void addAnswer(Answer ans) {
-		this.answers.add(ans);
+	public void addAnswer(Answer a) {
+		this.answers.add(a);
+	}
+	
+	public void removeAnswer(Answer a) {
+		this.answers.remove(a);
 	}
 
-	public Set<User> getLikes() {
+	public Set<User> getUpvotes() {
 		return upvotes;
 	}
 
-	public void addLike(User like) {
+	public void addUpvote(User like) {
 		this.upvotes.add(like);
 	}
 

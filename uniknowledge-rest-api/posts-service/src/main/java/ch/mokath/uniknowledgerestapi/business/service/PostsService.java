@@ -23,20 +23,20 @@ public interface PostsService {
 
 	void createAnswer(Question q, Answer a, User u);
 
-	void validateAnswer(Answer a);
+	void validateAnswer(Answer a, User u);
 
 	void upvoteQuestion(Question q, User u);
 
-	void likeAnswer(Answer a);
+	void upvoteAnswer(Answer a, User u);
 
 	void followQuestion(Question q, User u);
 
 	void deleteQuestion(Question q, User u);
 
-	void deleteAnswer(Answer a);
+	void deleteAnswer(Answer a, User u, Question q);
 
 	void editQuestion(Question oq, Question uq, User u);
 
-	void editAnswer(Answer a);
+	void editAnswer(Answer oa, Answer na, User u);
 
 }
