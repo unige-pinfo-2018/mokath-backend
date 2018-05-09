@@ -33,7 +33,7 @@ public interface PostsService {
 
 	void deleteQuestion(Question q, User u);
 
-	void deleteAnswer(Answer a);
+	void deleteAnswer(Answer a, User u, Question q);
 
 	void editQuestion(Question oq, Question uq, User u);
 

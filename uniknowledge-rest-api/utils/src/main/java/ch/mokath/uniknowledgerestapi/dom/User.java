@@ -251,6 +251,10 @@ public class User implements Serializable {
 		this.answers.add(a);
 	}
 	
+	public void removeAnswer(Answer a) {
+		this.answers.remove(a);
+	}
+	
 	public void addLikedQuestion(Question q) {
 		this.likedQuestions.add(q);
 	}
