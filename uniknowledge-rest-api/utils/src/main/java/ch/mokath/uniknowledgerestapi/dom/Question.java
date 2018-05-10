@@ -24,6 +24,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -64,23 +65,20 @@ public class Question implements Serializable {
 	@Expose(serialize = true, deserialize= true)
 	private String title;
 
-	@Column(name = "text")
+	@Column(name = "text", columnDefinition="text")
 	@Expose(serialize = true, deserialize= true)
 	private String text;
 
 	@ElementCollection(targetClass = Answer.class)
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "question", orphanRemoval = true, fetch = FetchType.EAGER)
-	@Expose(serialize = true, deserialize= true)
 	private Set<Answer> answers;
 	
 	@ManyToMany(mappedBy = "likedQuestions", fetch = FetchType.EAGER)
 	@ElementCollection(targetClass = User.class)
-	@Expose(serialize = true, deserialize= true)
 	private Set<User> upvotes;
 	
 	@ManyToMany(mappedBy = "followedQuestions", fetch = FetchType.EAGER)
 	@ElementCollection(targetClass = User.class)
-	@Expose(serialize = true, deserialize= true)
 	private Set<User> followers;
 
 	/*
@@ -125,20 +123,6 @@ public class Question implements Serializable {
 		Gson gson = builder.create();  
 		
 		return gson.toJson(this);
-	}
-
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((author == null) ? 0 : author.hashCode());
-		result = prime * result + ((created == null) ? 0 : created.hashCode());
-		result = prime * result + ((domains == null) ? 0 : domains.hashCode());
-		result = prime * result + (int) (id ^ (id >>> 32));
-		result = prime * result + ((text == null) ? 0 : text.hashCode());
-		result = prime * result + ((title == null) ? 0 : title.hashCode());
-		return result;
 	}
 
 	@Override

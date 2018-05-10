@@ -56,7 +56,6 @@ public class PostsServiceImpl implements PostsService {
 		Question question = em.merge(q);
 		
 		user.addLikedQuestion(question);
-		question.addUpvote(user);
 	}
 	
 	@Override
@@ -74,6 +73,12 @@ public class PostsServiceImpl implements PostsService {
 		
 		// TODO externalize check
 		if (user.equals(question.getAuthor())) {
+			
+			// remove all upvotes
+			for (User usr : question.getUpvotes()) {
+				usr.removeLikedQuestion(question);
+			}
+			
 			user.removeQuestion(question);
 			em.remove(question);
 		}
@@ -126,7 +131,6 @@ public class PostsServiceImpl implements PostsService {
 		Answer answer = em.merge(a);
 		
 		user.addLikedAnswer(answer);
-		answer.addUpvote(user);
 	}
 
 	@Override
@@ -135,10 +139,16 @@ public class PostsServiceImpl implements PostsService {
 		Answer answer = em.merge(a);
 		Question question = em.merge(q);
 		
-		// TODO add owner check PARTOUT !!!!!!!!!
-		user.removeAnswer(answer);
-		question.removeAnswer(answer);
-		em.remove(answer);
+		if (user.equals(answer.getAuthor())) {
+			// remove all upvotes
+			for (User usr : answer.getUpvotes()) {
+				usr.removeLikedAnswer(answer);
+			}
+			
+			user.removeAnswer(answer);
+			question.removeAnswer(answer);
+			em.remove(answer);
+		}
 	}
 
 	@Override

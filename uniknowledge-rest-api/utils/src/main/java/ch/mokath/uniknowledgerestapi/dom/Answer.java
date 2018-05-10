@@ -21,8 +21,14 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.GenericGenerator;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 
 /**
  * @author matteo113
@@ -35,20 +41,24 @@ public class Answer implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Expose(serialize = false, deserialize= true)
 	private long id;
 
 	@ManyToOne()
 	@JoinColumn(name = "question_id")
 	private Question question;
 
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "timestamp")
 	private Date created;
 
 	@ManyToOne
 	@JoinColumn(name = "author_id")
+	@Expose(serialize = true, deserialize= true)
 	private User author;
 
-	@Column(name = "text")
+	@Column(name = "text", columnDefinition="text")
+	@Expose(serialize = true, deserialize= true)
 	private String text;
 
 	@ManyToMany(mappedBy = "likedAnswers", fetch = FetchType.EAGER)
@@ -56,6 +66,7 @@ public class Answer implements Serializable {
 	private Set<User> upvotes;
 
 	@Column(name = "validated")
+	@Expose(serialize = true, deserialize= true)
 	private boolean validated;
 
 	public Answer() {
@@ -67,6 +78,57 @@ public class Answer implements Serializable {
 		this.question = question;
 		this.upvotes = new HashSet<User>();
 		this.validated = false;
+	}
+	
+	@Override
+	public String toString() {
+		GsonBuilder builder = new GsonBuilder();  
+	    builder.excludeFieldsWithoutExposeAnnotation();
+		Gson gson = builder.create();  
+		
+		return gson.toJson(this);
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Answer other = (Answer) obj;
+		if (author == null) {
+			if (other.author != null)
+				return false;
+		} else if (!author.equals(other.author))
+			return false;
+		if (created == null) {
+			if (other.created != null)
+				return false;
+		} else if (!created.equals(other.created))
+			return false;
+		if (id != other.id)
+			return false;
+		if (question == null) {
+			if (other.question != null)
+				return false;
+		} else if (!question.equals(other.question))
+			return false;
+		if (text == null) {
+			if (other.text != null)
+				return false;
+		} else if (!text.equals(other.text))
+			return false;
+		if (upvotes == null) {
+			if (other.upvotes != null)
+				return false;
+		} else if (!upvotes.equals(other.upvotes))
+			return false;
+		if (validated != other.validated)
+			return false;
+		return true;
 	}
 
 	public User getAuthor() {
@@ -109,8 +171,12 @@ public class Answer implements Serializable {
 		return upvotes;
 	}
 
-	public void addUpvote(User like) {
-		this.upvotes.add(like);
+	public void addUpvote(User u) {
+		this.upvotes.add(u);
+	}
+	
+	public void removeUpvote(User u) {
+		this.upvotes.remove(u);
 	}
 
 	public void validate() {

@@ -4,9 +4,11 @@
 package ch.mokath.uniknowledgerestapi.business.service;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -33,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
 import ch.mokath.uniknowledgerestapi.dom.Answer;
@@ -184,6 +187,19 @@ public class PostsServiceRs {
 		}
 		return Response.ok(unwrappedQuestion.toString()).build();
 	}
+	
+	@GET
+	@Secured
+	@Path("/questions/me")
+	@Produces("application/json")
+	public Response getMyQuestions(@Context HttpServletRequest req) {
+		User trustedUser = (User) req.getAttribute("user");
+		
+		GsonBuilder builder = new GsonBuilder();  
+	    builder.excludeFieldsWithoutExposeAnnotation();
+		Gson gson = builder.create();  
+		return Response.ok(gson.toJson(trustedUser.getQuestions())).build();
+	}
 
 	@POST
 	@Secured
@@ -219,11 +235,11 @@ public class PostsServiceRs {
 
 	@PUT
 	@Secured
-	@Path("/questions/{qid}/answers/{aid}")
+	@Path("/answers/{aid}")
 	@Consumes("application/json")
-	public Response modifyAnswer(@PathParam("qid") String questionId, @PathParam("aid") String answerId,
-			@Context UriInfo info, @Context HttpServletRequest req, final String requestBody) {
-		
+	public Response modifyAnswer(@PathParam("aid") String answerId, @Context UriInfo info,
+			@Context HttpServletRequest req, final String requestBody) {
+
 		String action = info.getQueryParameters().getFirst("action");
 		User trustedUser = (User) req.getAttribute("user");
 		Answer unwrappedAnswer;
@@ -232,13 +248,13 @@ public class PostsServiceRs {
 			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
 			wherePredicatesMap.put("id", answerId);
 			Optional<Answer> wrappedAnswer = DBHelper.getEntityFromFields(wherePredicatesMap, Answer.class, em);
-			
+
 			if (wrappedAnswer.isPresent()) {
 				unwrappedAnswer = wrappedAnswer.get();
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
-			
+
 			if (action == null) {
 				Answer updatedAnswer = new Gson().fromJson(requestBody, Answer.class);
 				postsService.editAnswer(unwrappedAnswer, updatedAnswer, trustedUser);
@@ -255,46 +271,108 @@ public class PostsServiceRs {
 					return CustomErrorResponse.INVALID_ACTION.getHTTPResponse();
 				}
 			}
-			
+
 		} catch (JsonSyntaxException e) {
 			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
 		} catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
-		
+
 		return Response.ok().build();
 	}
-	
+
 	@DELETE
 	@Secured
-	@Path("/questions/{qid}/answers/{aid}")
-	public Response deleteAnswer(@Context HttpServletRequest req, @PathParam("qid") String questionId, @PathParam("aid") String answerId) {
+	@Path("/answers/{id}")
+	public Response deleteAnswer(@Context HttpServletRequest req, @PathParam("id") String answerId) {
 		User trustedUser = (User) req.getAttribute("user");
 		Question unwrappedQuestion;
 		Answer unwrappedAnswer;
-		
+
 		try {
 			Map<String, Object> wherePredicatesMapAnswer = new HashMap<String, Object>();
 			wherePredicatesMapAnswer.put("id", answerId);
 			Optional<Answer> wrappedAnswer = DBHelper.getEntityFromFields(wherePredicatesMapAnswer, Answer.class, em);
-			
-			Map<String, Object> wherePredicatesMapquestion = new HashMap<String, Object>();
-			wherePredicatesMapquestion.put("id", questionId);
-			Optional<Question> wrappedQuestion = DBHelper.getEntityFromFields(wherePredicatesMapquestion, Question.class, em);
-			
-			if (wrappedAnswer.isPresent() && wrappedQuestion.isPresent()) {
+
+			if (wrappedAnswer.isPresent()) {
 				unwrappedAnswer = wrappedAnswer.get();
-				unwrappedQuestion = wrappedQuestion.get();
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
-			
+
+			unwrappedQuestion = unwrappedAnswer.getQuestion();
+
 			postsService.deleteAnswer(unwrappedAnswer, trustedUser, unwrappedQuestion);
-			
+
 		} catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 
 		return Response.ok().build();
+	}
+
+	@GET
+	@Path("/answers/{id}")
+	@Produces("application/json")
+	public Response getAnswer(@PathParam("id") String answerId) {
+		Answer unwrappedAnswer;
+
+		try {
+			Map<String, Object> wherePredicatesMapAnswer = new HashMap<String, Object>();
+			wherePredicatesMapAnswer.put("id", answerId);
+			Optional<Answer> wrappedAnswer = DBHelper.getEntityFromFields(wherePredicatesMapAnswer, Answer.class, em);
+
+			if (wrappedAnswer.isPresent()) {
+				unwrappedAnswer = wrappedAnswer.get();
+			} else {
+				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
+			}
+
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+
+		return Response.ok(unwrappedAnswer.toString()).build();
+	}
+
+	@GET
+	@Path("/questions/{qid}/answers")
+	@Produces("application/json")
+	public Response getAllAnswersOfQuestion(@PathParam("qid") String questionId) {
+		Question unwrappedQuestion;
+
+		try {
+			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+			wherePredicatesMap.put("id", questionId);
+			Optional<Question> wrappedQuestion = DBHelper.getEntityFromFields(wherePredicatesMap, Question.class, em);
+
+			if (wrappedQuestion.isPresent()) {
+				unwrappedQuestion = wrappedQuestion.get();
+			} else {
+				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
+			}
+
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+		
+		GsonBuilder builder = new GsonBuilder();  
+	    builder.excludeFieldsWithoutExposeAnnotation();
+		Gson gson = builder.create();  
+		
+		return Response.ok(gson.toJson(unwrappedQuestion.getAnswers())).build();
+	}
+	
+	@GET
+	@Secured
+	@Path("/answers/me")
+	@Produces("application/json")
+	public Response getMyAnswers(@Context HttpServletRequest req) {
+		User trustedUser = (User) req.getAttribute("user");
+		
+		GsonBuilder builder = new GsonBuilder();  
+	    builder.excludeFieldsWithoutExposeAnnotation();
+		Gson gson = builder.create();  
+		return Response.ok(gson.toJson(trustedUser.getAnswers())).build();
 	}
 }

@@ -55,14 +55,12 @@ public class DBHelper {
 		// Craft the final query
 		TypedQuery<T> finalQuery = em.createQuery(criteriaQuery);
 
-		// Execute SELECT request on previous defined query predicates
-		try {
-			T matchedObject = finalQuery.getSingleResult();
-			return Optional.of(matchedObject);
-		} catch (Exception e) {
-			log.error("Exception thrown while querying object of type " + entityClass.getName()
-					+ " with query criterias : " + criteriaQuery.getParameters().toString() + " : " + e.getMessage());
+		List<T> matchedObject = finalQuery.getResultList();
+
+		if(matchedObject.isEmpty()) {
 			return Optional.empty();
+		} else {
+			return Optional.of(matchedObject.get(0));
 		}
 	}
 }

@@ -94,6 +94,8 @@ public class AuthenticationMiddleware implements ContainerRequestFilter {
 			}
 
 		} catch (Exception e) {
+			log.error("Exception thrown during the authenticatin process : " + e.toString());
+			e.printStackTrace();
 			requestContext.abortWith(CustomErrorResponse.INVALID_TOKEN.getHTTPResponse());
 		}
 	}
