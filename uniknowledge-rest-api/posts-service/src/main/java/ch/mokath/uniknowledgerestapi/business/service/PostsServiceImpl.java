@@ -38,7 +38,7 @@ public class PostsServiceImpl implements PostsService {
 	private DBHelper DBHelper = new DBHelper();
 
 	/**********************************************************************
-	 *                            QUESTIONS                               *
+	 * QUESTIONS *
 	 **********************************************************************/
 
 	@Override
@@ -49,20 +49,20 @@ public class PostsServiceImpl implements PostsService {
 		question.setCreated(new Date());
 		em.persist(question);
 	}
-	
+
 	@Override
 	public void upvoteQuestion(Question q, User u) throws NoSuchElementException {
 		User user = em.merge(u);
 		Question question = em.merge(q);
-		
+
 		user.addLikedQuestion(question);
 	}
-	
+
 	@Override
-	public void followQuestion(Question q, User u) throws NoSuchElementException{
+	public void followQuestion(Question q, User u) throws NoSuchElementException {
 		User user = em.merge(u);
 		Question question = em.merge(q);
-		
+
 		user.addFollowedQuestion(question);
 	}
 
@@ -70,25 +70,25 @@ public class PostsServiceImpl implements PostsService {
 	public void deleteQuestion(Question q, User u) {
 		User user = em.merge(u);
 		Question question = em.merge(q);
-		
+
 		// TODO externalize check
 		if (user.equals(question.getAuthor())) {
 			
-			// remove all upvotes
-			for (User usr : question.getUpvotes()) {
-				usr.removeLikedQuestion(question);
-			}
+//			question.getAnswers().clear();
+//			question.getUpvotes().clear();
 			
+			em.merge(question);
+
 			user.removeQuestion(question);
 			em.remove(question);
 		}
 	}
-	
+
 	@Override
 	public void editQuestion(Question oq, Question uq, User u) {
 		User user = em.merge(u);
 		Question question = em.merge(oq);
-		
+
 		if (user.equals(question.getAuthor())) {
 			question.setText(uq.getText());
 			question.setTitle(uq.getTitle());
@@ -96,22 +96,22 @@ public class PostsServiceImpl implements PostsService {
 		}
 		em.merge(question);
 	}
-	
+
 	/**********************************************************************
-	 *                              ANSWERS                               *
+	 * ANSWERS *
 	 **********************************************************************/
 
 	@Override
 	public void createAnswer(Question q, Answer a, User u) {
 		User user = em.merge(u);
 		Question question = em.merge(q);
-		
+
 		user.addAnswer(a);
 		question.addAnswer(a);
 		a.setQuestion(question);
 		a.setAuthor(user);
 		a.setCreated(new Date());
-		
+
 		em.persist(a);
 	}
 
@@ -119,7 +119,7 @@ public class PostsServiceImpl implements PostsService {
 	public void validateAnswer(Answer a, User u) {
 		User user = em.merge(u);
 		Answer answer = em.merge(a);
-		
+
 		if (user.equals(answer.getAuthor())) {
 			answer.validate();
 		}
@@ -129,7 +129,7 @@ public class PostsServiceImpl implements PostsService {
 	public void upvoteAnswer(Answer a, User u) {
 		User user = em.merge(u);
 		Answer answer = em.merge(a);
-		
+
 		user.addLikedAnswer(answer);
 	}
 
@@ -138,13 +138,13 @@ public class PostsServiceImpl implements PostsService {
 		User user = em.merge(u);
 		Answer answer = em.merge(a);
 		Question question = em.merge(q);
-		
+
 		if (user.equals(answer.getAuthor())) {
 			// remove all upvotes
 			for (User usr : answer.getUpvotes()) {
 				usr.removeLikedAnswer(answer);
 			}
-			
+
 			user.removeAnswer(answer);
 			question.removeAnswer(answer);
 			em.remove(answer);
@@ -155,12 +155,25 @@ public class PostsServiceImpl implements PostsService {
 	public void editAnswer(Answer oa, Answer ua, User u) {
 		User user = em.merge(u);
 		Answer answer = em.merge(oa);
-		
+
 		// TODO externalise check
 		if (user.equals(answer.getAuthor())) {
 			answer.setText(ua.getText());
 		}
 		em.merge(answer);
 	}
-	
+
+	private void deleteAnswer(Answer a) {
+		Answer answer = em.merge(a);
+		User user = em.merge(answer.getAuthor());
+		Question question = em.merge(answer.getQuestion());
+
+		// remove all upvotes
+		answer.getUpvotes().clear();
+		
+		user.removeAnswer(answer);
+		question.removeAnswer(answer);
+		em.remove(answer);
+	}
+
 }
