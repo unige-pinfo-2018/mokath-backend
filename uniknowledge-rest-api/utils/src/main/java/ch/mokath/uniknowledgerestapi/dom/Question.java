@@ -73,11 +73,11 @@ public class Question implements Serializable {
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "question", orphanRemoval = true, fetch = FetchType.EAGER)
 	private Set<Answer> answers;
 	
-	@ManyToMany(mappedBy = "likedQuestions", fetch = FetchType.EAGER)
+	@ManyToMany(mappedBy = "likedQuestions", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@ElementCollection(targetClass = User.class)
 	private Set<User> upvotes;
 	
-	@ManyToMany(mappedBy = "followedQuestions", fetch = FetchType.EAGER)
+	@ManyToMany(mappedBy = "followedQuestions", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@ElementCollection(targetClass = User.class)
 	private Set<User> followers;
 

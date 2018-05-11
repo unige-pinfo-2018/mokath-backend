@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -44,7 +45,7 @@ public class Answer implements Serializable {
 	@Expose(serialize = false, deserialize= true)
 	private long id;
 
-	@ManyToOne()
+	@ManyToOne
 	@JoinColumn(name = "question_id")
 	private Question question;
 
@@ -61,7 +62,7 @@ public class Answer implements Serializable {
 	@Expose(serialize = true, deserialize= true)
 	private String text;
 
-	@ManyToMany(mappedBy = "likedAnswers", fetch = FetchType.EAGER)
+	@ManyToMany(mappedBy = "likedAnswers", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@ElementCollection(targetClass = User.class)
 	private Set<User> upvotes;
 

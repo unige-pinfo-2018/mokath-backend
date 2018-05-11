@@ -9,6 +9,8 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -17,6 +19,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -41,6 +44,9 @@ import ch.mokath.uniknowledgerestapi.utils.Secured;
  */
 @Path("")
 public class UsersServiceRs {
+	
+	@PersistenceContext
+	private EntityManager em;
 
 	@Inject
 	private UsersService usersService;
@@ -208,5 +214,15 @@ public class UsersServiceRs {
 			log.error("Exception thrown while deleting user with id : "+trustedUser.getId()+ " : "+e.getMessage());
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
+	}
+	
+	@GET
+	@Secured
+	@Path("/users/me")
+	@Produces("application/json")
+	public Response getUser(@Context HttpServletRequest req) {
+		User trustedUser = (User) req.getAttribute("user");
+		
+		return Response.ok(trustedUser.toString()).build();
 	}
 }
