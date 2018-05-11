@@ -11,6 +11,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -61,10 +62,11 @@ public class User implements Serializable {
 	@Column(name = "password", length=128, nullable = false)
 	private String password;
 	
-	@OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@ElementCollection(targetClass = Question.class)
 	private Set<Question> questions;
 
+	@OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@ElementCollection(targetClass = Answer.class)
 	private Set<Answer> answers;
 	
