@@ -12,16 +12,23 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.GenericGenerator;
 
 import com.google.gson.Gson;
+import com.google.gson.annotations.Expose;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+
+
+//	private UUID id; //20180511: decision to use Long instead of UUID, as for User [zue]
 
 /**
  * @author tv0g
- *
+ * @author zue
  */
 @Entity
 public class Institution implements Serializable {
@@ -29,10 +36,13 @@ public class Institution implements Serializable {
 	private static final long serialVersionUID = 2636792944511323510L;
 
 	@Id
-	@GeneratedValue(generator = "UUID")
-	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+//	@GeneratedValue(generator = "UUID")
+//	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
 	@Column(name = "id", updatable = false, nullable = false)
-	private UUID id;
+//	private UUID id;
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Expose(serialize = false, deserialize= true)
+	private Long id;
 
 	@Size(max = 100)
 	@Column(name = "institution_name")
@@ -72,7 +82,12 @@ public class Institution implements Serializable {
 
 	@Override
 	public String toString() {
-		return new Gson().toJson(this);
+/*		GsonBuilder builder = new GsonBuilder();  
+	    builder.excludeFieldsWithoutExposeAnnotation();
+		Gson gson = builder.create();  
+		
+		return gson.toJson(this);
+*/		return new Gson().toJson(this);
 	}
 
 	public Set<String> getAdministrators() {
@@ -91,7 +106,8 @@ public class Institution implements Serializable {
 		return domains;
 	}
 
-	public UUID getId() {
+//	public UUID getId() {
+	public Long getId() {
 		return id;
 	}
 
@@ -105,6 +121,14 @@ public class Institution implements Serializable {
 
 	public String getContactEmail() {
 		return contactEmail;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public void setId(String id) {
+		this.id = Long.parseLong(id);
 	}
 
 	public void setAdministrators(Set<String> administrators) {
@@ -123,7 +147,7 @@ public class Institution implements Serializable {
 		this.domains = domains;
 	}
 
-	public void setName(String institutionName) {
+	public void setInstitutionName(String institutionName) {
 		this.institutionName = institutionName;
 	}
 
@@ -151,8 +175,7 @@ public class Institution implements Serializable {
 		}
 
 		public Institution build() {
-			return new Institution(institutionName, logoPictureURL, contactEmail, domains, administrators, repliers,
-					askers);
+			return new Institution(institutionName, logoPictureURL, contactEmail, domains, administrators, repliers, askers);
 		}
 	}
 
