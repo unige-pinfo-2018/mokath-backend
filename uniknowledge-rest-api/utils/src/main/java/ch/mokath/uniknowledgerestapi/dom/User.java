@@ -62,6 +62,7 @@ public class User implements Serializable {
 	@Column(name = "password", length=128, nullable = false)
 	private String password;
 	
+	
 	@OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@ElementCollection(targetClass = Question.class)
 	private Set<Question> questions;
@@ -90,8 +91,21 @@ public class User implements Serializable {
 	inverseJoinColumns = @JoinColumn(name = "answer_id"))
 	@ElementCollection(targetClass = Answer.class)
 	private Set<Answer> likedAnswers;
-	
 
+	/* field relationship mapping for Institution * /
+	@OneToMany(mappedBy = "administrators", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ElementCollection(targetClass = Institution.class)
+	private Set<Institution> administrators;
+
+	@OneToMany(mappedBy = "repliers", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ElementCollection(targetClass = Institution.class)
+	private Set<Institution> repliers;
+	
+	@OneToMany(mappedBy = "askers", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ElementCollection(targetClass = Institution.class)
+	private Set<Institution> askers;
+	
+	/* constructors and methods */
 	public User() {
 	}
 

@@ -82,6 +82,8 @@ public class InstitutionsServiceRs {
 
 			if (wrappedInst.isPresent()) {
 				Institution unwrappedInst = wrappedInst.get();
+//				Gson gson = new GsonBuilder().setExclusionStrategies(new UserQuestionsExclStrat()).create();
+//				Gson g =  new Gson();//.toJson(unwrappedInst);
                 return Response.ok(unwrappedInst.toString()).build();//TODO MAKE THIS WORK WITHOUT LAZY EXCEPTION!!!!!
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();

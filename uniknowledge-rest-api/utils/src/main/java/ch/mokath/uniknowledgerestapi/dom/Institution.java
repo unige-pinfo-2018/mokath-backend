@@ -4,19 +4,22 @@
 package ch.mokath.uniknowledgerestapi.dom;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.Size;
-
-import org.hibernate.annotations.GenericGenerator;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
@@ -35,6 +38,7 @@ public class Institution implements Serializable {
 
 	private static final long serialVersionUID = 2636792944511323510L;
 
+	/* start fields */
 	@Id
 //	@GeneratedValue(generator = "UUID")
 //	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
@@ -46,39 +50,54 @@ public class Institution implements Serializable {
 
 	@Size(max = 100)
 	@Column(name = "institution_name")
+	@Expose(serialize = true, deserialize= true)
 	private String institutionName;
 
 	@Column(name = "logoPictureURL")
+	@Expose(serialize = true, deserialize= true)
 	private String logoPictureURL;
 
 	@Column(name = "contactEmail")
+	@Expose(serialize = true, deserialize= true)
 	private String contactEmail;
-
-	@ElementCollection(targetClass = String.class)
+	
+	/* External field-mapping */
+	@ElementCollection(targetClass = String.class,fetch=FetchType.EAGER)
+	@Expose(serialize = true, deserialize= true)
 	private Set<String> domains;
 
-	@ElementCollection(targetClass = String.class)
-	private Set<String> administrators;
+/*/	@OneToMany(mappedBy="id",cascade=CascadeType.ALL,fetch=FetchType.EAGER)
+//	@ElementCollection(targetClass = User.class)
+	@ManyToOne
+	@JoinColumn(name = "administrator_id")
+	@Expose(serialize = true, deserialize= true)
+	private Set<User> administrators;
 
-	@ElementCollection(targetClass = String.class)
-	private Set<String> repliers;
+	@ManyToOne
+	@JoinColumn(name = "replier_id")
+	@Expose(serialize = true, deserialize= true)
+	private Set<User> repliers;
 
-	@ElementCollection(targetClass = String.class)
-	private Set<String> askers;
-
+	@ManyToOne
+	@JoinColumn(name = "asker_id")
+	@Expose(serialize = true, deserialize= true)
+	private Set<User> askers;
+	
+    /* constructors */
 	public Institution() {
 	}
 
-	public Institution(String institutionName, String logoPictureURL, String contactEmail, Set<String> domains,
-			Set<String> administrators, Set<String> repliers, Set<String> askers) {
+	public Institution(String institutionName, String logoPictureURL, String contactEmail, HashSet<String> domains){
+//			,Set<String> administrators, Set<String> repliers, Set<String> askers) {
 		this.institutionName = institutionName;
 		this.logoPictureURL = logoPictureURL;
 		this.contactEmail = contactEmail;
 		this.domains = domains;
-		this.administrators = administrators;
-		this.askers = askers;
-		this.repliers = repliers;
-	}
+		
+/*		this.administrators = new HashSet<User>();
+		this.askers = new HashSet<User>();
+		this.repliers = new HashSet<User>();
+*/	}
 
 	@Override
 	public String toString() {
@@ -90,22 +109,7 @@ public class Institution implements Serializable {
 */		return new Gson().toJson(this);
 	}
 
-	public Set<String> getAdministrators() {
-		return administrators;
-	}
-
-	public Set<String> getRepliers() {
-		return repliers;
-	}
-
-	public Set<String> getAskers() {
-		return askers;
-	}
-
-	public Set<String> getDomains() {
-		return domains;
-	}
-
+	/* getter */
 //	public UUID getId() {
 	public Long getId() {
 		return id;
@@ -123,28 +127,29 @@ public class Institution implements Serializable {
 		return contactEmail;
 	}
 
+	public Set<String> getDomains() {
+		return domains;
+	}
+
+/*	public Set<User> getAdministrators() {
+		return administrators;
+	}
+
+	public Set<User> getRepliers() {
+		return repliers;
+	}
+
+	public Set<User> getAskers() {
+		return askers;
+	}
+
+	/* setter */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
 	public void setId(String id) {
 		this.id = Long.parseLong(id);
-	}
-
-	public void setAdministrators(Set<String> administrators) {
-		this.administrators = administrators;
-	}
-
-	public void setRepliers(Set<String> repliers) {
-		this.repliers = repliers;
-	}
-
-	public void setAskers(Set<String> askers) {
-		this.askers = askers;
-	}
-
-	public void setDomains(Set<String> domains) {
-		this.domains = domains;
 	}
 
 	public void setInstitutionName(String institutionName) {
@@ -159,23 +164,40 @@ public class Institution implements Serializable {
 		this.contactEmail = contactEmail;
 	}
 
+	public void setDomains(Set<String> domains) {
+		this.domains = domains;
+	}
+
+/*	public void setAdministrators(Set<User> administrators) {
+		this.administrators = administrators;
+	}
+
+	public void setRepliers(Set<User> repliers) {
+		this.repliers = repliers;
+	}
+
+	public void setAskers(Set<User> askers) {
+		this.askers = askers;
+	}
+
+	/* builder */
 	public static class Builder {
 
-		public Set<String> administrators;
-		public Set<String> repliers;
-		public Set<String> askers;
-		public Set<String> domains;
 		public String institutionName;
 		public String logoPictureURL;
 		public String contactEmail;
-
+		public HashSet<String> domains;
+/*		public HashSet<User> administrators;
+		public HashSet<User> repliers;
+		public HashSet<User> askers;
+*/
 		public Institution.Builder with(Consumer<Institution.Builder> builder) {
 			builder.accept(this);
 			return this;
 		}
 
 		public Institution build() {
-			return new Institution(institutionName, logoPictureURL, contactEmail, domains, administrators, repliers, askers);
+			return new Institution(institutionName, logoPictureURL, contactEmail, domains);
 		}
 	}
 
