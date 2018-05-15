@@ -84,7 +84,7 @@ public class InstitutionsServiceRs {
 				Institution unwrappedInst = wrappedInst.get();
 //				Gson gson = new GsonBuilder().setExclusionStrategies(new UserQuestionsExclStrat()).create();
 //				Gson g =  new Gson();//.toJson(unwrappedInst);
-                return Response.ok(unwrappedInst.toString()).build();//TODO MAKE THIS WORK WITHOUT LAZY EXCEPTION!!!!!
+                return Response.ok(unwrappedInst.toString()).build();
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
@@ -119,15 +119,23 @@ public class InstitutionsServiceRs {
 	}
 	
 	
-	@DELETE //TODO message if nothing deleted
+	@DELETE
 	@Path("/{id}")
 	@Produces("application/json")
 	public Response deleteInstitution(@Context HttpServletRequest req, @PathParam("id") String id){
 		Institution inst = new Institution();
 		inst.setId(id);
 		try {
-			institutionsService.deleteInstitution(inst);
-			return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
+			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+			wherePredicatesMap.put("id", id);
+			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
+
+			if (wrappedInst.isPresent()) {
+                institutionsService.deleteInstitution(inst);
+                return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
+			} else {
+				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
+			}
 		} catch(Exception e) {
 			log.error("Exception thrown while deleting institution with id : "+id+ " : "+e.getMessage());
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
