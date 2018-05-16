@@ -161,7 +161,7 @@ public class InstitutionsServiceRs {
 				Institution i = wrappedInst.get();
 				User u = wrappedUser.get();
 				institutionsService.addAdministrator(u,i);
-                return Response.ok(i.getId()+"/user:"+u.getId()+"/i:").build();
+                return Response.ok().build();
 //                return Response.ok(i.getId()+"/user:"+u.getId()+"/i:"+i.toString()).build();
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
@@ -170,5 +170,95 @@ public class InstitutionsServiceRs {
 			return  Response.status(Response.Status.BAD_REQUEST).entity(e).build();//CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
     }
+	
+	@GET
+	@Path("/{iid}/admin/}")
+    @Produces("application/json")
+	public Response getAdministrators(@PathParam("iid") String iid) {
+		try {
+			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+			wherePredicatesMap.put("id", iid);
+			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
+
+			if (wrappedInst.isPresent()) {
+				Institution i = wrappedInst.get();
+//                return Response.ok(unwrappedInst.getId()).build(); //TODO rmove for Prod
+                return Response.ok(i.getAdministrators()).build();
+			} else {
+				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
+			}
+		} catch (Exception e) {
+			return  Response.status(Response.Status.BAD_REQUEST).entity(e).build();//CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+	
+/*	@GET
+	@Path("/{iid}/admin/{uid}")
+    @Produces("application/json")
+	public Response getAdministrator(@PathParam("iid") String iid) {
+		try {
+			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+			wherePredicatesMap.put("id", iid);
+			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
+
+			if (wrappedInst.isPresent()) {
+				Institution unwrappedInst = wrappedInst.get();
+//                return Response.ok(unwrappedInst.getId()).build(); //TODO rmove for Prod
+                return Response.ok(unwrappedInst.toString()).build();
+			} else {
+				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
+			}
+		} catch (Exception e) {
+			return  Response.status(Response.Status.BAD_REQUEST).entity(e).build();//CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+	
+/*	@PUT
+	@Path("/{id}/admin/{uid}")
+	@Consumes("application/json")
+	@Produces("application/json")
+	public Response updateInstitution(@Context HttpServletRequest req,@NotNull final String requestBody,@PathParam("id") String id) {
+		try {
+			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+			wherePredicatesMap.put("id", id);
+			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
+
+			if (wrappedInst.isPresent()) {
+				Institution unwrappedInst = wrappedInst.get();
+
+                Institution requestedInst = new Gson().fromJson(requestBody,Institution.class);
+                requestedInst.setId(unwrappedInst.getId());
+                Institution updatedInst = institutionsService.updateInstitution(requestedInst);
+                return Response.ok(updatedInst.toString()).build();
+			} else {
+				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
+			}
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+*/
+	@DELETE
+	@Path("/{iid}/admin/{uid}")
+	@Produces("application/json")
+	public Response removeAdministrator(@Context HttpServletRequest req,@PathParam("iid") String iid,@PathParam("uid") String uid){
+		Institution inst = new Institution();
+		inst.setId(iid);
+		try {
+			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+			wherePredicatesMap.put("id", iid);
+			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
+
+			if (wrappedInst.isPresent()) {
+//                institutionsService.deleteInstitution(inst);
+                return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
+			} else {
+				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
+			}
+		} catch(Exception e) {
+			log.error("Exception thrown while deleting institution with id : "+uid+ " : "+e.getMessage());
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
 	
 }
