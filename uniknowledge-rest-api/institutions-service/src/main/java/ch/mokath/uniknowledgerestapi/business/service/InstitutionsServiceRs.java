@@ -32,6 +32,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
 import ch.mokath.uniknowledgerestapi.dom.Institution;
+import ch.mokath.uniknowledgerestapi.dom.User;
 import ch.mokath.uniknowledgerestapi.utils.CustomErrorResponse;
 import ch.mokath.uniknowledgerestapi.utils.DBHelper;
 
@@ -82,8 +83,7 @@ public class InstitutionsServiceRs {
 
 			if (wrappedInst.isPresent()) {
 				Institution unwrappedInst = wrappedInst.get();
-//				Gson gson = new GsonBuilder().setExclusionStrategies(new UserQuestionsExclStrat()).create();
-//				Gson g =  new Gson();//.toJson(unwrappedInst);
+//                return Response.ok(unwrappedInst.getId()).build(); //TODO rmove for Prod
                 return Response.ok(unwrappedInst.toString()).build();
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
@@ -141,4 +141,34 @@ public class InstitutionsServiceRs {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 	}
+	
+	/** Admins **/
+	@POST
+	@Path("/{iid}/admin/{uid}")
+//	@Produces("application/json")
+	public Response addAdministrator(@Context HttpServletRequest req,@PathParam("iid") String iid,@PathParam("uid") String uid) {
+
+		try { // get Institution
+			Map<String, Object> wherePMinst = new HashMap<String, Object>();
+			wherePMinst.put("id", iid);
+			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePMinst,Institution.class,em);
+			
+			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+			wherePredicatesMap.put("id", uid);
+			Optional<User> wrappedUser = DBHelper.getEntityFromFields(wherePredicatesMap,User.class,em);
+
+			if (wrappedInst.isPresent() && wrappedUser.isPresent()) {
+				Institution i = wrappedInst.get();
+				User u = wrappedUser.get();
+				institutionsService.addAdministrator(u,i);
+                return Response.ok(i.getId()+"/user:"+u.getId()+"/i:").build();
+//                return Response.ok(i.getId()+"/user:"+u.getId()+"/i:"+i.toString()).build();
+			} else {
+				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
+			}
+		} catch (Exception e) {
+			return  Response.status(Response.Status.BAD_REQUEST).entity(e).build();//CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+    }
+	
 }

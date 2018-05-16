@@ -14,6 +14,7 @@ import javax.persistence.PersistenceContext;
 import javax.validation.constraints.NotNull;
 
 import ch.mokath.uniknowledgerestapi.dom.Institution;
+import ch.mokath.uniknowledgerestapi.dom.User;
 import ch.mokath.uniknowledgerestapi.utils.DBHelper;
 
 /**
@@ -45,6 +46,19 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	@Override
 	public Institution updateInstitution(@NotNull Institution i) {
         return (Institution) em.merge(i);
+	}
+	
+	/** add remove User as admins,askers or repliers to an Institution
+	*/
+	@Override
+	public void addAdministrator(User administrator,Institution i){
+        User admin = em.merge(administrator);
+        Institution inst = em.merge(i);
+        inst.addAdministrator(admin);        
+	}
+	
+	public void removeAdministrator(User administrator,Institution i){
+	
 	}
 
 	/** We do not want 2 institutions with the same name or contact email

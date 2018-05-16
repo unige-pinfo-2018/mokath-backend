@@ -18,7 +18,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.ManyToMany;
 import javax.validation.constraints.Size;
 
 import com.google.gson.Gson;
@@ -66,21 +66,17 @@ public class Institution implements Serializable {
 	@Expose(serialize = true, deserialize= true)
 	private Set<String> domains;
 
-/*/	@OneToMany(mappedBy="id",cascade=CascadeType.ALL,fetch=FetchType.EAGER)
-//	@ElementCollection(targetClass = User.class)
-	@ManyToOne
-	@JoinColumn(name = "administrator_id")
-	@Expose(serialize = true, deserialize= true)
+
+	@ManyToMany(mappedBy="instAdmins",cascade=CascadeType.ALL,fetch=FetchType.EAGER)
+	@ElementCollection(targetClass = User.class)
 	private Set<User> administrators;
 
-	@ManyToOne
-	@JoinColumn(name = "replier_id")
-	@Expose(serialize = true, deserialize= true)
+	@ManyToMany(mappedBy="instRepliers",cascade=CascadeType.ALL,fetch=FetchType.EAGER)
+	@ElementCollection(targetClass = User.class)
 	private Set<User> repliers;
 
-	@ManyToOne
-	@JoinColumn(name = "asker_id")
-	@Expose(serialize = true, deserialize= true)
+	@ManyToMany(mappedBy="instAskers",cascade=CascadeType.ALL,fetch=FetchType.EAGER)
+	@ElementCollection(targetClass = User.class)
 	private Set<User> askers;
 	
     /* constructors */
@@ -93,20 +89,16 @@ public class Institution implements Serializable {
 		this.logoPictureURL = logoPictureURL;
 		this.contactEmail = contactEmail;
 		this.domains = domains;
-		
-/*		this.administrators = new HashSet<User>();
-		this.askers = new HashSet<User>();
-		this.repliers = new HashSet<User>();
-*/	}
+    }
 
 	@Override
 	public String toString() {
-/*		GsonBuilder builder = new GsonBuilder();  
+		GsonBuilder builder = new GsonBuilder();  
 	    builder.excludeFieldsWithoutExposeAnnotation();
 		Gson gson = builder.create();  
 		
 		return gson.toJson(this);
-*/		return new Gson().toJson(this);
+//		return new Gson().toJson(this);
 	}
 
 	/* getter */
@@ -131,7 +123,7 @@ public class Institution implements Serializable {
 		return domains;
 	}
 
-/*	public Set<User> getAdministrators() {
+	public Set<User> getAdministrators() {
 		return administrators;
 	}
 
@@ -168,8 +160,8 @@ public class Institution implements Serializable {
 		this.domains = domains;
 	}
 
-/*	public void setAdministrators(Set<User> administrators) {
-		this.administrators = administrators;
+	public void addAdministrator(User administrator) {
+		this.administrators.add(administrator);
 	}
 
 	public void setRepliers(Set<User> repliers) {
@@ -187,10 +179,7 @@ public class Institution implements Serializable {
 		public String logoPictureURL;
 		public String contactEmail;
 		public HashSet<String> domains;
-/*		public HashSet<User> administrators;
-		public HashSet<User> repliers;
-		public HashSet<User> askers;
-*/
+
 		public Institution.Builder with(Consumer<Institution.Builder> builder) {
 			builder.accept(this);
 			return this;

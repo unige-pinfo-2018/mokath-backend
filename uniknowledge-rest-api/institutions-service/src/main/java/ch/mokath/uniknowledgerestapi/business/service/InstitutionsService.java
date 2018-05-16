@@ -8,6 +8,7 @@ import javax.persistence.EntityExistsException;
 import javax.validation.constraints.NotNull;
 
 import ch.mokath.uniknowledgerestapi.dom.Institution;
+import ch.mokath.uniknowledgerestapi.dom.User;
 
 /**
  * @author tv0g
@@ -36,4 +37,11 @@ public interface InstitutionsService {
 	 */
 	void deleteInstitution(@NotNull final Institution i);
 	
+	/**
+	* Add or remove an administrator to/from an institution
+	* @param administrator User to add/remove as administrator
+	* @param i Institution the administrator will be added to/removed from
+	*/
+	void addAdministrator(User administrator,Institution i);
+	void removeAdministrator(User administrator,Institution i);
 }

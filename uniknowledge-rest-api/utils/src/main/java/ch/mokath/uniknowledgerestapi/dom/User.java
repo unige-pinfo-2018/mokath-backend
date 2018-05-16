@@ -92,18 +92,27 @@ public class User implements Serializable {
 	@ElementCollection(targetClass = Answer.class)
 	private Set<Answer> likedAnswers;
 
-	/* field relationship mapping for Institution * /
-	@OneToMany(mappedBy = "administrators", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	/* field relationship mapping for Institution */
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "institution_admins",
+	joinColumns = @JoinColumn(name = "user_id"),
+	inverseJoinColumns = @JoinColumn(name = "administrator_id"))
 	@ElementCollection(targetClass = Institution.class)
-	private Set<Institution> administrators;
+	private Set<Institution> instAdmins;
 
-	@OneToMany(mappedBy = "repliers", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "institution_repliers",
+	joinColumns = @JoinColumn(name = "user_id"),
+	inverseJoinColumns = @JoinColumn(name = "replier_id"))
 	@ElementCollection(targetClass = Institution.class)
-	private Set<Institution> repliers;
+	private Set<Institution> instRepliers;
 	
-	@OneToMany(mappedBy = "askers", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "institution_askers",
+	joinColumns = @JoinColumn(name = "user_id"),
+	inverseJoinColumns = @JoinColumn(name = "asker_id"))
 	@ElementCollection(targetClass = Institution.class)
-	private Set<Institution> askers;
+	private Set<Institution> instAskers;
 	
 	/* constructors and methods */
 	public User() {
@@ -122,6 +131,9 @@ public class User implements Serializable {
 		this.likedQuestions = new HashSet<Question>();
 		this.followedQuestions = new HashSet<Question>();
 		this.likedAnswers = new HashSet<Answer>();
+		this.instAdmins = new HashSet<Institution>();
+		this.instRepliers = new HashSet<Institution>();
+		this.instAskers = new HashSet<Institution>();
 	}
 
 	@Override
