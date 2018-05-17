@@ -60,7 +60,7 @@ public class Institution implements Serializable {
 	
 	/* External field-mapping */
 	@ElementCollection(targetClass = String.class,fetch=FetchType.EAGER)
-	@Expose(serialize = true, deserialize= true)
+//	@Expose(serialize = true, deserialize= true)
 	private Set<String> domains;
 
 
@@ -82,11 +82,13 @@ q.getSingleResult();*/
 	public Institution() {
 	}
 
-	public Institution(String institutionName, String logoPictureURL, String contactEmail, HashSet<String> domains){
+	public Institution(String institutionName, String logoPictureURL, String contactEmail){
+//	public Institution(String institutionName, String logoPictureURL, String contactEmail, HashSet<String> domains){
 		this.institutionName = institutionName;
 		this.logoPictureURL = logoPictureURL;
 		this.contactEmail = contactEmail;
-		this.domains = domains;
+//		this.domains = domains;
+		this.domains = new HashSet<String>();
 		this.users = new HashSet<User>();
     }
 
@@ -106,7 +108,7 @@ q.getSingleResult();*/
 		result = prime * result + ((institutionName == null) ? 0 : institutionName.hashCode());
 		result = prime * result + ((logoPictureURL == null) ? 0 : logoPictureURL.hashCode());
 		result = prime * result + ((contactEmail == null) ? 0 : contactEmail.hashCode());
-		result = prime * result + ((domains == null) ? 0 : domains.hashCode());
+//		result = prime * result + ((domains == null) ? 0 : domains.hashCode());
 		return result;
 	}
 
@@ -125,9 +127,9 @@ q.getSingleResult();*/
 		if (contactEmail == null) {
 			if (other.contactEmail != null)	return false;
 		} else if (!contactEmail.equals(other.contactEmail))    return false;
-		if (domains == null) {
-			if (other.domains != null)	return false;
-		} else if (!domains.equals(other.domains))    return false;
+//		if (domains == null) {
+//			if (other.domains != null)	return false;
+//		} else if (!domains.equals(other.domains))    return false;
         return true;
    }
         
@@ -190,7 +192,7 @@ q.getSingleResult();*/
 		public String institutionName;
 		public String logoPictureURL;
 		public String contactEmail;
-		public HashSet<String> domains;
+//		public HashSet<String> domains;
 
 		public Institution.Builder with(Consumer<Institution.Builder> builder) {
 			builder.accept(this);
@@ -198,7 +200,8 @@ q.getSingleResult();*/
 		}
 
 		public Institution build() {
-			return new Institution(institutionName, logoPictureURL, contactEmail, domains);
+			return new Institution(institutionName, logoPictureURL, contactEmail);
+//			return new Institution(institutionName, logoPictureURL, contactEmail, domains);
 		}
 	}
 

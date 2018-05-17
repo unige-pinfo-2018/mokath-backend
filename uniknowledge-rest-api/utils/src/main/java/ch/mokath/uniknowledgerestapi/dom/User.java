@@ -24,6 +24,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 
+import ch.mokath.uniknowledgerestapi.dom.Institution;
+
 /**
  * @author tv0g
  * @author matteo113
@@ -97,6 +99,7 @@ public class User implements Serializable {
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "institution_id")
 	@ElementCollection(targetClass = Institution.class)
+	@Expose(serialize = true, deserialize= true)
 	private Institution institution;
 
 	/* constructors and methods */
@@ -104,7 +107,7 @@ public class User implements Serializable {
 	}
 
 	public User(String username, String firstName, String lastName, String profilePictureURL, String email,
-			String password) {
+			String password, Institution institution) {
 		this.username = username;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -116,7 +119,7 @@ public class User implements Serializable {
 		this.likedQuestions = new HashSet<Question>();
 		this.followedQuestions = new HashSet<Question>();
 		this.likedAnswers = new HashSet<Answer>();
-		this.institution = new Institution();
+		this.institution = institution;
 	}
 
 	@Override
@@ -141,6 +144,7 @@ public class User implements Serializable {
 		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
 		result = prime * result + ((password == null) ? 0 : password.hashCode());
 		result = prime * result + ((username == null) ? 0 : username.hashCode());
+		result = prime * result + ((institution == null) ? 0 : institution.hashCode());
 		return result;
 	}
 
@@ -322,6 +326,7 @@ public class User implements Serializable {
 		public String profilePictureURL;
 		public String email;
 		public String password;
+		public Institution institution;
 
 		public User.Builder with(Consumer<User.Builder> builder) {
 			builder.accept(this);
@@ -329,7 +334,7 @@ public class User implements Serializable {
 		}
 
 		public User build() {
-			return new User(username, firstName, lastName, profilePictureURL, email, password);
+			return new User(username, firstName, lastName, profilePictureURL, email, password, institution);
 		}
 	}
 }

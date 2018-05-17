@@ -24,7 +24,7 @@ public class InstitutionTest {
 			$.institutionName = "InsName";
 			$.logoPictureURL = "InsLogo";
 			$.contactEmail = "contact@institution.com";
-			$.domains = new HashSet<String>();
+//			$.domains = new HashSet<String>();
 //			$.administrators = new HashSet<User>();
 //			$.askers = new HashSet<User>();
 //			$.repliers = new HashSet<User>();
