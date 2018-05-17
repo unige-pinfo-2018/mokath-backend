@@ -4,8 +4,10 @@
 package ch.mokath.uniknowledgerestapi.business.service;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityExistsException;
@@ -56,12 +58,21 @@ public class InstitutionsServiceImpl implements InstitutionsService {
         user.setInstitution(inst);
 	}
 	
+	@Override
 	public void removeUser(User u,Institution i){
         User user = em.merge(u);
         Institution inst = em.merge(i);
-        inst.removeUser(user);
+        user.removeInstitution();
 	}
 
+	@Override
+	public List<User> getUsers(Institution i){
+//        Institution inst = em.merge(i);
+        List<User> users = em.createQuery("select u from User u where u.institution.id = :instId", User.class)
+.setParameter("instId",i.getId()).getResultList();
+        return users;
+	}
+	
 	/** We do not want 2 institutions with the same name or contact email
 	*/
 	private boolean isContactEmailOrInstitutionNameAlreadyUsed(String contactEmail, String institutionName) {

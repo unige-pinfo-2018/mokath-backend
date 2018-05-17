@@ -3,6 +3,8 @@
  */
 package ch.mokath.uniknowledgerestapi.business.service;
 
+import java.util.List;
+
 import javax.ejb.Local;
 import javax.persistence.EntityExistsException;
 import javax.validation.constraints.NotNull;
@@ -44,4 +46,5 @@ public interface InstitutionsService {
 	*/
 	void addUser(User u,Institution i);
 	void removeUser(User u,Institution i);
+	List<User> getUsers(Institution i);
 }

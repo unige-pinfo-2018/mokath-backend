@@ -67,7 +67,7 @@ public class Institution implements Serializable {
 	@OneToMany(mappedBy="institution",cascade=CascadeType.ALL,orphanRemoval = true) //TODO !!cascade-remove /no ,orphanRemoval = true here
 /*	@OneToMany(mappedBy="institution",cascade=CascadeType.ALL) //TODO !!cascade-remove /no ,orphanRemoval = true here
 	@JoinColumn(name="institution_id"), //ok if unidirectional
-*/	@ElementCollection(targetClass = User.class)
+*/	@ElementCollection(targetClass = User.class,fetch=FetchType.EAGER)
 //TODO	@Expose(serialize = true, deserialize= true)
     private Set<User> users;
 /*TypedQuery<User> q = em.createQuery("SELECT u FROM User u JOIN FETCH u.institution", User.class);

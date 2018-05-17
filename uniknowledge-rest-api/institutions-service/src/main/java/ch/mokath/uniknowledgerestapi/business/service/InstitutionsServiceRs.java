@@ -144,10 +144,9 @@ public class InstitutionsServiceRs {
 	
 	/** User **/
 	@PUT
-	@Path("/{iid}/user/{uid}")
+	@Path("/{iid}/users/{uid}")
 //	@Produces("application/json") //TODO clean
 	public Response addUser(@PathParam("iid") String iid,@PathParam("uid") String uid) {
-
 		try { // get Institution
 			Map<String, Object> wherePMinst = new HashMap<String, Object>();
 			wherePMinst.put("id", iid);
@@ -171,19 +170,19 @@ public class InstitutionsServiceRs {
     }
 	
 	@GET
-	@Path("/{iid}/users}")
-//    @Produces("application/json") //TODO clean
+	@Path("/{iid}/users/")
+    @Produces("application/json") //TODO clean
 	public Response getUsers(@PathParam("iid") String iid) {
 		try {
-			Map<String, Object> wherePM = new HashMap<String, Object>();
-			wherePM.put("id", iid);
-			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePM,Institution.class,em);
+			Map<String, Object> wherePMinst = new HashMap<String, Object>();
+			wherePMinst.put("id", iid);
+			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePMinst,Institution.class,em);
 
 			if (wrappedInst.isPresent()) {
 				Institution i = wrappedInst.get();
-				
+//				i.getUsers();
 //                return Response.ok(unwrappedInst.getId()).build(); //TODO rmove for Prod
-                return Response.ok(i.getId()).build();
+                return Response.ok(institutionsService.getUsers(i)).build();
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
@@ -196,8 +195,6 @@ public class InstitutionsServiceRs {
 	@Path("/{iid}/user/{uid}")
 //	@Produces("application/json") //TODO clean
 	public Response removeUser(@PathParam("iid") String iid,@PathParam("uid") String uid){
-		Institution inst = new Institution();
-		inst.setId(iid);
 		try {
 			Map<String, Object> wherePMinst = new HashMap<String, Object>();
 			wherePMinst.put("id", iid);
@@ -217,7 +214,7 @@ public class InstitutionsServiceRs {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
 		} catch(Exception e) {
-			log.error("Exception thrown while deleting institution with id : "+uid+ " : "+e.getMessage());
+			log.error("Exception thrown while removing user with id : "+uid+ " : "+e.getMessage());
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 	}

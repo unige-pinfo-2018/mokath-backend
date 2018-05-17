@@ -327,7 +327,11 @@ public class User implements Serializable {
 	}
 	public Institution getInstitution() {
         return this.institution;
+	}	
+	public void removeInstitution() {
+        this.institution = null;
 	}
+	
 	
 	public static class Builder {
 
