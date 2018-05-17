@@ -60,7 +60,7 @@ public class Institution implements Serializable {
 	
 	/* External field-mapping */
 	@ElementCollection(targetClass = String.class,fetch=FetchType.EAGER)
-//	@Expose(serialize = true, deserialize= true)
+	@Expose(serialize = true, deserialize= true)
 	private Set<String> domains;
 
 

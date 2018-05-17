@@ -54,8 +54,6 @@ public class InstitutionsServiceImpl implements InstitutionsService {
         User user = em.merge(u);
         Institution inst = em.merge(i);
         user.setInstitution(inst);
-//        inst.addUser(user);
-//        em.merge(inst);
 	}
 	
 	public void removeUser(User u,Institution i){

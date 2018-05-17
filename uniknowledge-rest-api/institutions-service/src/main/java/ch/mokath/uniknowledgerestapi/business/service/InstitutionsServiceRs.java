@@ -145,17 +145,17 @@ public class InstitutionsServiceRs {
 	/** User **/
 	@PUT
 	@Path("/{iid}/user/{uid}")
-//	@Produces("application/json")
+//	@Produces("application/json") //TODO clean
 	public Response addUser(@PathParam("iid") String iid,@PathParam("uid") String uid) {
 
 		try { // get Institution
 			Map<String, Object> wherePMinst = new HashMap<String, Object>();
 			wherePMinst.put("id", iid);
 			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePMinst,Institution.class,em);
-			
-			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-			wherePredicatesMap.put("id", uid);
-			Optional<User> wrappedUser = DBHelper.getEntityFromFields(wherePredicatesMap,User.class,em);
+
+			Map<String, Object> wherePMuser = new HashMap<String, Object>();
+			wherePMuser.put("id", uid);
+			Optional<User> wrappedUser = DBHelper.getEntityFromFields(wherePMuser,User.class,em);
 
 			if (wrappedInst.isPresent() && wrappedUser.isPresent()) {
 				Institution i = wrappedInst.get();
@@ -171,9 +171,9 @@ public class InstitutionsServiceRs {
     }
 	
 	@GET
-	@Path("/{iid}/user/}")
-    @Produces("application/json")
-	public Response getAdministrators(@PathParam("iid") String iid) {
+	@Path("/{iid}/users}")
+//    @Produces("application/json") //TODO clean
+	public Response getUsers(@PathParam("iid") String iid) {
 		try {
 			Map<String, Object> wherePM = new HashMap<String, Object>();
 			wherePM.put("id", iid);
@@ -193,20 +193,26 @@ public class InstitutionsServiceRs {
 	}
 	
 	@DELETE
-	@Path("/{iid}/admin/{uid}")
-	@Produces("application/json")
-	public Response removeAdministrator(@Context HttpServletRequest req,@PathParam("iid") String iid,@PathParam("uid") String uid){
+	@Path("/{iid}/user/{uid}")
+//	@Produces("application/json") //TODO clean
+	public Response removeUser(@PathParam("iid") String iid,@PathParam("uid") String uid){
 		Institution inst = new Institution();
 		inst.setId(iid);
 		try {
-			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-			wherePredicatesMap.put("id", iid);
-			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
+			Map<String, Object> wherePMinst = new HashMap<String, Object>();
+			wherePMinst.put("id", iid);
+			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePMinst,Institution.class,em);
 
-			if (wrappedInst.isPresent()) {
-//                institutionsService.deleteInstitution(inst);
-//                return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
-                return Response.ok("TODO").build();
+			Map<String, Object> wherePMuser = new HashMap<String, Object>();
+			wherePMuser.put("id", uid);
+			Optional<User> wrappedUser = DBHelper.getEntityFromFields(wherePMuser,User.class,em);
+
+			if (wrappedInst.isPresent() && wrappedUser.isPresent()) {
+				Institution i = wrappedInst.get();
+				User u = wrappedUser.get();
+                institutionsService.removeUser(u,i);
+                return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
+//                return Response.ok("TODO").build();
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
