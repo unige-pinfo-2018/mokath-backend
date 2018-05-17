@@ -59,7 +59,7 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	public void removeUser(User u,Institution i){
         User user = em.merge(u);
         Institution inst = em.merge(i);
-	
+        inst.removeUser(user);
 	}
 
 	/** We do not want 2 institutions with the same name or contact email

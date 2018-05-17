@@ -107,7 +107,8 @@ public class User implements Serializable {
 	}
 
 	public User(String username, String firstName, String lastName, String profilePictureURL, String email,
-			String password, Institution institution) {
+			String password) {
+//			String password, String institution) {
 		this.username = username;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -119,8 +120,17 @@ public class User implements Serializable {
 		this.likedQuestions = new HashSet<Question>();
 		this.followedQuestions = new HashSet<Question>();
 		this.likedAnswers = new HashSet<Answer>();
-		this.institution = institution;
+		this.institution = new Institution();
+/*		this.institution = getInstitutionFromJsonString(institution);
 	}
+    public Institution getInstitutionFromJsonString(String jsonString) {
+		GsonBuilder builder = new GsonBuilder();  
+	    builder.excludeFieldsWithoutExposeAnnotation();
+		Gson gson = builder.create();
+    
+        return gson.fromJson(jsonString, Institution.class);       
+*/    }
+
 
 	@Override
 	public String toString() {
@@ -144,7 +154,7 @@ public class User implements Serializable {
 		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
 		result = prime * result + ((password == null) ? 0 : password.hashCode());
 		result = prime * result + ((username == null) ? 0 : username.hashCode());
-		result = prime * result + ((institution == null) ? 0 : institution.hashCode());
+//		result = prime * result + ((institution == null) ? 0 : institution.hashCode());
 		return result;
 	}
 
@@ -187,12 +197,12 @@ public class User implements Serializable {
 				return false;
 		} else if (!username.equals(other.username))
 			return false;
-		if (institution == null) {
+/*		if (institution == null) {
 			if (other.institution != null)
 				return false;
 		} else if (!institution.equals(other.institution))
 			return false;
-		return true;
+*/		return true;
 	}
 
 	public void setID(Long id) {
@@ -311,8 +321,13 @@ public class User implements Serializable {
 		return this.getLikedAnswers();
 	}
 	
+	
 	public void setInstitution(Institution i) {
         this.institution = i;
+	}
+	public void setInstitution(String i) {
+	
+//        this.institution = i;
 	}
 	public Institution getInstitution() {
         return this.institution;
@@ -326,7 +341,7 @@ public class User implements Serializable {
 		public String profilePictureURL;
 		public String email;
 		public String password;
-		public Institution institution;
+//		public String institution;
 
 		public User.Builder with(Consumer<User.Builder> builder) {
 			builder.accept(this);
@@ -334,7 +349,8 @@ public class User implements Serializable {
 		}
 
 		public User build() {
-			return new User(username, firstName, lastName, profilePictureURL, email, password, institution);
+			return new User(username, firstName, lastName, profilePictureURL, email, password);
+//			return new User(username, firstName, lastName, profilePictureURL, email, password, institution);
 		}
 	}
 }

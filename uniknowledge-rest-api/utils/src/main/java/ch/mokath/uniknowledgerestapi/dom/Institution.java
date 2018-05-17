@@ -64,7 +64,7 @@ public class Institution implements Serializable {
 	private Set<String> domains;
 
 
-	@OneToMany(mappedBy="institution",cascade=CascadeType.ALL) //TODO !!cascade-remove /no ,orphanRemoval = true here
+	@OneToMany(mappedBy="institution",cascade=CascadeType.ALL,orphanRemoval = true) //TODO !!cascade-remove /no ,orphanRemoval = true here
 /*	@OneToMany(mappedBy="institution",cascade=CascadeType.ALL) //TODO !!cascade-remove /no ,orphanRemoval = true here
 	@JoinColumn(name="institution_id"), //ok if unidirectional
 */	@ElementCollection(targetClass = User.class)
@@ -82,16 +82,16 @@ q.getSingleResult();*/
 	public Institution() {
 	}
 
-	public Institution(String institutionName, String logoPictureURL, String contactEmail){
-//	public Institution(String institutionName, String logoPictureURL, String contactEmail, HashSet<String> domains){
+//	public Institution(String institutionName, String logoPictureURL, String contactEmail){
+	public Institution(String institutionName, String logoPictureURL, String contactEmail, HashSet<String> domains){
 		this.institutionName = institutionName;
 		this.logoPictureURL = logoPictureURL;
 		this.contactEmail = contactEmail;
-//		this.domains = domains;
-		this.domains = new HashSet<String>();
+		this.domains = domains;
+//		this.domains = new HashSet<String>();
 		this.users = new HashSet<User>();
     }
-
+    
 	@Override
 	public String toString() {
 		GsonBuilder builder = new GsonBuilder();  
@@ -108,7 +108,7 @@ q.getSingleResult();*/
 		result = prime * result + ((institutionName == null) ? 0 : institutionName.hashCode());
 		result = prime * result + ((logoPictureURL == null) ? 0 : logoPictureURL.hashCode());
 		result = prime * result + ((contactEmail == null) ? 0 : contactEmail.hashCode());
-//		result = prime * result + ((domains == null) ? 0 : domains.hashCode());
+		result = prime * result + ((domains == null) ? 0 : domains.hashCode());
 		return result;
 	}
 
@@ -127,9 +127,9 @@ q.getSingleResult();*/
 		if (contactEmail == null) {
 			if (other.contactEmail != null)	return false;
 		} else if (!contactEmail.equals(other.contactEmail))    return false;
-//		if (domains == null) {
-//			if (other.domains != null)	return false;
-//		} else if (!domains.equals(other.domains))    return false;
+		if (domains == null) {
+			if (other.domains != null)	return false;
+		} else if (!domains.equals(other.domains))    return false;
         return true;
    }
         
@@ -192,7 +192,7 @@ q.getSingleResult();*/
 		public String institutionName;
 		public String logoPictureURL;
 		public String contactEmail;
-//		public HashSet<String> domains;
+		public HashSet<String> domains;
 
 		public Institution.Builder with(Consumer<Institution.Builder> builder) {
 			builder.accept(this);
@@ -200,8 +200,8 @@ q.getSingleResult();*/
 		}
 
 		public Institution build() {
-			return new Institution(institutionName, logoPictureURL, contactEmail);
-//			return new Institution(institutionName, logoPictureURL, contactEmail, domains);
+//			return new Institution(institutionName, logoPictureURL, contactEmail);
+			return new Institution(institutionName, logoPictureURL, contactEmail, domains);
 		}
 	}
 
