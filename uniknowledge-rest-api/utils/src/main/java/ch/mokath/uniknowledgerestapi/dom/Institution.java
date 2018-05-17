@@ -40,10 +40,7 @@ public class Institution implements Serializable {
 
 	/* start fields */
 	@Id
-//	@GeneratedValue(generator = "UUID")
-//	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
 	@Column(name = "id", updatable = false, nullable = false)
-//	private UUID id;
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Expose(serialize = false, deserialize= true)
 	private Long id;
@@ -102,54 +99,79 @@ q.getSingleResult();*/
 		return gson.toJson(this);
 	}
 
-	/* getter */
-//	public UUID getId() {
+	@Override
+	public int hashCode() { //TODO ? add users to hashcode?
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((institutionName == null) ? 0 : institutionName.hashCode());
+		result = prime * result + ((logoPictureURL == null) ? 0 : logoPictureURL.hashCode());
+		result = prime * result + ((contactEmail == null) ? 0 : contactEmail.hashCode());
+		result = prime * result + ((domains == null) ? 0 : domains.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) { //TODO ? add users to equals?
+		if (this == obj)	return true;
+		if (obj == null)	return false;
+		if (getClass() != obj.getClass())	return false;
+		Institution other = (Institution) obj;
+		if (institutionName == null) {
+			if (other.institutionName != null)	return false;
+		} else if (!institutionName.equals(other.institutionName))    return false;
+		if (logoPictureURL == null) {
+			if (other.logoPictureURL != null)	return false;
+		} else if (!logoPictureURL.equals(other.logoPictureURL))    return false;
+		if (contactEmail == null) {
+			if (other.contactEmail != null)	return false;
+		} else if (!contactEmail.equals(other.contactEmail))    return false;
+		if (domains == null) {
+			if (other.domains != null)	return false;
+		} else if (!domains.equals(other.domains))    return false;
+        return true;
+   }
+        
+
+    /* get-/set-ter */
 	public Long getId() {
 		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public void setId(String id) {
+		this.id = Long.parseLong(id);
 	}
 
 	public String getInstitutionName() {
 		return institutionName;
 	}
+	public void setInstitutionName(String institutionName) {
+		this.institutionName = institutionName;
+	}
 
 	public String getLogoPictureURL() {
 		return logoPictureURL;
+	}
+	public void setLogoPictureURL(String logoPictureURL) {
+		this.logoPictureURL = logoPictureURL;
 	}
 
 	public String getContactEmail() {
 		return contactEmail;
 	}
-
-	public Set<String> getDomains() {
-		return domains;
-	}
-
-	/* setter */
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public void setId(String id) {
-		this.id = Long.parseLong(id);
-	}
-
-	public void setInstitutionName(String institutionName) {
-		this.institutionName = institutionName;
-	}
-
-	public void setLogoPictureURL(String logoPictureURL) {
-		this.logoPictureURL = logoPictureURL;
-	}
-
 	public void setContactEmail(String contactEmail) {
 		this.contactEmail = contactEmail;
 	}
 
+	public Set<String> getDomains() {
+		return domains;
+	}
 	public void setDomains(Set<String> domains) {
 		this.domains = domains;
 	}
 
-	/* user set */
+	/* user methods */
 	public Set<User> getUsers() {
 		return users;
 	}
@@ -159,6 +181,8 @@ q.getSingleResult();*/
 	public void removeUser(User u) {
 		this.users.remove(u);
 	}
+	
+	
 
 	/* builder */
 	public static class Builder {
