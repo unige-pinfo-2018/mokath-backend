@@ -18,6 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -92,28 +93,12 @@ public class User implements Serializable {
 	@ElementCollection(targetClass = Answer.class)
 	private Set<Answer> likedAnswers;
 
-	/* field relationship mapping for Institution */
-	@ManyToMany(cascade = CascadeType.ALL)
-	@JoinTable(name = "institution_admins",
-	joinColumns = @JoinColumn(name = "user_id"),
-	inverseJoinColumns = @JoinColumn(name = "administrator_id"))
+	/* field relationship mapping for Institution - Only 1 institution/user */
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "institution_id")
 	@ElementCollection(targetClass = Institution.class)
-	private Set<Institution> instAdmins;
+	private Institution institution;
 
-	@ManyToMany(cascade = CascadeType.ALL)
-	@JoinTable(name = "institution_repliers",
-	joinColumns = @JoinColumn(name = "user_id"),
-	inverseJoinColumns = @JoinColumn(name = "replier_id"))
-	@ElementCollection(targetClass = Institution.class)
-	private Set<Institution> instRepliers;
-	
-	@ManyToMany(cascade = CascadeType.ALL)
-	@JoinTable(name = "institution_askers",
-	joinColumns = @JoinColumn(name = "user_id"),
-	inverseJoinColumns = @JoinColumn(name = "asker_id"))
-	@ElementCollection(targetClass = Institution.class)
-	private Set<Institution> instAskers;
-	
 	/* constructors and methods */
 	public User() {
 	}
@@ -131,9 +116,7 @@ public class User implements Serializable {
 		this.likedQuestions = new HashSet<Question>();
 		this.followedQuestions = new HashSet<Question>();
 		this.likedAnswers = new HashSet<Answer>();
-		this.instAdmins = new HashSet<Institution>();
-		this.instRepliers = new HashSet<Institution>();
-		this.instAskers = new HashSet<Institution>();
+		this.institution = new Institution();
 	}
 
 	@Override
@@ -149,7 +132,7 @@ public class User implements Serializable {
 	
 
 	@Override
-	public int hashCode() {
+	public int hashCode() { //TODO ? add institution to hashcode?
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
@@ -199,6 +182,11 @@ public class User implements Serializable {
 			if (other.username != null)
 				return false;
 		} else if (!username.equals(other.username))
+			return false;
+		if (institution == null) {
+			if (other.institution != null)
+				return false;
+		} else if (!institution.equals(other.institution))
 			return false;
 		return true;
 	}
@@ -317,6 +305,13 @@ public class User implements Serializable {
 	
 	public Set<Answer> getLikedAnswers() {
 		return this.getLikedAnswers();
+	}
+	
+	public void setInstitution(Institution i) {
+        this.institution = i;
+	}
+	public Institution getInstitution() {
+        return this.institution;
 	}
 	
 	public static class Builder {

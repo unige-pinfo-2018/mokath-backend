@@ -48,16 +48,17 @@ public class InstitutionsServiceImpl implements InstitutionsService {
         return (Institution) em.merge(i);
 	}
 	
-	/** add remove User as admins,askers or repliers to an Institution
-	*/
+	/** add/remove User to/from an Institution */
 	@Override
-	public void addAdministrator(User administrator,Institution i){
-        User admin = em.merge(administrator);
+	public void addUser(User u,Institution i){
+        User user = em.merge(u);
         Institution inst = em.merge(i);
-        inst.addAdministrator(admin);        
+        inst.addUser(user);        
 	}
 	
-	public void removeAdministrator(User administrator,Institution i){
+	public void removeUser(User u,Institution i){
+        User user = em.merge(u);
+        Institution inst = em.merge(i);
 	
 	}
 

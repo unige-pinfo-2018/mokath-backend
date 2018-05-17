@@ -142,9 +142,9 @@ public class InstitutionsServiceRs {
 		}
 	}
 	
-	/** Admins **/
-	@POST
-	@Path("/{iid}/admin/{uid}")
+	/** User **/
+	@PUT
+	@Path("/{iid}/user/{uid}")
 //	@Produces("application/json")
 	public Response addAdministrator(@Context HttpServletRequest req,@PathParam("iid") String iid,@PathParam("uid") String uid) {
 
@@ -160,7 +160,7 @@ public class InstitutionsServiceRs {
 			if (wrappedInst.isPresent() && wrappedUser.isPresent()) {
 				Institution i = wrappedInst.get();
 				User u = wrappedUser.get();
-				institutionsService.addAdministrator(u,i);
+				institutionsService.addUser(u,i);
                 return Response.ok().build();
 //                return Response.ok(i.getId()+"/user:"+u.getId()+"/i:"+i.toString()).build();
 			} else {
@@ -183,7 +183,7 @@ public class InstitutionsServiceRs {
 			if (wrappedInst.isPresent()) {
 				Institution i = wrappedInst.get();
 //                return Response.ok(unwrappedInst.getId()).build(); //TODO rmove for Prod
-                return Response.ok(i.getAdministrators()).build();
+                return Response.ok(i.getId()).build();
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
@@ -192,52 +192,6 @@ public class InstitutionsServiceRs {
 		}
 	}
 	
-/*	@GET
-	@Path("/{iid}/admin/{uid}")
-    @Produces("application/json")
-	public Response getAdministrator(@PathParam("iid") String iid) {
-		try {
-			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-			wherePredicatesMap.put("id", iid);
-			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
-
-			if (wrappedInst.isPresent()) {
-				Institution unwrappedInst = wrappedInst.get();
-//                return Response.ok(unwrappedInst.getId()).build(); //TODO rmove for Prod
-                return Response.ok(unwrappedInst.toString()).build();
-			} else {
-				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-			}
-		} catch (Exception e) {
-			return  Response.status(Response.Status.BAD_REQUEST).entity(e).build();//CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
-		}
-	}
-	
-/*	@PUT
-	@Path("/{id}/admin/{uid}")
-	@Consumes("application/json")
-	@Produces("application/json")
-	public Response updateInstitution(@Context HttpServletRequest req,@NotNull final String requestBody,@PathParam("id") String id) {
-		try {
-			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-			wherePredicatesMap.put("id", id);
-			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
-
-			if (wrappedInst.isPresent()) {
-				Institution unwrappedInst = wrappedInst.get();
-
-                Institution requestedInst = new Gson().fromJson(requestBody,Institution.class);
-                requestedInst.setId(unwrappedInst.getId());
-                Institution updatedInst = institutionsService.updateInstitution(requestedInst);
-                return Response.ok(updatedInst.toString()).build();
-			} else {
-				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-			}
-		} catch (Exception e) {
-			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
-		}
-	}
-*/
 	@DELETE
 	@Path("/{iid}/admin/{uid}")
 	@Produces("application/json")
@@ -251,7 +205,8 @@ public class InstitutionsServiceRs {
 
 			if (wrappedInst.isPresent()) {
 //                institutionsService.deleteInstitution(inst);
-                return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
+//                return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
+                return Response.ok("TODO").build();
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}

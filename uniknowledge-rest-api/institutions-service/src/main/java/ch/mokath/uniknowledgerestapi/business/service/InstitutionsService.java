@@ -42,6 +42,6 @@ public interface InstitutionsService {
 	* @param administrator User to add/remove as administrator
 	* @param i Institution the administrator will be added to/removed from
 	*/
-	void addAdministrator(User administrator,Institution i);
-	void removeAdministrator(User administrator,Institution i);
+	void addUser(User u,Institution i);
+	void removeUser(User u,Institution i);
 }

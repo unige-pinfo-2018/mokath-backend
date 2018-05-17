@@ -18,7 +18,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.Size;
 
 import com.google.gson.Gson;
@@ -67,28 +67,30 @@ public class Institution implements Serializable {
 	private Set<String> domains;
 
 
-	@ManyToMany(mappedBy="instAdmins",cascade=CascadeType.ALL,fetch=FetchType.EAGER)
-	@ElementCollection(targetClass = User.class)
-	private Set<User> administrators;
-
-	@ManyToMany(mappedBy="instRepliers",cascade=CascadeType.ALL,fetch=FetchType.EAGER)
-	@ElementCollection(targetClass = User.class)
-	private Set<User> repliers;
-
-	@ManyToMany(mappedBy="instAskers",cascade=CascadeType.ALL,fetch=FetchType.EAGER)
-	@ElementCollection(targetClass = User.class)
-	private Set<User> askers;
+	@OneToMany(mappedBy="institution",cascade=CascadeType.ALL) //TODO !!cascade-remove /no ,orphanRemoval = true here
+/*	@OneToMany(mappedBy="institution",cascade=CascadeType.ALL) //TODO !!cascade-remove /no ,orphanRemoval = true here
+	@JoinColumn(name="institution_id"), //ok if unidirectional
+*/	@ElementCollection(targetClass = User.class)
+//TODO	@Expose(serialize = true, deserialize= true)
+    private Set<User> users;
+/*TypedQuery<User> q = em.createQuery("SELECT u FROM User u JOIN FETCH u.institution", User.class);
+q.setFirstResult(0);
+q.setMaxResults(2);
+HashSet<User> users = q.getResultList();
+TypedQuery<Institution> q = em.createQuery("SELECT i FROM Institution i JOIN User u ON u.id = u.institution.id WHERE u.id = :userId", Institution.class);
+q.setParameter("userId", user2.getId());
+q.getSingleResult();*/
 	
     /* constructors */
 	public Institution() {
 	}
 
 	public Institution(String institutionName, String logoPictureURL, String contactEmail, HashSet<String> domains){
-//			,Set<String> administrators, Set<String> repliers, Set<String> askers) {
 		this.institutionName = institutionName;
 		this.logoPictureURL = logoPictureURL;
 		this.contactEmail = contactEmail;
 		this.domains = domains;
+		this.users = new HashSet<User>();
     }
 
 	@Override
@@ -98,7 +100,6 @@ public class Institution implements Serializable {
 		Gson gson = builder.create();  
 		
 		return gson.toJson(this);
-//		return new Gson().toJson(this);
 	}
 
 	/* getter */
@@ -123,16 +124,8 @@ public class Institution implements Serializable {
 		return domains;
 	}
 
-	public Set<User> getAdministrators() {
-		return administrators;
-	}
-
-	public Set<User> getRepliers() {
-		return repliers;
-	}
-
-	public Set<User> getAskers() {
-		return askers;
+	public Set<User> getUsers() {
+		return users;
 	}
 
 	/* setter */
@@ -160,16 +153,8 @@ public class Institution implements Serializable {
 		this.domains = domains;
 	}
 
-	public void addAdministrator(User administrator) {
-		this.administrators.add(administrator);
-	}
-
-	public void setRepliers(Set<User> repliers) {
-		this.repliers = repliers;
-	}
-
-	public void setAskers(Set<User> askers) {
-		this.askers = askers;
+	public void addUser(User u) {
+		this.users.add(u);
 	}
 
 	/* builder */
