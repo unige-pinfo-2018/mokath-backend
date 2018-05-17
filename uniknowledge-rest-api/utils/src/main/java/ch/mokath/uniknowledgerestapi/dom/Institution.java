@@ -124,10 +124,6 @@ q.getSingleResult();*/
 		return domains;
 	}
 
-	public Set<User> getUsers() {
-		return users;
-	}
-
 	/* setter */
 	public void setId(Long id) {
 		this.id = id;
@@ -153,8 +149,15 @@ q.getSingleResult();*/
 		this.domains = domains;
 	}
 
+	/* user set */
+	public Set<User> getUsers() {
+		return users;
+	}
 	public void addUser(User u) {
 		this.users.add(u);
+	}
+	public void removeUser(User u) {
+		this.users.remove(u);
 	}
 
 	/* builder */
