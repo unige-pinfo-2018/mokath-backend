@@ -325,10 +325,6 @@ public class User implements Serializable {
 	public void setInstitution(Institution i) {
         this.institution = i;
 	}
-	public void setInstitution(String i) {
-	
-//        this.institution = i;
-	}
 	public Institution getInstitution() {
         return this.institution;
 	}

@@ -146,7 +146,7 @@ public class InstitutionsServiceRs {
 	@PUT
 	@Path("/{iid}/user/{uid}")
 //	@Produces("application/json")
-	public Response addAdministrator(@Context HttpServletRequest req,@PathParam("iid") String iid,@PathParam("uid") String uid) {
+	public Response addUser(@PathParam("iid") String iid,@PathParam("uid") String uid) {
 
 		try { // get Institution
 			Map<String, Object> wherePMinst = new HashMap<String, Object>();
@@ -162,7 +162,6 @@ public class InstitutionsServiceRs {
 				User u = wrappedUser.get();
 				institutionsService.addUser(u,i);
                 return Response.ok().build();
-//                return Response.ok(i.getId()+"/user:"+u.getId()+"/i:"+i.toString()).build();
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
@@ -172,16 +171,17 @@ public class InstitutionsServiceRs {
     }
 	
 	@GET
-	@Path("/{iid}/admin/}")
+	@Path("/{iid}/user/}")
     @Produces("application/json")
 	public Response getAdministrators(@PathParam("iid") String iid) {
 		try {
-			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-			wherePredicatesMap.put("id", iid);
-			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
+			Map<String, Object> wherePM = new HashMap<String, Object>();
+			wherePM.put("id", iid);
+			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePM,Institution.class,em);
 
 			if (wrappedInst.isPresent()) {
 				Institution i = wrappedInst.get();
+				
 //                return Response.ok(unwrappedInst.getId()).build(); //TODO rmove for Prod
                 return Response.ok(i.getId()).build();
 			} else {
