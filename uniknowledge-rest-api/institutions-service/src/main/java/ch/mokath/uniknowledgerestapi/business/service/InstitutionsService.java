@@ -45,6 +45,6 @@ public interface InstitutionsService {
 	* @param i Institution the administrator will be added to/removed from
 	*/
 	void addUser(User u,Institution i);
-	void removeUser(User u,Institution i);
-	List<User> getUsers(Institution i);
+	boolean removeUser(User u,Institution i);
+	String getUsers(Institution i);
 }

@@ -8,12 +8,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.List;
+import java.util.Arrays;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.validation.constraints.NotNull;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import ch.mokath.uniknowledgerestapi.dom.Institution;
 import ch.mokath.uniknowledgerestapi.dom.User;
@@ -59,18 +63,24 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	}
 	
 	@Override
-	public void removeUser(User u,Institution i){
+	public boolean removeUser(User u,Institution i){
         User user = em.merge(u);
-        Institution inst = em.merge(i);
-        user.removeInstitution();
+        Map<String, Object> wherePM = new HashMap<String, Object>();
+		wherePM.put("institution", i.getId());
+		wherePM.put("id", u.getId());
+		Optional<User> wrappedUser = DBHelper.getEntityFromFields(wherePM, User.class, em);
+		if(wrappedUser.isPresent()){
+            user.removeInstitution();
+            return true;
+        }else return false;
 	}
 
 	@Override
-	public List<User> getUsers(Institution i){
-//        Institution inst = em.merge(i);
-        List<User> users = em.createQuery("select u from User u where u.institution.id = :instId", User.class)
-.setParameter("instId",i.getId()).getResultList();
-        return users;
+	public String getUsers(Institution i){
+        Institution inst = em.merge(i);
+        List<User> users = em.createQuery("select u from User u where u.institution.id = :instId",User.class).setParameter("instId",i.getId()).getResultList();
+		String koL=Arrays.asList(users).toString();
+		return  koL.substring(2,koL.length()-2); //remove the starting [[ and ending ]]
 	}
 	
 	/** We do not want 2 institutions with the same name or contact email

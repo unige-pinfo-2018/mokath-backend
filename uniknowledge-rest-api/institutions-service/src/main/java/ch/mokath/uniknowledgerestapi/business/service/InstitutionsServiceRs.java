@@ -145,7 +145,7 @@ public class InstitutionsServiceRs {
 	/** User **/
 	@PUT
 	@Path("/{iid}/users/{uid}")
-//	@Produces("application/json") //TODO clean
+	@Produces("application/json")
 	public Response addUser(@PathParam("iid") String iid,@PathParam("uid") String uid) {
 		try { // get Institution
 			Map<String, Object> wherePMinst = new HashMap<String, Object>();
@@ -165,13 +165,14 @@ public class InstitutionsServiceRs {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
 		} catch (Exception e) {
-			return  Response.status(Response.Status.BAD_REQUEST).entity(e).build();//CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+			return  Response.status(Response.Status.BAD_REQUEST).entity(e).build();
+			//return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
     }
 	
 	@GET
 	@Path("/{iid}/users/")
-    @Produces("application/json") //TODO clean
+    @Produces("application/json")
 	public Response getUsers(@PathParam("iid") String iid) {
 		try {
 			Map<String, Object> wherePMinst = new HashMap<String, Object>();
@@ -180,20 +181,19 @@ public class InstitutionsServiceRs {
 
 			if (wrappedInst.isPresent()) {
 				Institution i = wrappedInst.get();
-//				i.getUsers();
-//                return Response.ok(unwrappedInst.getId()).build(); //TODO rmove for Prod
                 return Response.ok(institutionsService.getUsers(i)).build();
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
 		} catch (Exception e) {
-			return  Response.status(Response.Status.BAD_REQUEST).entity(e).build();//CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+			return  Response.status(Response.Status.BAD_REQUEST).entity(e).build();
+			//return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 	}
 	
 	@DELETE
 	@Path("/{iid}/user/{uid}")
-//	@Produces("application/json") //TODO clean
+	@Produces("application/json")
 	public Response removeUser(@PathParam("iid") String iid,@PathParam("uid") String uid){
 		try {
 			Map<String, Object> wherePMinst = new HashMap<String, Object>();
@@ -207,9 +207,10 @@ public class InstitutionsServiceRs {
 			if (wrappedInst.isPresent() && wrappedUser.isPresent()) {
 				Institution i = wrappedInst.get();
 				User u = wrappedUser.get();
-                institutionsService.removeUser(u,i);
-                return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
-//                return Response.ok("TODO").build();
+                boolean removed = institutionsService.removeUser(u,i);
+                
+                if(removed)  return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
+                else return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
