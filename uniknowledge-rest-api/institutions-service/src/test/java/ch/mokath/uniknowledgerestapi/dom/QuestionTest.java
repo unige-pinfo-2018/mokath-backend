@@ -1,6 +1,7 @@
 package ch.mokath.uniknowledgerestapi.dom;
 
 import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -75,10 +76,16 @@ public class QuestionTest {
 	   question.addAnswer(answer);
 	   question.addAnswer(otherAnswer);//not check corresponding betwen question
 	   
+	   
+	   Assert.assertEquals(question.getAnswers().size()==2,true);//we added 2 element
+	   
 	   Assert.assertEquals(question.getAnswers()==answer, false);//false cause return should be a set of the 2 answers that we added
 	   
 	   question.removeAnswer(otherAnswer);
-	   Assert.assertEquals(question.getAnswers()==answer, false);//answer is not a set
+	   Assert.assertEquals(question.getAnswers().size()==1,true);//we removed 1 answer
+	   
+	   question.removeAnswer(answer);
+	   Assert.assertEquals(question.getAnswers().size()==0,true);//we removed 1 answer
 
 	}
 
