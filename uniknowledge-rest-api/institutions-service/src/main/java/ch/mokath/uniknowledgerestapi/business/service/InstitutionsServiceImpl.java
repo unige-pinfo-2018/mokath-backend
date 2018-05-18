@@ -80,7 +80,7 @@ public class InstitutionsServiceImpl implements InstitutionsService {
         Institution inst = em.merge(i);
         List<User> users = em.createQuery("select u from User u where u.institution.id = :instId",User.class).setParameter("instId",i.getId()).getResultList();
 		String koL=Arrays.asList(users).toString();
-		return  koL.substring(2,koL.length()-2); //remove the starting [[ and ending ]]
+		return  koL.substring(1,koL.length()-1); //remove the starting [ and ending ] added by arraylist
 	}
 	
 	/** We do not want 2 institutions with the same name or contact email
@@ -97,7 +97,7 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 		Optional<Institution> wrappedInstForEmail = DBHelper.getEntityFromFields(wherePredicatesMapForContactEmail, Institution.class, em);
 		Optional<Institution> wrappedInstForName = DBHelper.getEntityFromFields(wherePredicatesMapForInstitutionName, Institution.class, em);
 
-		// If user already exists with this email
+		// If institution already exists with same contact email
 		return wrappedInstForEmail.isPresent() || wrappedInstForName.isPresent();
 	}
 }

@@ -70,25 +70,16 @@ public class Institution implements Serializable {
 */	@ElementCollection(targetClass = User.class,fetch=FetchType.EAGER)
 //TODO	@Expose(serialize = true, deserialize= true)
     private Set<User> users;
-/*TypedQuery<User> q = em.createQuery("SELECT u FROM User u JOIN FETCH u.institution", User.class);
-q.setFirstResult(0);
-q.setMaxResults(2);
-HashSet<User> users = q.getResultList();
-TypedQuery<Institution> q = em.createQuery("SELECT i FROM Institution i JOIN User u ON u.id = u.institution.id WHERE u.id = :userId", Institution.class);
-q.setParameter("userId", user2.getId());
-q.getSingleResult();*/
 	
     /* constructors */
 	public Institution() {
 	}
 
-//	public Institution(String institutionName, String logoPictureURL, String contactEmail){
 	public Institution(String institutionName, String logoPictureURL, String contactEmail, HashSet<String> domains){
 		this.institutionName = institutionName;
 		this.logoPictureURL = logoPictureURL;
 		this.contactEmail = contactEmail;
 		this.domains = domains;
-//		this.domains = new HashSet<String>();
 		this.users = new HashSet<User>();
     }
     
@@ -200,7 +191,6 @@ q.getSingleResult();*/
 		}
 
 		public Institution build() {
-//			return new Institution(institutionName, logoPictureURL, contactEmail);
 			return new Institution(institutionName, logoPictureURL, contactEmail, domains);
 		}
 	}

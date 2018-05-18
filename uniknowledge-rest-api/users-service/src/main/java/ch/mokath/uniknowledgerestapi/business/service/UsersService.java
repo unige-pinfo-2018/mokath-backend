@@ -17,7 +17,7 @@ import ch.mokath.uniknowledgerestapi.dom.User;
 
 /**
  * @author tv0g
- *
+ * @author zue
  */
 @Local
 public interface UsersService {

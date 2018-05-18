@@ -62,11 +62,12 @@ public class InstitutionsServiceRs {
 		try {
 			institutionsService.createInstitution(i);
 		} catch (JsonSyntaxException jse) {
-			return Response.status(Response.Status.BAD_REQUEST).entity("Invalid JSON for Resource").build();
+			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
 		} catch (EntityExistsException eee) { //TODO get this to work and set correct message
-            return Response.status(Response.Status.BAD_REQUEST).entity(eee).build();//CustomErrorResponse.IDENTIFIER_ALREADY_USED.getHTTPResponse();
-		} catch (Exception e) { //TODO if EntityExistsException does not work, change message (!username)
-            return CustomErrorResponse.IDENTIFIER_ALREADY_USED.getHTTPResponse();
+//            return Response.status(Response.Status.BAD_REQUEST).entity(eee).build();
+            return CustomErrorResponse.IDENTIFIER_ALREADY_USED_INST.getHTTPResponse();
+		} catch (Exception e) { //TODO if EntityExistsException works, change message
+            return CustomErrorResponse.IDENTIFIER_ALREADY_USED_INST.getHTTPResponse();
 		}
 
 		return Response.ok(i.toString()).build();
@@ -83,13 +84,12 @@ public class InstitutionsServiceRs {
 
 			if (wrappedInst.isPresent()) {
 				Institution unwrappedInst = wrappedInst.get();
-//                return Response.ok(unwrappedInst.getId()).build(); //TODO rmove for Prod
                 return Response.ok(unwrappedInst.toString()).build();
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
 		} catch (Exception e) {
-			return  Response.status(Response.Status.BAD_REQUEST).entity(e).build();//CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+			return  CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 	}
 	
@@ -97,7 +97,7 @@ public class InstitutionsServiceRs {
 	@Path("/{id}")
 	@Consumes("application/json")
 	@Produces("application/json")
-	public Response updateInstitution(@Context HttpServletRequest req,@NotNull final String requestBody,@PathParam("id") String id) {
+	public Response updateInstitution(@NotNull final String requestBody,@PathParam("id") String id) {
 		try {
 			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
 			wherePredicatesMap.put("id", id);
@@ -113,6 +113,8 @@ public class InstitutionsServiceRs {
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
+		} catch (JsonSyntaxException jse) {
+			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
 		} catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
@@ -147,7 +149,7 @@ public class InstitutionsServiceRs {
 	@Path("/{iid}/users/{uid}")
 	@Produces("application/json")
 	public Response addUser(@PathParam("iid") String iid,@PathParam("uid") String uid) {
-		try { // get Institution
+		try { // get Institution and User
 			Map<String, Object> wherePMinst = new HashMap<String, Object>();
 			wherePMinst.put("id", iid);
 			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePMinst,Institution.class,em);
@@ -160,13 +162,12 @@ public class InstitutionsServiceRs {
 				Institution i = wrappedInst.get();
 				User u = wrappedUser.get();
 				institutionsService.addUser(u,i);
-                return Response.ok().build();
+                return CustomErrorResponse.OPERATION_SUCCESS.getHTTPResponse();
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
 		} catch (Exception e) {
-			return  Response.status(Response.Status.BAD_REQUEST).entity(e).build();
-			//return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
     }
 	
@@ -186,8 +187,7 @@ public class InstitutionsServiceRs {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
 		} catch (Exception e) {
-			return  Response.status(Response.Status.BAD_REQUEST).entity(e).build();
-			//return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 	}
 	

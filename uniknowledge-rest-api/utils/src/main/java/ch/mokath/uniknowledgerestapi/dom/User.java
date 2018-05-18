@@ -99,7 +99,7 @@ public class User implements Serializable {
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "institution_id")
 	@ElementCollection(targetClass = Institution.class)
-	@Expose(serialize = true, deserialize= true)
+	@Expose(serialize = true, deserialize= false)
 	private Institution institution;
 
 	/* constructors and methods */
@@ -108,7 +108,6 @@ public class User implements Serializable {
 
 	public User(String username, String firstName, String lastName, String profilePictureURL, String email,
 			String password) {
-//			String password, String institution) {
 		this.username = username;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -121,15 +120,7 @@ public class User implements Serializable {
 		this.followedQuestions = new HashSet<Question>();
 		this.likedAnswers = new HashSet<Answer>();
 		this.institution = new Institution();
-/*		this.institution = getInstitutionFromJsonString(institution);
-	}
-    public Institution getInstitutionFromJsonString(String jsonString) {
-		GsonBuilder builder = new GsonBuilder();  
-	    builder.excludeFieldsWithoutExposeAnnotation();
-		Gson gson = builder.create();
-    
-        return gson.fromJson(jsonString, Institution.class);       
-*/    }
+    }
 
 
 	@Override
@@ -154,7 +145,6 @@ public class User implements Serializable {
 		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
 		result = prime * result + ((password == null) ? 0 : password.hashCode());
 		result = prime * result + ((username == null) ? 0 : username.hashCode());
-//		result = prime * result + ((institution == null) ? 0 : institution.hashCode());
 		return result;
 	}
 
@@ -197,12 +187,7 @@ public class User implements Serializable {
 				return false;
 		} else if (!username.equals(other.username))
 			return false;
-/*		if (institution == null) {
-			if (other.institution != null)
-				return false;
-		} else if (!institution.equals(other.institution))
-			return false;
-*/		return true;
+		return true;
 	}
 
 	public void setID(Long id) {
@@ -341,7 +326,6 @@ public class User implements Serializable {
 		public String profilePictureURL;
 		public String email;
 		public String password;
-//		public String institution;
 
 		public User.Builder with(Consumer<User.Builder> builder) {
 			builder.accept(this);
@@ -350,7 +334,6 @@ public class User implements Serializable {
 
 		public User build() {
 			return new User(username, firstName, lastName, profilePictureURL, email, password);
-//			return new User(username, firstName, lastName, profilePictureURL, email, password, institution);
 		}
 	}
 }
