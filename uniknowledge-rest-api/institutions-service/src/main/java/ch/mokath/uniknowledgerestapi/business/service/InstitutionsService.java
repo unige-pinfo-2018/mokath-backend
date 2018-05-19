@@ -27,12 +27,25 @@ public interface InstitutionsService {
 	void createInstitution(@NotNull final Institution i) throws CustomException;
 	
 	/**
+	 * Get all institutions in the database
+	 * @return List<Institution> List of all institutions in the database
+	 */
+	List<Institution> getInstitutions() throws CustomException;
+	
+	/**
+	 * Get institution from the database
+	 * @param id ID of the Institution to get (String)
+	 * @return Institution - List of all institutions in the database
+	 */
+	Institution getInstitution(@NotNull final String id) throws CustomException;
+	
+	/**
 	 * Update institution informations in the database
 	 * 
 	 * @param i Institution informations to update
 	 * @return Institution Updated institution reflecting database
 	 */
-	Institution updateInstitution(@NotNull final Institution i) throws CustomException;
+	Institution updateInstitution(@NotNull Institution i,@NotNull final String id) throws CustomException;
 
 	/**
 	 * Delete institution from database

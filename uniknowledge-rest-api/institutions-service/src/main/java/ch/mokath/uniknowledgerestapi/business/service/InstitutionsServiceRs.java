@@ -79,16 +79,22 @@ public class InstitutionsServiceRs {
     @Produces("application/json")
 	public Response getInstitution(@PathParam("id") String id) {
 		try {
-			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-			wherePredicatesMap.put("id", id);
-			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
-
-			if (wrappedInst.isPresent()) {
-				Institution unwrappedInst = wrappedInst.get();
-                return Response.ok(unwrappedInst.toString()).build();
-			} else {
-				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-			}
+            return Response.ok(institutionsService.getInstitution(id).toString()).build();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
+		} catch (Exception e) {
+			return  CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+	
+	@GET
+	@Path("/")
+    @Produces("application/json")
+	public Response getInstitutions() {
+		try {
+            return Response.ok(institutionsService.getInstitutions()).build();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
 			return  CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
@@ -97,28 +103,18 @@ public class InstitutionsServiceRs {
 	@PUT
 	@Path("/{id}")
 	@Consumes("application/json")
-//	@Produces("application/json")
+	@Produces("application/json")
 	public Response updateInstitution(@NotNull final String requestBody,@PathParam("id") String id) {
 		try {
-			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-			wherePredicatesMap.put("id", id);
-			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
-
-			if (wrappedInst.isPresent()) {
-				Institution unwrappedInst = wrappedInst.get();
-
-                Institution requestedInst = new Gson().fromJson(requestBody,Institution.class);
-                requestedInst.setId(unwrappedInst.getId());
-                Institution updatedInst = institutionsService.updateInstitution(requestedInst);
-                return Response.ok(updatedInst.toString()).build();
-			} else {
-				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-			}
+            Institution i = new Gson().fromJson(requestBody,Institution.class);
+            return Response.ok(institutionsService.updateInstitution(i,id).toString()).build();
 		} catch (JsonSyntaxException jse) {
 			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
-//			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
-            return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+//            return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
 		}
 	}
 	

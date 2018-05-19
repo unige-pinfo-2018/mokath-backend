@@ -66,8 +66,41 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	}
 
 	@Override
-	public Institution updateInstitution(@NotNull Institution i) throws CustomException {
-        return (Institution) em.merge(i);
+	public Institution getInstitution(@NotNull final String id) throws CustomException {
+		Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+		wherePredicatesMap.put("id", id);
+		Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
+
+		if (wrappedInst.isPresent()) {
+			Institution i = wrappedInst.get();
+            return i;
+		} else {
+			throw new CustomException("Institution not found !");
+		}
+	}
+	
+	@Override
+	public List<Institution> getInstitutions() throws CustomException {
+		Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+        List<Institution> institutions = em.createQuery("select i from Institution i",Institution.class).getResultList();
+//        List<Institution> institutions = DBHelper.getEntitiesFromFields(wherePredicatesMap,Institution.class,em);
+        return institutions;
+//        throw new CustomException("No Institution found !");
+	}
+	
+	@Override
+	public Institution updateInstitution(@NotNull Institution i,@NotNull final String id) throws CustomException {
+		Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+		wherePredicatesMap.put("id", id);
+		Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
+
+		if (wrappedInst.isPresent()) {
+			Institution unwrappedInst = wrappedInst.get();
+            i.setId(unwrappedInst.getId());
+            return (Institution) em.merge(i);
+        }else{
+            throw new CustomException("Institution not found !");
+        }
 	}
 	
 	/** add/remove User to/from an Institution */
@@ -94,6 +127,7 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	@Override
 	public String getUsers(Institution i){
         Institution inst = em.merge(i);
+        
         List<User> users = em.createQuery("select u from User u where u.institution.id = :instId",User.class).setParameter("instId",i.getId()).getResultList();
 		String koL=Arrays.asList(users).toString();
 		return  koL.substring(1,koL.length()-1); //remove the starting [ and ending ] added by arraylist
