@@ -27,17 +27,17 @@ public interface InstitutionsService {
 	void createInstitution(@NotNull final Institution i) throws CustomException;
 	
 	/**
-	 * Get all institutions in the database
-	 * @return List<Institution> List of all institutions in the database
-	 */
-	List<Institution> getInstitutions() throws CustomException;
-	
-	/**
 	 * Get institution from the database
 	 * @param id ID of the Institution to get (String)
 	 * @return Institution - List of all institutions in the database
 	 */
 	Institution getInstitution(@NotNull final String id) throws CustomException;
+	
+	/**
+	 * Get all institutions in the database
+	 * @return List<Institution> List of all institutions in the database
+	 */
+	String getInstitutions() throws CustomException;
 	
 	/**
 	 * Update institution informations in the database
@@ -58,7 +58,7 @@ public interface InstitutionsService {
 	* @param administrator User to add/remove as administrator
 	* @param i Institution the administrator will be added to/removed from
 	*/
-	void addUser(User u,Institution i);
-	boolean removeUser(User u,Institution i);
-	String getUsers(Institution i);
+	String addUser(@NotNull final String uid,@NotNull final String iid) throws CustomException;
+	String getUsers(@NotNull final String iid) throws CustomException;
+	void removeUser(@NotNull final String uid,@NotNull final String iid) throws CustomException;
 }

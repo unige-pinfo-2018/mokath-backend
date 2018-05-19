@@ -62,16 +62,16 @@ public class InstitutionsServiceRs {
 
 		try {
 			institutionsService.createInstitution(i);
+            return Response.ok(i.toString()).build();
 		} catch (JsonSyntaxException jse) {
 			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
         } catch (CustomException ce) {
 //            return Response.status(Response.Status.BAD_REQUEST).entity("blabla"+ce.toString()).build();
             return ce.getHTTPJsonResponse();
 		} catch (Exception e) { //TODO if EntityExistsException works, change message
+//            return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
             return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
-
-		return Response.ok(i.toString()).build();
 	}
 	
 	@GET
@@ -114,7 +114,6 @@ public class InstitutionsServiceRs {
             return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
-//            return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
 		}
 	}
 	
@@ -141,23 +140,10 @@ public class InstitutionsServiceRs {
 	@Path("/{iid}/users/{uid}")
 	@Produces("application/json")
 	public Response addUser(@PathParam("iid") String iid,@PathParam("uid") String uid) {
-		try { // get Institution and User
-			Map<String, Object> wherePMinst = new HashMap<String, Object>();
-			wherePMinst.put("id", iid);
-			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePMinst,Institution.class,em);
-
-			Map<String, Object> wherePMuser = new HashMap<String, Object>();
-			wherePMuser.put("id", uid);
-			Optional<User> wrappedUser = DBHelper.getEntityFromFields(wherePMuser,User.class,em);
-
-			if (wrappedInst.isPresent() && wrappedUser.isPresent()) {
-				Institution i = wrappedInst.get();
-				User u = wrappedUser.get();
-				institutionsService.addUser(u,i);
-                return CustomErrorResponse.OPERATION_SUCCESS.getHTTPResponse();
-			} else {
-				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-			}
+		try {
+            return  Response.ok(institutionsService.addUser(uid,iid)).build();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
@@ -168,16 +154,9 @@ public class InstitutionsServiceRs {
     @Produces("application/json")
 	public Response getUsers(@PathParam("iid") String iid) {
 		try {
-			Map<String, Object> wherePMinst = new HashMap<String, Object>();
-			wherePMinst.put("id", iid);
-			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePMinst,Institution.class,em);
-
-			if (wrappedInst.isPresent()) {
-				Institution i = wrappedInst.get();
-                return Response.ok(institutionsService.getUsers(i)).build();
-			} else {
-				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-			}
+			return Response.ok(institutionsService.getUsers(iid)).build();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
@@ -186,26 +165,12 @@ public class InstitutionsServiceRs {
 	@DELETE
 	@Path("/{iid}/user/{uid}")
 	@Produces("application/json")
-	public Response removeUser(@PathParam("iid") String iid,@PathParam("uid") String uid){
+	public Response removeUser(@PathParam("uid") String uid,@PathParam("iid") String iid){
 		try {
-			Map<String, Object> wherePMinst = new HashMap<String, Object>();
-			wherePMinst.put("id", iid);
-			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePMinst,Institution.class,em);
-
-			Map<String, Object> wherePMuser = new HashMap<String, Object>();
-			wherePMuser.put("id", uid);
-			Optional<User> wrappedUser = DBHelper.getEntityFromFields(wherePMuser,User.class,em);
-
-			if (wrappedInst.isPresent() && wrappedUser.isPresent()) {
-				Institution i = wrappedInst.get();
-				User u = wrappedUser.get();
-                boolean removed = institutionsService.removeUser(u,i);
-                
-                if(removed)  return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
-                else return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-			} else {
-				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-			}
+            institutionsService.removeUser(uid,iid);
+			return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
 		} catch(Exception e) {
 			log.error("Exception thrown while removing user with id : "+uid+ " : "+e.getMessage());
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();

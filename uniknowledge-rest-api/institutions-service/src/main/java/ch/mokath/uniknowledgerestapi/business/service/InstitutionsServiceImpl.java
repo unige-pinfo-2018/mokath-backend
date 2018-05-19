@@ -80,11 +80,13 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	}
 	
 	@Override
-	public List<Institution> getInstitutions() throws CustomException {
+	public String getInstitutions() throws CustomException {
+//	public List<Institution> getInstitutions() throws CustomException {
 		Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
         List<Institution> institutions = em.createQuery("select i from Institution i",Institution.class).getResultList();
 //        List<Institution> institutions = DBHelper.getEntitiesFromFields(wherePredicatesMap,Institution.class,em);
-        return institutions;
+		String koL=Arrays.asList(institutions).toString();
+        return koL;
 //        throw new CustomException("No Institution found !");
 	}
 	
@@ -103,36 +105,71 @@ public class InstitutionsServiceImpl implements InstitutionsService {
         }
 	}
 	
-	/** add/remove User to/from an Institution */
+	/** add/get-all/remove User to/from an Institution */
 	@Override
-	public void addUser(User u,Institution i){
-        User user = em.merge(u);
-        Institution inst = em.merge(i);
-        user.setInstitution(inst);
+	public String addUser(@NotNull final String uid,@NotNull final String iid) throws CustomException {
+		Map<String, Object> wherePMinst = new HashMap<String, Object>();
+		wherePMinst.put("id", iid);
+		Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePMinst,Institution.class,em);
+
+		if (wrappedInst.isPresent()) {
+            Map<String, Object> wherePMuser = new HashMap<String, Object>();
+            wherePMuser.put("id", uid);
+            Optional<User> wrappedUser = DBHelper.getEntityFromFields(wherePMuser,User.class,em);
+
+            if (wrappedUser.isPresent()) {
+                Institution inst = wrappedInst.get();
+                User user = em.merge(wrappedUser.get());
+                user.setInstitution(inst);
+                return user.toString();
+            }else{
+                throw new CustomException("User not found !");
+            }
+        }else{
+            throw new CustomException("Institution not found !");
+        }
 	}
 	
 	@Override
-	public boolean removeUser(User u,Institution i){
-        User user = em.merge(u);
-        Map<String, Object> wherePM = new HashMap<String, Object>();
-		wherePM.put("institution", i.getId());
-		wherePM.put("id", u.getId());
-		Optional<User> wrappedUser = DBHelper.getEntityFromFields(wherePM, User.class, em);
-		if(wrappedUser.isPresent()){
-            user.removeInstitution();
-            return true;
-        }else return false;
+	public String getUsers(@NotNull final String iid) throws CustomException {
+		Map<String, Object> wherePMinst = new HashMap<String, Object>();
+		wherePMinst.put("id", iid);
+		Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePMinst,Institution.class,em);
+
+		if (wrappedInst.isPresent()) {
+			Institution inst = wrappedInst.get();
+            Map<String, Object> wherePMuser = new HashMap<String, Object>();
+            wherePMuser.put("institution",inst.getId());
+            List<User> users = DBHelper.getEntitiesFromFields(wherePMuser,User.class,em);
+            String koL=Arrays.asList(users).toString();
+            return  koL.substring(1,koL.length()-1); //remove the starting [ and ending ] added by arraylist
+		} else {
+			throw new CustomException("Institution not found !");
+        }
+	}
+	
+	@Override
+	public void removeUser(@NotNull final String uid,@NotNull final String iid) throws CustomException {
+		Map<String, Object> wherePMuser = new HashMap<String, Object>();
+		wherePMuser.put("id", uid);
+		Optional<User> wrappedUser = DBHelper.getEntityFromFields(wherePMuser,User.class,em);
+
+		if (wrappedUser.isPresent()) {
+			User user = em.merge(wrappedUser.get());
+			try{
+				if(user.getInstitution().getId() == Long.parseLong(iid)){
+                    user.removeInstitution();
+				}else{
+                    throw new CustomException("User does not belong to provided institution !");
+				}
+			}catch (NullPointerException e) {
+                throw new CustomException("User does not belong to any institution !");
+            }
+		}else{
+            throw new CustomException("User not found !");
+        }            
 	}
 
-	@Override
-	public String getUsers(Institution i){
-        Institution inst = em.merge(i);
-        
-        List<User> users = em.createQuery("select u from User u where u.institution.id = :instId",User.class).setParameter("instId",i.getId()).getResultList();
-		String koL=Arrays.asList(users).toString();
-		return  koL.substring(1,koL.length()-1); //remove the starting [ and ending ] added by arraylist
-	}
-	
 	/** We do not want 2 institutions with the same name or contact email
 	*/
 	private boolean isContactEmailOrInstitutionNameAlreadyUsed(String contactEmail, String institutionName) {
