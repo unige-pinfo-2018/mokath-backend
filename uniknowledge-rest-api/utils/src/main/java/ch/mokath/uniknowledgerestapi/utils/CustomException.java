@@ -10,6 +10,10 @@ import com.google.gson.JsonObject;
 
 /**
  * @author zue
+ *
+ * Used as a workaround for:
+ *  throwing EntityExistsException on services will not be caught in RS as EntityExistsException,
+ *  but as generic Exception
  */
 
 public class CustomException extends Exception {
@@ -28,7 +32,6 @@ public class CustomException extends Exception {
     }
     
 	public Response getHTTPJsonResponse() {
-
 		return Response.status(this.status).entity(this.getJSON().toString()).build();
 	}
 

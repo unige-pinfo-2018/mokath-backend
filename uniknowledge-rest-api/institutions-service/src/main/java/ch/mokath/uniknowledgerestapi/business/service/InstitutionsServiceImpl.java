@@ -38,10 +38,7 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	@Override
 	public void createInstitution(@NotNull Institution i) throws CustomException {
 		if(isContactEmailOrInstitutionNameAlreadyUsed(i.getContactEmail(), i.getInstitutionName())) {
-//			throw new NullPointerException("koL");
-//			throw new EntityExistsException("Institution name or contact email is already used");
 			throw new CustomException("Institution name or contact email is already used");
-//			throw new Exception("Institution name or contact email is already used");
 		} else {
             em.persist(i);
         }
@@ -63,6 +60,10 @@ u.setUsername(inst.getId().toString());
 //            Optional<User> wrappedUser = DBHelper.getEntityFromFields(wherePMuser,User.class,em);
             List<User> users = DBHelper.getEntitiesFromFields(wherePMuser,User.class,em);
 u=users.get(0);
+            for(User user : users){
+            u.setUsername(user.getEmail());
+            }
+
  /*           if(wrappedUser.isPresent()){ //remove all User still connected to the institution
                 
             }
