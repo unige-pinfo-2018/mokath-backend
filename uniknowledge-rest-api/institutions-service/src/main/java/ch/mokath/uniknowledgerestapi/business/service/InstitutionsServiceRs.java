@@ -64,16 +64,11 @@ public class InstitutionsServiceRs {
 			institutionsService.createInstitution(i);
 		} catch (JsonSyntaxException jse) {
 			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
-		} catch (EntityExistsException eee) { //TODO get this to work and set correct message
-//		} catch (NullPointerException eee) { //TODO get this to work and set correct message
-//            return Response.status(Response.Status.BAD_REQUEST).entity(eee).build();
-            return CustomErrorResponse.IDENTIFIER_ALREADY_USED_INST.getHTTPResponse();
         } catch (CustomException ce) {
-//            return Response.status(Response.Status.BAD_REQUEST).entity(ce.toString()).build();
+//            return Response.status(Response.Status.BAD_REQUEST).entity("blabla"+ce.toString()).build();
             return ce.getHTTPJsonResponse();
 		} catch (Exception e) { //TODO if EntityExistsException works, change message
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
-//            return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+            return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 
 		return Response.ok(i.toString()).build();
@@ -134,19 +129,11 @@ public class InstitutionsServiceRs {
 	public Response deleteInstitution(@PathParam("id") String id){
 		Institution inst = new Institution();
 		inst.setId(id);
-		try { User u=institutionsService.deleteInstitution(inst);
-/*			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-			wherePredicatesMap.put("id", id);
-			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
-
-			if (wrappedInst.isPresent()) {
-                institutionsService.deleteInstitution(inst);
-                return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
-			} else {
-				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-			}
-		return Response.status(Response.Status.BAD_REQUEST).entity("TODO").build();
-*/		return Response.status(Response.Status.BAD_REQUEST).entity(u.toString()).build();
+		try { 
+            institutionsService.deleteInstitution(inst);
+            return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
         } catch(Exception e) {
 			log.error("Exception thrown while deleting institution with id : "+id+ " : "+e.getMessage());
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();

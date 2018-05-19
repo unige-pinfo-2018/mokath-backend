@@ -45,50 +45,28 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	}
 
 	@Override
-	public User deleteInstitution(@NotNull Institution i) {
-User u=new User();
-u.setUsername("a");
+	public void deleteInstitution(@NotNull Institution i) throws CustomException {
         Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
         wherePredicatesMap.put("id", i.getId());
         Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
         
         if (wrappedInst.isPresent()) {
             Institution inst= em.merge(wrappedInst.get());
-//u.setUsername(inst.getId().toString());
+
             Map<String, Object> wherePMuser = new HashMap<String, Object>();
             wherePMuser.put("institution",inst.getId());
-//            Optional<User> wrappedUser = DBHelper.getEntityFromFields(wherePMuser,User.class,em);
             List<User> users = DBHelper.getEntitiesFromFields(wherePMuser,User.class,em);
-u=users.get(0); String a="";
-            for(User user : users){
-              a+="("+user.getEmail()+")";
+            for(User user : users){ //Remove all users from institution
+                user.removeInstitution();
             }
-u.setUsername(a);
-
- /*           if(wrappedUser.isPresent()){ //remove all User still connected to the institution
-                
-            }
-/*			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-			wherePredicatesMap.put("id", id);
-			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
-
-			if (wrappedInst.isPresent()) {
-                institutionsService.deleteInstitution(inst);
-                return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
-			} else {
-				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-			}
-*/          
-//            em.remove(em.contains(i) ? i : em.merge(i));
-//return users.get(0);
+            em.remove(em.contains(i) ? i : em.merge(i));
         } else {
-//            throw new Exception("No institution to delete");
+            throw new CustomException("Institution not found !");
         }
-		return u;
 	}
 
 	@Override
-	public Institution updateInstitution(@NotNull Institution i) {
+	public Institution updateInstitution(@NotNull Institution i) throws CustomException {
         return (Institution) em.merge(i);
 	}
 	

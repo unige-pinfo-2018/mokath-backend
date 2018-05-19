@@ -24,7 +24,7 @@ public interface InstitutionsService {
 	 * Create an institution in the database
 	 * @param i Institution to store
 	 */
-	void createInstitution(@NotNull final Institution i) throws CustomException;// throws EntityExistsException;
+	void createInstitution(@NotNull final Institution i) throws CustomException;
 	
 	/**
 	 * Update institution informations in the database
@@ -32,13 +32,13 @@ public interface InstitutionsService {
 	 * @param i Institution informations to update
 	 * @return Institution Updated institution reflecting database
 	 */
-	Institution updateInstitution(@NotNull final Institution i);
+	Institution updateInstitution(@NotNull final Institution i) throws CustomException;
 
 	/**
 	 * Delete institution from database
 	 * @param i Institution to delete
 	 */
-	User deleteInstitution(@NotNull final Institution i);
+	void deleteInstitution(@NotNull final Institution i) throws CustomException;
 	
 	/**
 	* Add or remove an administrator to/from an institution
