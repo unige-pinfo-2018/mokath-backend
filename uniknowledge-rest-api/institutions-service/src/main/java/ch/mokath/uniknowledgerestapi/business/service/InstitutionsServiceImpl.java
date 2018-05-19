@@ -54,15 +54,16 @@ u.setUsername("a");
         
         if (wrappedInst.isPresent()) {
             Institution inst= em.merge(wrappedInst.get());
-u.setUsername(inst.getId().toString());
+//u.setUsername(inst.getId().toString());
             Map<String, Object> wherePMuser = new HashMap<String, Object>();
             wherePMuser.put("institution",inst.getId());
 //            Optional<User> wrappedUser = DBHelper.getEntityFromFields(wherePMuser,User.class,em);
             List<User> users = DBHelper.getEntitiesFromFields(wherePMuser,User.class,em);
-u=users.get(0);
+u=users.get(0); String a="";
             for(User user : users){
-            u.setUsername(user.getEmail());
+              a+="("+user.getEmail()+")";
             }
+u.setUsername(a);
 
  /*           if(wrappedUser.isPresent()){ //remove all User still connected to the institution
                 

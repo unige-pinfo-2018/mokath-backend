@@ -15,6 +15,11 @@ import javax.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+* @author terry ou matteo??
+* @author zue
+*/
+
 public class DBHelper {
 
 	private Logger log = LoggerFactory.getLogger(DBHelper.class);
@@ -63,7 +68,21 @@ public class DBHelper {
 			return Optional.of(matchedObject.get(0));
 		}
 	}
-/*TODO-clean */	
+	
+	
+	
+	/**
+	 * Execute a SELECT request in entityClass associated table with defined
+	 * key/value matchings in HashMap passed as parameter
+	 * 
+	 * @param wherePredicatesMap
+	 *            Map of WHERE clause containing keys and expected values
+	 * @param entityClass
+	 *            Class of the queried Object
+	 * @param em
+	 *            Entity Manager
+	 * @return List of desired objects
+	 */
 	public <T> List<T> getEntitiesFromFields(Map<String, Object> wherePredicatesMap, Class<T> entityClass, EntityManager em) {
 
 		final List<Predicate> wherePredicates = new ArrayList<Predicate>();
@@ -90,14 +109,8 @@ public class DBHelper {
 		// Craft the final query
 		TypedQuery<T> finalQuery = em.createQuery(criteriaQuery);
 
-		List<T> matchedObject = finalQuery.getResultList();
-		return matchedObject;
-
-/*		if(matchedObject.isEmpty()) {
-			return Optional.empty();
-		} else {
-			return Optional.of(matchedObject);
-		}
-*/	}/*TODO-clean*/
+		List<T> matchedObjects = finalQuery.getResultList();
+		return matchedObjects;
+	}
 	
 }
