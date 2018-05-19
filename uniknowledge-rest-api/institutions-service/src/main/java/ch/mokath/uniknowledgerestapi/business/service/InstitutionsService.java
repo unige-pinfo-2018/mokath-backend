@@ -11,6 +11,7 @@ import javax.validation.constraints.NotNull;
 
 import ch.mokath.uniknowledgerestapi.dom.Institution;
 import ch.mokath.uniknowledgerestapi.dom.User;
+import ch.mokath.uniknowledgerestapi.utils.CustomException;
 
 /**
  * @author tv0g
@@ -23,7 +24,7 @@ public interface InstitutionsService {
 	 * Create an institution in the database
 	 * @param i Institution to store
 	 */
-	void createInstitution(@NotNull final Institution i) throws EntityExistsException;
+	void createInstitution(@NotNull final Institution i) throws CustomException;// throws EntityExistsException;
 	
 	/**
 	 * Update institution informations in the database
@@ -37,7 +38,7 @@ public interface InstitutionsService {
 	 * Delete institution from database
 	 * @param i Institution to delete
 	 */
-	void deleteInstitution(@NotNull final Institution i);
+	User deleteInstitution(@NotNull final Institution i);
 	
 	/**
 	* Add or remove an administrator to/from an institution

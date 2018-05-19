@@ -63,4 +63,41 @@ public class DBHelper {
 			return Optional.of(matchedObject.get(0));
 		}
 	}
+/*TODO-clean */	
+	public <T> List<T> getEntitiesFromFields(Map<String, Object> wherePredicatesMap, Class<T> entityClass, EntityManager em) {
+
+		final List<Predicate> wherePredicates = new ArrayList<Predicate>();
+
+		// Create the Critera Builder
+		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+
+		// Link Query to Entity Class
+		CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(entityClass);
+		Root<T> from = criteriaQuery.from(entityClass);
+
+		// Add all WHERE predicates to the query's predicates
+		for (final Map.Entry<String, Object> entry : wherePredicatesMap.entrySet()) {
+			final String key = entry.getKey();
+			final Object value = entry.getValue();
+
+			if (key != null && value != null) {
+				wherePredicates.add(criteriaBuilder.equal(from.get(key), value));
+			}
+		}
+
+		criteriaQuery.where(criteriaBuilder.and(wherePredicates.toArray(new Predicate[wherePredicates.size()])));
+
+		// Craft the final query
+		TypedQuery<T> finalQuery = em.createQuery(criteriaQuery);
+
+		List<T> matchedObject = finalQuery.getResultList();
+		return matchedObject;
+
+/*		if(matchedObject.isEmpty()) {
+			return Optional.empty();
+		} else {
+			return Optional.of(matchedObject);
+		}
+*/	}/*TODO-clean*/
+	
 }

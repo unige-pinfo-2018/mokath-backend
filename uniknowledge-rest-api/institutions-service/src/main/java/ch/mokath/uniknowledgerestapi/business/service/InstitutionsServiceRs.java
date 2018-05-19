@@ -34,6 +34,7 @@ import com.google.gson.JsonSyntaxException;
 import ch.mokath.uniknowledgerestapi.dom.Institution;
 import ch.mokath.uniknowledgerestapi.dom.User;
 import ch.mokath.uniknowledgerestapi.utils.CustomErrorResponse;
+import ch.mokath.uniknowledgerestapi.utils.CustomException;
 import ch.mokath.uniknowledgerestapi.utils.DBHelper;
 
 /**
@@ -64,10 +65,15 @@ public class InstitutionsServiceRs {
 		} catch (JsonSyntaxException jse) {
 			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
 		} catch (EntityExistsException eee) { //TODO get this to work and set correct message
+//		} catch (NullPointerException eee) { //TODO get this to work and set correct message
 //            return Response.status(Response.Status.BAD_REQUEST).entity(eee).build();
             return CustomErrorResponse.IDENTIFIER_ALREADY_USED_INST.getHTTPResponse();
+        } catch (CustomException ce) {
+//            return Response.status(Response.Status.BAD_REQUEST).entity(ce.toString()).build();
+            return ce.getHTTPJsonResponse();
 		} catch (Exception e) { //TODO if EntityExistsException works, change message
-            return CustomErrorResponse.IDENTIFIER_ALREADY_USED_INST.getHTTPResponse();
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+//            return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 
 		return Response.ok(i.toString()).build();
@@ -96,7 +102,7 @@ public class InstitutionsServiceRs {
 	@PUT
 	@Path("/{id}")
 	@Consumes("application/json")
-	@Produces("application/json")
+//	@Produces("application/json")
 	public Response updateInstitution(@NotNull final String requestBody,@PathParam("id") String id) {
 		try {
 			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
@@ -116,7 +122,8 @@ public class InstitutionsServiceRs {
 		} catch (JsonSyntaxException jse) {
 			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
 		} catch (Exception e) {
-			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+//			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+            return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
 		}
 	}
 	
@@ -124,11 +131,11 @@ public class InstitutionsServiceRs {
 	@DELETE
 	@Path("/{id}")
 	@Produces("application/json")
-	public Response deleteInstitution(@Context HttpServletRequest req, @PathParam("id") String id){
+	public Response deleteInstitution(@PathParam("id") String id){
 		Institution inst = new Institution();
 		inst.setId(id);
-		try {
-			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+		try { User u=institutionsService.deleteInstitution(inst);
+/*			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
 			wherePredicatesMap.put("id", id);
 			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
 
@@ -138,7 +145,9 @@ public class InstitutionsServiceRs {
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
-		} catch(Exception e) {
+		return Response.status(Response.Status.BAD_REQUEST).entity("TODO").build();
+*/		return Response.status(Response.Status.BAD_REQUEST).entity(u.toString()).build();
+        } catch(Exception e) {
 			log.error("Exception thrown while deleting institution with id : "+id+ " : "+e.getMessage());
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}

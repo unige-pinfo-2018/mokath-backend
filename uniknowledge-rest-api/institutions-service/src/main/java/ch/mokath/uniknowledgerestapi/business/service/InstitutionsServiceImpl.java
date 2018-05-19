@@ -22,6 +22,7 @@ import com.google.gson.GsonBuilder;
 import ch.mokath.uniknowledgerestapi.dom.Institution;
 import ch.mokath.uniknowledgerestapi.dom.User;
 import ch.mokath.uniknowledgerestapi.utils.DBHelper;
+import ch.mokath.uniknowledgerestapi.utils.CustomException;
 
 /**
  * @author tv0g
@@ -35,18 +36,53 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	private DBHelper DBHelper = new DBHelper();
 	
 	@Override
-	public void createInstitution(@NotNull Institution i) throws EntityExistsException {
+	public void createInstitution(@NotNull Institution i) throws CustomException {
 		if(isContactEmailOrInstitutionNameAlreadyUsed(i.getContactEmail(), i.getInstitutionName())) {
-			throw new EntityExistsException("Institution name or contact email is already used");
+//			throw new NullPointerException("koL");
+//			throw new EntityExistsException("Institution name or contact email is already used");
+			throw new CustomException("Institution name or contact email is already used");
+//			throw new Exception("Institution name or contact email is already used");
 		} else {
             em.persist(i);
         }
 	}
 
 	@Override
-	public void deleteInstitution(@NotNull Institution i) {
-		em.remove(em.contains(i) ? i : em.merge(i));
-		
+	public User deleteInstitution(@NotNull Institution i) {
+User u=new User();
+u.setUsername("a");
+        Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+        wherePredicatesMap.put("id", i.getId());
+        Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
+        
+        if (wrappedInst.isPresent()) {
+            Institution inst= em.merge(wrappedInst.get());
+u.setUsername(inst.getId().toString());
+            Map<String, Object> wherePMuser = new HashMap<String, Object>();
+            wherePMuser.put("institution",inst.getId());
+//            Optional<User> wrappedUser = DBHelper.getEntityFromFields(wherePMuser,User.class,em);
+            List<User> users = DBHelper.getEntitiesFromFields(wherePMuser,User.class,em);
+u=users.get(0);
+ /*           if(wrappedUser.isPresent()){ //remove all User still connected to the institution
+                
+            }
+/*			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+			wherePredicatesMap.put("id", id);
+			Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
+
+			if (wrappedInst.isPresent()) {
+                institutionsService.deleteInstitution(inst);
+                return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
+			} else {
+				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
+			}
+*/          
+//            em.remove(em.contains(i) ? i : em.merge(i));
+//return users.get(0);
+        } else {
+//            throw new Exception("No institution to delete");
+        }
+		return u;
 	}
 
 	@Override
