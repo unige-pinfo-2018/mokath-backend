@@ -24,9 +24,7 @@ public class InstitutionTest {
 			$.institutionName = "InsName";
 			$.logoPictureURL = "InsLogo";
 			$.contactEmail = "contact@institution.com";
-			$.administrators = new HashSet<String>();
-			$.askers = new HashSet<String>();
-			$.repliers = new HashSet<String>();
+			$.domains = new HashSet<String>();
 		}).build();
 
 		Assert.assertEquals(institution.getInstitutionName(), "InsName");

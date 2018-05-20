@@ -18,10 +18,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
+
+import ch.mokath.uniknowledgerestapi.dom.Institution;
 
 /**
  * @author tv0g
@@ -62,6 +65,7 @@ public class User implements Serializable {
 	@Column(name = "password", length=128, nullable = false)
 	private String password;
 	
+	
 	@OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@ElementCollection(targetClass = Question.class)
 	private Set<Question> questions;
@@ -90,8 +94,15 @@ public class User implements Serializable {
 	inverseJoinColumns = @JoinColumn(name = "answer_id"))
 	@ElementCollection(targetClass = Answer.class)
 	private Set<Answer> likedAnswers;
-	
 
+	/* field relationship mapping for Institution - Only 1 institution/user */
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "institution_id")
+	@ElementCollection(targetClass = Institution.class)
+	@Expose(serialize = true, deserialize= false)
+	private Institution institution;
+
+	/* constructors and methods */
 	public User() {
 	}
 
@@ -108,7 +119,9 @@ public class User implements Serializable {
 		this.likedQuestions = new HashSet<Question>();
 		this.followedQuestions = new HashSet<Question>();
 		this.likedAnswers = new HashSet<Answer>();
-	}
+		this.institution = new Institution();
+    }
+
 
 	@Override
 	public String toString() {
@@ -123,7 +136,7 @@ public class User implements Serializable {
 	
 
 	@Override
-	public int hashCode() {
+	public int hashCode() { //TODO ? add institution to hashcode?
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
@@ -292,6 +305,18 @@ public class User implements Serializable {
 	public Set<Answer> getLikedAnswers() {
 		return this.getLikedAnswers();
 	}
+	
+	
+	public void setInstitution(Institution i) {
+        this.institution = i;
+	}
+	public Institution getInstitution() {
+        return this.institution;
+	}	
+	public void removeInstitution() {
+        this.institution = null;
+	}
+	
 	
 	public static class Builder {
 

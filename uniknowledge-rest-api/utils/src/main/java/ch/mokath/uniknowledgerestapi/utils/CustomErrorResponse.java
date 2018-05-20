@@ -10,7 +10,7 @@ import com.google.gson.JsonObject;
 
 /**
  * @author tv0g
- *
+ * @author zue
  */
 
 public enum CustomErrorResponse {
@@ -28,7 +28,8 @@ public enum CustomErrorResponse {
 	
 	// SUCCESS
 	LOGOUT_SUCCESS(true,Response.Status.OK, "Logout Successful !"),
-	DELETE_SUCCESS(true, Response.Status.OK, "Deleted resource Successfully");
+	DELETE_SUCCESS(true, Response.Status.OK, "Deleted resource Successfully"),
+	OPERATION_SUCCESS(true, Response.Status.OK, "Operation Successful");
 
 	private String successOrError;
 	private String message;
