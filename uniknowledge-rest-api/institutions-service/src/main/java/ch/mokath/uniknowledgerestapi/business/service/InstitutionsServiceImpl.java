@@ -70,9 +70,13 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 		Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
 
 		if (wrappedInst.isPresent()) {
-			Institution unwrappedInst = wrappedInst.get();
-            i.setId(unwrappedInst.getId());
-            return (Institution) em.merge(i);
+            if(isContactEmailOrInstitutionNameAlreadyUsed(i.getContactEmail(), i.getInstitutionName(),id)) {
+                throw new CustomException("Institution name or contact email already in use !");
+            } else {
+                Institution unwrappedInst = wrappedInst.get();
+                i.setId(unwrappedInst.getId());
+                return (Institution) em.merge(i);
+            }
         }else{
             throw new CustomException("Institution not found !");
         }
@@ -170,7 +174,7 @@ public class InstitutionsServiceImpl implements InstitutionsService {
         }            
 	}
 
-	/** We do not want 2 institutions with the same name or contact email
+	/** We do not want 2 Institutions with the same name or contact email
 	*/
 	private boolean isContactEmailOrInstitutionNameAlreadyUsed(String contactEmail, String institutionName) {
 		// Check if email is already used
@@ -183,6 +187,28 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 		
 		Optional<Institution> wrappedInstForEmail = DBHelper.getEntityFromFields(wherePredicatesMapForContactEmail, Institution.class, em);
 		Optional<Institution> wrappedInstForName = DBHelper.getEntityFromFields(wherePredicatesMapForInstitutionName, Institution.class, em);
+
+		// If institution already exists with same contact email
+		return wrappedInstForEmail.isPresent() || wrappedInstForName.isPresent();
+	}
+	
+	/** We do not want 2 Institutions with the same name or contact email
+	* But omit to check on Institution with id (needed for update)
+	*/
+	private boolean isContactEmailOrInstitutionNameAlreadyUsed(String contactEmail, String institutionName,String id) {
+		// Check if email is already used
+		Map<String, Object> wherePredicatesMapForContactEmail = new HashMap<String, Object>();
+		wherePredicatesMapForContactEmail.put("contactEmail", contactEmail);
+		
+		// Check if institutionName is already used
+		Map<String, Object> wherePredicatesMapForInstitutionName = new HashMap<String, Object>();
+		wherePredicatesMapForInstitutionName.put("institutionName", institutionName);
+		
+		Map<String, Object> whereNotPMid = new HashMap<String, Object>();
+		whereNotPMid.put("id", id);
+
+		Optional<Institution> wrappedInstForEmail = DBHelper.getEntityFromFields(wherePredicatesMapForContactEmail,whereNotPMid,Institution.class, em);
+		Optional<Institution> wrappedInstForName = DBHelper.getEntityFromFields(wherePredicatesMapForInstitutionName,whereNotPMid,Institution.class, em);
 
 		// If institution already exists with same contact email
 		return wrappedInstForEmail.isPresent() || wrappedInstForName.isPresent();
