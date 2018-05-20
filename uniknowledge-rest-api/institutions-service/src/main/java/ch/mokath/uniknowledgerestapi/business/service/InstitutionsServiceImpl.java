@@ -8,10 +8,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.List;
-import java.util.Arrays;
 
 import javax.ejb.Stateless;
-import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.validation.constraints.NotNull;
@@ -38,30 +36,9 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	@Override
 	public void createInstitution(@NotNull Institution i) throws CustomException {
 		if(isContactEmailOrInstitutionNameAlreadyUsed(i.getContactEmail(), i.getInstitutionName())) {
-			throw new CustomException("Institution name or contact email is already used");
+			throw new CustomException("Institution name or contact email already in use !");
 		} else {
             em.persist(i);
-        }
-	}
-
-	@Override
-	public void deleteInstitution(@NotNull Institution i) throws CustomException {
-        Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-        wherePredicatesMap.put("id", i.getId());
-        Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
-        
-        if (wrappedInst.isPresent()) {
-            Institution inst= em.merge(wrappedInst.get());
-
-            Map<String, Object> wherePMuser = new HashMap<String, Object>();
-            wherePMuser.put("institution",inst.getId());
-            List<User> users = DBHelper.getEntitiesFromFields(wherePMuser,User.class,em);
-            for(User user : users){ //Remove all users from institution
-                user.removeInstitution();
-            }
-            em.remove(em.contains(i) ? i : em.merge(i));
-        } else {
-            throw new CustomException("Institution not found !");
         }
 	}
 
@@ -80,14 +57,10 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	}
 	
 	@Override
-	public String getInstitutions() throws CustomException {
-//	public List<Institution> getInstitutions() throws CustomException {
+	public List<Institution> getInstitutions() throws CustomException {
 		Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
         List<Institution> institutions = em.createQuery("select i from Institution i",Institution.class).getResultList();
-//        List<Institution> institutions = DBHelper.getEntitiesFromFields(wherePredicatesMap,Institution.class,em);
-		String koL=Arrays.asList(institutions).toString();
-        return koL;
-//        throw new CustomException("No Institution found !");
+        return institutions;
 	}
 	
 	@Override
@@ -105,9 +78,37 @@ public class InstitutionsServiceImpl implements InstitutionsService {
         }
 	}
 	
+	@Override
+	public void deleteInstitution(@NotNull final String id) throws CustomException {
+        Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+        wherePredicatesMap.put("id", id);
+        Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
+        
+        if (wrappedInst.isPresent()) {
+            Institution inst= em.merge(wrappedInst.get());
+
+            Map<String, Object> wherePMuser = new HashMap<String, Object>();
+            wherePMuser.put("institution",inst.getId());
+            List<User> users = DBHelper.getEntitiesFromFields(wherePMuser,User.class,em);
+            for(User u : users){ //Remove all users from institution first
+                User user = em.merge(u);
+                user.removeInstitution();
+            }
+            
+            List<User> users2 = DBHelper.getEntitiesFromFields(wherePMuser,User.class,em);
+            if(users2.size() > 0){
+                throw new CustomException("Could not remove User with id:"+users.get(0).getId()+" from Institution !");
+            }else{            
+                em.remove(em.contains(inst) ? inst : em.merge(inst));
+            }
+        } else {
+            throw new CustomException("Institution not found !");
+        }
+	}
+
 	/** add/get-all/remove User to/from an Institution */
 	@Override
-	public String addUser(@NotNull final String uid,@NotNull final String iid) throws CustomException {
+	public User addUser(@NotNull final String uid,@NotNull final String iid) throws CustomException {
 		Map<String, Object> wherePMinst = new HashMap<String, Object>();
 		wherePMinst.put("id", iid);
 		Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePMinst,Institution.class,em);
@@ -121,7 +122,7 @@ public class InstitutionsServiceImpl implements InstitutionsService {
                 Institution inst = wrappedInst.get();
                 User user = em.merge(wrappedUser.get());
                 user.setInstitution(inst);
-                return user.toString();
+                return user;
             }else{
                 throw new CustomException("User not found !");
             }
@@ -131,7 +132,7 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	}
 	
 	@Override
-	public String getUsers(@NotNull final String iid) throws CustomException {
+	public List<User> getUsers(@NotNull final String iid) throws CustomException {
 		Map<String, Object> wherePMinst = new HashMap<String, Object>();
 		wherePMinst.put("id", iid);
 		Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePMinst,Institution.class,em);
@@ -141,8 +142,7 @@ public class InstitutionsServiceImpl implements InstitutionsService {
             Map<String, Object> wherePMuser = new HashMap<String, Object>();
             wherePMuser.put("institution",inst.getId());
             List<User> users = DBHelper.getEntitiesFromFields(wherePMuser,User.class,em);
-            String koL=Arrays.asList(users).toString();
-            return  koL.substring(1,koL.length()-1); //remove the starting [ and ending ] added by arraylist
+            return users;
 		} else {
 			throw new CustomException("Institution not found !");
         }

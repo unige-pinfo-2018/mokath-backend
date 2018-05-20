@@ -25,7 +25,6 @@ public enum CustomErrorResponse {
 	INVALID_ACTION(false, Response.Status.BAD_REQUEST, "Invalid action !"),
 	PERMISSION_DENIED(false, Response.Status.UNAUTHORIZED, "Permission Denied !"),
 	IDENTIFIER_ALREADY_USED(false, Response.Status.BAD_REQUEST, "Email or Username already in use !"),
-	IDENTIFIER_ALREADY_USED_INST(false, Response.Status.BAD_REQUEST, "Institution name or contact email already in use !"),
 	
 	// SUCCESS
 	LOGOUT_SUCCESS(true,Response.Status.OK, "Logout Successful !"),

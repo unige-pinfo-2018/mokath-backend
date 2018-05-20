@@ -3,14 +3,7 @@
  */
 package ch.mokath.uniknowledgerestapi.business.service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
 import javax.inject.Inject;
-import javax.persistence.EntityExistsException;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -35,7 +28,6 @@ import ch.mokath.uniknowledgerestapi.dom.Institution;
 import ch.mokath.uniknowledgerestapi.dom.User;
 import ch.mokath.uniknowledgerestapi.utils.CustomErrorResponse;
 import ch.mokath.uniknowledgerestapi.utils.CustomException;
-import ch.mokath.uniknowledgerestapi.utils.DBHelper;
 
 /**
  * @author tv0g
@@ -43,12 +35,8 @@ import ch.mokath.uniknowledgerestapi.utils.DBHelper;
  */
 @Path("institutions")
 public class InstitutionsServiceRs {
-	@PersistenceContext
-	private EntityManager em;
-
 	@Inject
 	private InstitutionsService institutionsService;
-	private DBHelper DBHelper = new DBHelper();
 
 	private Logger log = LoggerFactory.getLogger(InstitutionsServiceImpl.class);
 
@@ -57,10 +45,8 @@ public class InstitutionsServiceRs {
 	@Produces("application/json")
 	@Consumes("application/json")
 	public Response createInstitution(@NotNull final String requestBody) {
-
-		Institution i = new Gson().fromJson(requestBody, Institution.class);
-
 		try {
+            Institution i = new Gson().fromJson(requestBody, Institution.class);
 			institutionsService.createInstitution(i);
             return Response.ok(i.toString()).build();
 		} catch (JsonSyntaxException jse) {
@@ -68,7 +54,7 @@ public class InstitutionsServiceRs {
         } catch (CustomException ce) {
 //            return Response.status(Response.Status.BAD_REQUEST).entity("blabla"+ce.toString()).build();
             return ce.getHTTPJsonResponse();
-		} catch (Exception e) { //TODO if EntityExistsException works, change message
+		} catch (Exception e) {
 //            return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
             return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
@@ -92,7 +78,7 @@ public class InstitutionsServiceRs {
     @Produces("application/json")
 	public Response getInstitutions() {
 		try {
-            return Response.ok(institutionsService.getInstitutions()).build();
+            return Response.ok(institutionsService.getInstitutions().toString()).build();
         } catch (CustomException ce) {
             return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
@@ -117,15 +103,12 @@ public class InstitutionsServiceRs {
 		}
 	}
 	
-	
 	@DELETE
 	@Path("/{id}")
 	@Produces("application/json")
 	public Response deleteInstitution(@PathParam("id") String id){
-		Institution inst = new Institution();
-		inst.setId(id);
-		try { 
-            institutionsService.deleteInstitution(inst);
+		try {
+            institutionsService.deleteInstitution(id);
             return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
         } catch (CustomException ce) {
             return ce.getHTTPJsonResponse();
@@ -141,7 +124,7 @@ public class InstitutionsServiceRs {
 	@Produces("application/json")
 	public Response addUser(@PathParam("iid") String iid,@PathParam("uid") String uid) {
 		try {
-            return  Response.ok(institutionsService.addUser(uid,iid)).build();
+            return  Response.ok(institutionsService.addUser(uid,iid).toString()).build();
         } catch (CustomException ce) {
             return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
@@ -154,7 +137,7 @@ public class InstitutionsServiceRs {
     @Produces("application/json")
 	public Response getUsers(@PathParam("iid") String iid) {
 		try {
-			return Response.ok(institutionsService.getUsers(iid)).build();
+			return Response.ok(institutionsService.getUsers(iid).toString()).build();
         } catch (CustomException ce) {
             return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
@@ -176,5 +159,4 @@ public class InstitutionsServiceRs {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 	}
-	
 }
