@@ -8,84 +8,96 @@ import org.junit.Test;
 public class TokenTest {
 	
 	@Test
-	public void tokengettersTestFunction() {
-		User one = new User("me", "me","me","http:/me/picture","me@yahoo.fr",
+	public void tokengettersUserTestFunction() {
+	   User one = new User("me", "me","me","http:/me/picture","me@yahoo.fr",
 				"me");
-	   Token token = new Token.Builder().with($ -> {
-		   $.token=  "babaToken";
-		   $.signingKey = "babaKey";
-		   $.user = new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
-					"baba");
-
-		}).build();
-
+	   
+	   Token token = new Token("babaToken","babaKey",new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
+				"baba"));
 		Assert.assertEquals(token.getUser() , new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
 				"baba"));
-		Assert.assertEquals(token.getUser()==one, false);
-		Assert.assertEquals(token.getToken(),"babaToken");
-		Assert.assertEquals(token.getSigningKey(),"babaKey");
-		Assert.assertFalse(token.getSigningKey()=="otherKey");
-		
-		
+		Assert.assertEquals(token.getUser()==one, false);		
 	}
 	
 	@Test
-	public void tokensettersTestFunction() {
+	public void tokengettersTokenTestFunction() {
+	   
+	   Token token = new Token("babaToken","babaKey",new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
+				"baba"));
+	   Assert.assertEquals(token.getToken(),"babaToken");
+			
+	}
+	
+	@Test
+	public void tokengettersSigningkeyTokenTestFunction() {
+	   
+	   Token token = new Token("babaToken","babaKey",new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
+				"baba"));
+	   Assert.assertEquals(token.getSigningKey(),"babaKey");
+		Assert.assertFalse(token.getSigningKey()=="otherKey");
+			
+	}
+	
+	
+	
+	@Test
+	public void tokensettersUserTestFunction() {
 		User one = new User("me", "me","me","http:/me/picture","me@yahoo.fr",
 				"me");
-	   Token token = new Token.Builder().with($ -> {
-		   $.token=  "babaToken";
-		   $.signingKey = "babaKey";
-		   $.user = new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
-					"baba");
-
-		}).build();
-	   
-	   token.setUser(one);
+		Token token = new Token("babaToken","babaKey",new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
+				"baba"));
+		
+		token.setUser(one);
 		Assert.assertEquals(token.getUser()==new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
 				"baba"),false);
 		Assert.assertEquals(token.getUser()==one, true);
 		
-		Assert.assertEquals(token.getToken(),"babaToken");
+	}
+	
+	
+	@Test
+	public void tokensettersTokenTestFunction() {
+		Token token = new Token("babaToken","babaKey",new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
+				"baba"));
+		
 		token.setToken("newBabaToken");
 		Assert.assertEquals(token.getToken()=="babaToken",false);
 		Assert.assertTrue(token.getToken()=="newBabaToken");
+		
+	}
+	
+	@Test
+	public void tokensettersSigningkeyTokenTestFunction() {
+		Token token = new Token("babaToken","babaKey",new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
+				"baba"));
 		
 		token.setSigningKey("newBabaKey");
 		Assert.assertEquals(token.getSigningKey()=="babaKey",false);
 		Assert.assertTrue(token.getSigningKey()=="newBabaKey");
 	}
 	
+	
 	@Test
-	public void tokenUniqueKeyTestFunction() {
+	public void tokenKeyTestFunction() {
 		
-	   Token token = new Token.Builder().with($ -> {
-		   $.token=  "babaToken";
-		   $.signingKey = "babaKey";
-		   $.user = new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
-					"baba");
-
-		}).build();
+		Token token = new Token("babaToken","babaKey",new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
+				"baba"));
+		Token otherToken = new Token("babaToken","babaKey",new User("me", "me","me","http:/me/picture","me@yahoo.fr",
+				"me"));
+	Assert.assertTrue(token.getSigningKey()==otherToken.getSigningKey() && token.getUser() != otherToken.getUser());//we can have 2 differents token with the same signingKey
 	
-	Token otherToken = new Token.Builder().with($ -> {
-		   $.token=  "babaToken";
-		   $.signingKey = "babaKey";
-		   $.user = new User("me", "me","me","http:/me/picture","me@yahoo.fr",
-					"me");
+	}
 
-		}).build();
+	@Test
+	public void tokenNonUniqueKeyTestFunction() {
+		
+		Token token = new Token("babaToken","babaKey",new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
+				"baba"));
+		
+		Token otherToken = new Token("otherBabaToken","otherBabaKey",new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
+				"baba"));
+	Assert.assertFalse(token.getSigningKey()!=otherToken.getSigningKey() && token.getUser() == otherToken.getUser());//same use cant have 2 different keys
 	
-	Token anOtherToken = new Token.Builder().with($ -> {
-		   $.token=  "otherBabaToken";
-		   $.signingKey = "otherBabaKey";
-		   $.user = new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
-					"baba");
-
-		}).build();
-	
-	Assert.assertEquals(token.getSigningKey(),otherToken.getSigningKey());//we can have 2 differents token with the same signingKey
-	Assert.assertTrue(token.getSigningKey()==otherToken.getSigningKey() && token.getUser() != otherToken.getUser());
-	Assert.assertTrue(token.getToken()==otherToken.getToken() && token.getUser() != otherToken.getUser());
 	}
 	
    

@@ -19,41 +19,28 @@ public class InstitutionTest {
 
 	@Test
 	public void institutionBuilderShouldReturnInstitution() {
-
-		Institution institution = new Institution.Builder().with($ -> {
-			$.institutionName = "InsName";
-			$.logoPictureURL = "InsLogo";
-			$.contactEmail = "contact@institution.com";
-			$.domains = new HashSet<String>();
-//			$.administrators = new HashSet<String>();
-//			$.askers = new HashSet<String>();
-//			$.repliers = new HashSet<String>();
-		}).build();
-
+		HashSet<String> domains = new HashSet<String>();
+		Institution institution = new Institution("InsName", "InsLogo", "contact@institution.com", domains);
 		Assert.assertEquals(institution.getInstitutionName(), "InsName");
 		Assert.assertTrue(institution.getInstitutionName()!= "IsName");
+	    
+	}
+	
+	@Test
+	public void institutionBuilderShouldReturnContactEmail() {
+		HashSet<String> domains = new HashSet<String>();
+		Institution institution = new Institution("InsName", "InsLogo", "contact@institution.com", domains);
 		Assert.assertFalse(institution.getContactEmail() == "openclassroom@uni.com");
 	    
 	}
 	
 	@Test
-	public void institutionBuilderShouldntDetectWrongEmail() {
-
-		Institution institution = new Institution.Builder().with($ -> {
-			$.institutionName = "InsName";
-			$.logoPictureURL = "InsLogo";
-			$.contactEmail = "contactinstitution.com";
-			$.domains = new HashSet<String>();
-//			$.administrators = new HashSet<String>();
-//			$.askers = new HashSet<String>();
-//			$.repliers = new HashSet<String>();
-		}).build();
-	
-		Assert.assertTrue(institution.getContactEmail() == "contactinstitution.com");
+	public void institutionSetandGetTest() {
+		HashSet<String> domains = new HashSet<String>();
+		Institution institution = new Institution("InsName", "InsLogo", "contact@institution.com", domains);
 		institution.setContactEmail("github@help.com");
 		Assert.assertTrue(institution.getContactEmail() == "github@help.com");
-		
+	    
 	}
-	
-	
+		
 }
