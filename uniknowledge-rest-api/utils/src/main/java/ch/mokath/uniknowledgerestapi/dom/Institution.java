@@ -64,10 +64,8 @@ public class Institution implements Serializable {
 	private Set<String> domains;
 
 
-	@OneToMany(mappedBy="institution",cascade=CascadeType.ALL)//,orphanRemoval = true) //TODO !!cascade-remove /no ,orphanRemoval = true here
-/*	@OneToMany(mappedBy="institution",cascade=CascadeType.ALL) //TODO !!cascade-remove /no ,orphanRemoval = true here
-	@JoinColumn(name="institution_id"), //ok if unidirectional
-*/	@ElementCollection(targetClass = User.class,fetch=FetchType.EAGER)
+	@OneToMany(mappedBy="institution",cascade=CascadeType.ALL, fetch = FetchType.EAGER)
+	@ElementCollection(targetClass = User.class)
 //TODO	@Expose(serialize = true, deserialize= true)
     private Set<User> users;
 	

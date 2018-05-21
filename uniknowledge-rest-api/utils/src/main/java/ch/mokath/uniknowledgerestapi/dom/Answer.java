@@ -62,8 +62,8 @@ public class Answer implements Serializable {
 	@Expose(serialize = true, deserialize= true)
 	private String text;
 
-	@ManyToMany(mappedBy = "likedAnswers", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@ElementCollection(targetClass = User.class)
+	@ManyToMany(mappedBy = "likedAnswers", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//Do not use this on this end(it will create an unnecesssarey Answer_User table)	@ElementCollection(targetClass = User.class)
 	private Set<User> upvotes;
 
 	@Column(name = "validated")

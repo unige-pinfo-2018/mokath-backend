@@ -80,8 +80,9 @@ public class PostsServiceImpl implements PostsService {
 			em.merge(question);
 
 			user.removeQuestion(question);
-			em.remove(question);
-		}
+//			em.remove(question);
+em.remove(em.contains(question) ? question : em.merge(question));
+}
 	}
 
 	@Override

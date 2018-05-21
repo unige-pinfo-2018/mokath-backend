@@ -52,8 +52,9 @@ public class Question implements Serializable {
 	@Column(name = "created")
 	private Date created;
 
-    @ManyToOne()
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "author_id")
+	@ElementCollection(targetClass = User.class)
     @Expose(serialize = true, deserialize= true)
 	private User author;
 
@@ -69,16 +70,14 @@ public class Question implements Serializable {
 	@Expose(serialize = true, deserialize= true)
 	private String text;
 
+	@OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.EAGER)//, orphanRemoval = true)
 	@ElementCollection(targetClass = Answer.class)
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "question", orphanRemoval = true, fetch = FetchType.EAGER)
 	private Set<Answer> answers;
 	
-	@ManyToMany(mappedBy = "likedQuestions", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@ElementCollection(targetClass = User.class)
+	@ManyToMany(mappedBy = "likedQuestions", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private Set<User> upvotes;
 	
-	@ManyToMany(mappedBy = "followedQuestions", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@ElementCollection(targetClass = User.class)
+	@ManyToMany(mappedBy = "followedQuestions", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private Set<User> followers;
 
 	/*
