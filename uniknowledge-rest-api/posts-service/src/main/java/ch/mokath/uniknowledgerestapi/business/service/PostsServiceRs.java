@@ -286,11 +286,11 @@ public class PostsServiceRs {
 	@Path("/answers/{id}")
 	public Response deleteAnswer(@Context HttpServletRequest req, @PathParam("id") String answerId) {
 		User trustedUser = (User) req.getAttribute("user");
-		Question unwrappedQuestion;
-		Answer unwrappedAnswer;
+//		Question unwrappedQuestion;
+//		Answer unwrappedAnswer;
 
 		try {
-			Map<String, Object> wherePredicatesMapAnswer = new HashMap<String, Object>();
+/*			Map<String, Object> wherePredicatesMapAnswer = new HashMap<String, Object>();
 			wherePredicatesMapAnswer.put("id", answerId);
 			Optional<Answer> wrappedAnswer = DBHelper.getEntityFromFields(wherePredicatesMapAnswer, Answer.class, em);
 
@@ -300,9 +300,10 @@ public class PostsServiceRs {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
 
-			unwrappedQuestion = unwrappedAnswer.getQuestion();
+//z			unwrappedQuestion = unwrappedAnswer.getQuestion();
 
-			postsService.deleteAnswer(unwrappedAnswer, trustedUser, unwrappedQuestion);
+//z			postsService.deleteAnswer(unwrappedAnswer, trustedUser, unwrappedQuestion);*/
+			postsService.deleteAnswer(answerId, trustedUser);
 
 		} catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();

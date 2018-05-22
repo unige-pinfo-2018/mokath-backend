@@ -3,6 +3,13 @@
  */
 package ch.mokath.uniknowledgerestapi.business.service;
 
+/**z*/
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import ch.mokath.uniknowledgerestapi.utils.CustomException;
+/*z*/
+
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -27,7 +34,7 @@ import ch.mokath.uniknowledgerestapi.utils.DBHelper;
 
 /**
  * @author matteo113
- *
+ * @author zue
  */
 @Stateless
 public class PostsServiceImpl implements PostsService {
@@ -80,6 +87,8 @@ public class PostsServiceImpl implements PostsService {
 			em.merge(question);
 
 			user.removeQuestion(question);
+            question.getFollowers();
+			
 //			em.remove(question);
 em.remove(em.contains(question) ? question : em.merge(question));
 }
@@ -134,11 +143,12 @@ em.remove(em.contains(question) ? question : em.merge(question));
 		user.addLikedAnswer(answer);
 	}
 
-	@Override
-	public void deleteAnswer(Answer a, User u, Question q) {
+/**zue	@Override
+//z	public void deleteAnswer(Answer a, User u, Question q) {
+	public void deleteAnswer(Answer a, User u) {
 		User user = em.merge(u);
 		Answer answer = em.merge(a);
-		Question question = em.merge(q);
+//z		Question question = em.merge(q);
 
 		if (user.equals(answer.getAuthor())) {
 			// remove all upvotes
@@ -146,11 +156,18 @@ em.remove(em.contains(question) ? question : em.merge(question));
 				usr.removeLikedAnswer(answer);
 			}
 
-			user.removeAnswer(answer);
-			question.removeAnswer(answer);
-			em.remove(answer);
-		}
-	}
+//			user.removeAnswer(answer);
+//            answer.removeAuthor();
+//            answer.removeQuestion();
+answer.predel();
+			em.flush();
+			em.clear();
+
+//			question.removeAnswer(answer);
+			em.remove(em.contains(a) ? a : em.merge(a));
+//em.remove(answer);
+}
+	}*/
 
 	@Override
 	public void editAnswer(Answer oa, Answer ua, User u) {
@@ -164,7 +181,9 @@ em.remove(em.contains(question) ? question : em.merge(question));
 		em.merge(answer);
 	}
 
-	private void deleteAnswer(Answer a) {
+	@Override
+	public void deleteAnswer(String id,User user) {
+/*zue	private void deleteAnswer(Answer a) {
 		Answer answer = em.merge(a);
 		User user = em.merge(answer.getAuthor());
 		Question question = em.merge(answer.getQuestion());
@@ -174,7 +193,33 @@ em.remove(em.contains(question) ? question : em.merge(question));
 		
 		user.removeAnswer(answer);
 		question.removeAnswer(answer);
-		em.remove(answer);
+		em.remove(answer);*/
+					Map<String, Object> wherePredicatesMapAnswer = new HashMap<String, Object>();
+			wherePredicatesMapAnswer.put("id", id);
+			Optional<Answer> wrappedAnswer = DBHelper.getEntityFromFields(wherePredicatesMapAnswer, Answer.class, em);
+
+			if (wrappedAnswer.isPresent()) {
+				Answer answer = em.merge(wrappedAnswer.get());
+		if (user.equals(answer.getAuthor())) {
+			// remove all upvotes
+			for (User usr : answer.getUpvotes()) {
+				usr.removeLikedAnswer(answer);
+			}
+answer.predel();			em.flush();
+			em.clear();
+					Map<String, Object> wherePredicatesMapAnswer1 = new HashMap<String, Object>();
+			wherePredicatesMapAnswer1.put("id", id);
+			Optional<Answer> wrappedAnswer1 = DBHelper.getEntityFromFields(wherePredicatesMapAnswer1, Answer.class, em);
+			if (wrappedAnswer1.isPresent()) {
+				Answer answer1 = em.merge(wrappedAnswer1.get());
+
+
+/*Answer a2=em.merge(wrappedAnswer.get());
+				em.remove(a2);*/
+				em.remove(answer1);
+				}
+			}
+        } //else {throw new CustomException("Answer not found !");}
 	}
 
 }

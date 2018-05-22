@@ -32,7 +32,7 @@ import com.google.gson.annotations.Expose;
 
 /**
  * @author matteo113
- *
+ * @author zue
  */
 @Entity
 public class Question implements Serializable {
@@ -70,11 +70,12 @@ public class Question implements Serializable {
 	@Expose(serialize = true, deserialize= true)
 	private String text;
 
-	@OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.EAGER)//, orphanRemoval = true)
+//	@OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.EAGER)//, orphanRemoval = true)
+	@OneToMany(mappedBy = "question")//, fetch = FetchType.EAGER)//, orphanRemoval = true)
 	@ElementCollection(targetClass = Answer.class)
 	private Set<Answer> answers;
 	
-	@ManyToMany(mappedBy = "likedQuestions", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToMany(mappedBy = "likedQuestions", cascade={CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, fetch = FetchType.EAGER)
 	private Set<User> upvotes;
 	
 	@ManyToMany(mappedBy = "followedQuestions", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -179,15 +180,16 @@ public class Question implements Serializable {
 	public void addFollower(User follow) {
 		this.followers.add(follow);
 	}
+	public void removeFollower(User follow) {
+		this.followers.remove(follow);
+	}
 
 	public Set<Answer> getAnswers() {
 		return answers;
 	}
-
 	public void addAnswer(Answer a) {
 		this.answers.add(a);
 	}
-	
 	public void removeAnswer(Answer a) {
 		this.answers.remove(a);
 	}
@@ -195,9 +197,11 @@ public class Question implements Serializable {
 	public Set<User> getUpvotes() {
 		return upvotes;
 	}
-
 	public void addUpvote(User like) {
 		this.upvotes.add(like);
+	}
+	public void removeUpvote(User like) {
+		this.upvotes.remove(like);
 	}
 
 	public Date getCreated() {

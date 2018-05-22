@@ -33,7 +33,7 @@ import com.google.gson.annotations.Expose;
 
 /**
  * @author matteo113
- *
+ * @author zue
  */
 @Entity
 public class Answer implements Serializable {
@@ -45,7 +45,7 @@ public class Answer implements Serializable {
 	@Expose(serialize = false, deserialize= true)
 	private long id;
 
-	@ManyToOne
+	@ManyToOne()
 	@JoinColumn(name = "question_id")
 	private Question question;
 
@@ -53,7 +53,7 @@ public class Answer implements Serializable {
 	@Column(name = "timestamp")
 	private Date created;
 
-	@ManyToOne
+	@ManyToOne( cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
 	@JoinColumn(name = "author_id")
 	@Expose(serialize = true, deserialize= true)
 	private User author;
@@ -62,7 +62,9 @@ public class Answer implements Serializable {
 	@Expose(serialize = true, deserialize= true)
 	private String text;
 
-	@ManyToMany(mappedBy = "likedAnswers", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//	@ManyToMany(mappedBy = "likedAnswers",  cascade={CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, fetch = FetchType.EAGER)
+	@ManyToMany(mappedBy = "likedAnswers")
+//	@ManyToMany(mappedBy = "likedAnswers",  cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
 //Do not use this on this end(it will create an unnecesssarey Answer_User table)	@ElementCollection(targetClass = User.class)
 	private Set<User> upvotes;
 
@@ -132,22 +134,26 @@ public class Answer implements Serializable {
 		return true;
 	}
 
+	public void predel(){
+	    this.author = null;
+        this.question = null;
+	}
 	public User getAuthor() {
 		return author;
 	}
-
 	public void setAuthor(User author) {
 		this.author = author;
+	}
+	public void removeAuthor() {
+        this.author = null;
 	}
 
 	public String getText() {
 		return text;
 	}
-
 	public void setText(String text) {
 		this.text = text;
 	}
-
 	public long getId() {
 		return id;
 	}
@@ -155,15 +161,16 @@ public class Answer implements Serializable {
 	public void setQuestion(Question question) {
 		this.question = question;
 	}
-
 	public Question getQuestion() {
 		return this.question;
+	}
+	public void removeQuestion() {
+        this.question = null;
 	}
 
 	public Date getCreated() {
 		return this.created;
 	}
-
 	public void setCreated(Date created) {
 		this.created = created;
 	}
@@ -171,11 +178,9 @@ public class Answer implements Serializable {
 	public Set<User> getUpvotes() {
 		return upvotes;
 	}
-
 	public void addUpvote(User u) {
 		this.upvotes.add(u);
-	}
-	
+	}	
 	public void removeUpvote(User u) {
 		this.upvotes.remove(u);
 	}
@@ -183,11 +188,9 @@ public class Answer implements Serializable {
 	public void validate() {
 		this.validated = true;
 	}
-
 	public void unvalidate() {
 		this.validated = false;
 	}
-
 	public boolean isValidated() {
 		return this.validated;
 	}

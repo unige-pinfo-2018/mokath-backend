@@ -88,11 +88,12 @@ public class User implements Serializable {
 	@ElementCollection(targetClass = Question.class)
 	private Set<Question> followedQuestions;
 	
-	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//	@ManyToMany(cascade={CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, fetch = FetchType.EAGER)
+	@ManyToMany()
 	@JoinTable(name = "user_upvote_answer",
 	joinColumns = @JoinColumn(name = "user_id"),
 	inverseJoinColumns = @JoinColumn(name = "answer_id"))
-	@ElementCollection(targetClass = Answer.class)
+//	@ElementCollection(targetClass = Answer.class)
 	private Set<Answer> likedAnswers;
 
 	/* field relationship mapping for Institution - Only 1 institution/user */
@@ -273,7 +274,6 @@ public class User implements Serializable {
 	public void addLikedQuestion(Question q) {
 		this.likedQuestions.add(q);
 	}
-	
 	public void removeLikedQuestion(Question q) {
 		this.likedQuestions.remove(q);
 	}
@@ -281,11 +281,9 @@ public class User implements Serializable {
 	public Set<Question> getLikedQuestions(){
 		return this.likedQuestions;
 	}
-	
 	public void addFollowedQuestion(Question q) {
 		this.followedQuestions.add(q);
 	}
-	
 	public void removeFollowedQuestion(Question q) {
 		this.followedQuestions.remove(q);
 	}
@@ -294,17 +292,16 @@ public class User implements Serializable {
 		return this.followedQuestions;
 	}
 	
+	public Set<Answer> getLikedAnswers() {
+		return this.getLikedAnswers();
+	}
 	public void addLikedAnswer(Answer a) {
 		this.likedAnswers.add(a);
 	}
-	
 	public void removeLikedAnswer(Answer a) {
 		this.likedAnswers.remove(a);
 	}
 	
-	public Set<Answer> getLikedAnswers() {
-		return this.getLikedAnswers();
-	}
 	
 	
 	public void setInstitution(Institution i) {
