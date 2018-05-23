@@ -290,6 +290,8 @@ public class PostsServiceRs {
 //		Answer unwrappedAnswer;
 
 		try {
+            Long id = Long.valueOf(answerId);
+
 /*			Map<String, Object> wherePredicatesMapAnswer = new HashMap<String, Object>();
 			wherePredicatesMapAnswer.put("id", answerId);
 			Optional<Answer> wrappedAnswer = DBHelper.getEntityFromFields(wherePredicatesMapAnswer, Answer.class, em);
@@ -303,9 +305,13 @@ public class PostsServiceRs {
 //z			unwrappedQuestion = unwrappedAnswer.getQuestion();
 
 //z			postsService.deleteAnswer(unwrappedAnswer, trustedUser, unwrappedQuestion);*/
-			postsService.deleteAnswer(answerId, trustedUser);
+			postsService.deleteAnswer(id, trustedUser);
 
-		} catch (Exception e) {
+        } catch (NumberFormatException nfe) {
+            return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+        } catch (IllegalArgumentException iae){
+            return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+        } catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 

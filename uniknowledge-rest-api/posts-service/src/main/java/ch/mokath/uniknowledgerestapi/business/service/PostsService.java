@@ -34,7 +34,8 @@ public interface PostsService {
 	void deleteQuestion(Question q, User u);
 
 //z	void deleteAnswer(Answer a, User u, Question q);
-	void deleteAnswer(String id, User u);
+//	void deleteAnswer(String id, User u);
+	void deleteAnswer(Long id, User u);
 
 	void editQuestion(Question oq, Question uq, User u);
 
