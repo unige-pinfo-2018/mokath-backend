@@ -181,7 +181,7 @@ public class Question implements Serializable {
 	}
 
 	public Set<Answer> getAnswers() {
-		return answers;
+		return this.answers;
 	}
 	public void addAnswer(Answer a) {
 		this.answers.add(a);

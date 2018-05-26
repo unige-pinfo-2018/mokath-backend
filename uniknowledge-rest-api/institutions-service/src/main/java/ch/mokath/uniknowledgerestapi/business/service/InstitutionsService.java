@@ -42,13 +42,14 @@ public interface InstitutionsService {
 	 * Update institution informations in the database
 	 * 
 	 * @param i Institution informations to update
+	 * @param id ID of the Institution to update (String)
 	 * @return Institution Updated institution reflecting database
 	 */
 	Institution updateInstitution(@NotNull Institution i,@NotNull final String id) throws CustomException;
 
 	/**
 	 * Delete institution from database
-	 * @param i Institution to delete
+	 * @param id ID of the Institution to update (String)
 	 */
 	void deleteInstitution(@NotNull final String id) throws CustomException;
 	

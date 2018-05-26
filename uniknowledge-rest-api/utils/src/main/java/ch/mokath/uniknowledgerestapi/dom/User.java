@@ -96,16 +96,16 @@ public class User implements Serializable {
 //	@ElementCollection(targetClass = Answer.class)
 	private Set<Answer> likedAnswers;
 
+	@Column(name = "points_earned", nullable = false)
+	@Expose(serialize = true, deserialize = false)
+	private double points;
+
 	/* field relationship mapping for Institution - Only 1 institution/user */
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "institution_id")
 //	@ElementCollection(targetClass = Institution.class)
 	@Expose(serialize = true, deserialize = false)
 	private Institution institution;
-
-	@Column(name = "points_earned", nullable = false)
-	@Expose(serialize = true, deserialize = false)
-	private double points;
 
 
 	/* constructors and methods */
