@@ -8,9 +8,12 @@ import ch.mokath.uniknowledgerestapi.utils.CustomException;
 /*z*/
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Map;
 import java.util.Optional;
+import java.util.NoSuchElementException;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -27,6 +30,8 @@ import org.slf4j.LoggerFactory;
 import ch.mokath.uniknowledgerestapi.dom.Answer;
 import ch.mokath.uniknowledgerestapi.dom.Question;
 import ch.mokath.uniknowledgerestapi.dom.User;
+import ch.mokath.uniknowledgerestapi.utils.DBHelper;
+import ch.mokath.uniknowledgerestapi.utils.CustomException;
 
 /**
  * @author matteo113
@@ -37,14 +42,14 @@ public class PostsServiceImpl implements PostsService {
 
 	@PersistenceContext
 	private EntityManager em;
-	private Logger log = LoggerFactory.getLogger(PostsServiceImpl.class);
+	private DBHelper DBHelper = new DBHelper();
 
 	/**********************************************************************
 	 * QUESTIONS *
 	 **********************************************************************/
 
 	@Override
-	public void createQuestion(@NotNull Question question, User user) throws NoSuchElementException {
+	public void createQuestion(@NotNull Question question, User user) {
 		User author = em.merge(user);
 		author.addQuestion(question);
 		question.setAuthor(author);
@@ -124,17 +129,29 @@ public class PostsServiceImpl implements PostsService {
 	 **********************************************************************/
 
 	@Override
-	public void createAnswer(Question q, Answer a, User u) {
-		User user = em.merge(u);
-		Question question = em.merge(q);
+//	public void createAnswer(Question q, Answer a, User u) {
+	public void createAnswer(final String id, Answer a, User u) throws CustomException {
+        try{
+            Long qid = Long.valueOf(id);
+			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+			wherePredicatesMap.put("id",qid);
+			Optional<Question> wrappedQuestion = DBHelper.getEntityFromFields(wherePredicatesMap, Question.class, em);
 
-		user.addAnswer(a);
-		question.addAnswer(a);
-		a.setQuestion(question);
-		a.setAuthor(user);
-		a.setCreated(new Date());
+			if (wrappedQuestion.isPresent()) {
+                User user = em.merge(u);
+                Question question = em.merge(wrappedQuestion.get());
 
-		em.persist(a);
+                user.addAnswer(a);
+                question.addAnswer(a);
+                a.setQuestion(question);
+                a.setAuthor(user);
+                a.setCreated(new Date());
+
+                em.persist(a);
+            }
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong question ID");
+		}
 	}
 
 	@Override

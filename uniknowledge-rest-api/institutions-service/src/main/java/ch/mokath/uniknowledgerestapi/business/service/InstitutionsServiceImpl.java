@@ -12,8 +12,6 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.RollbackException;
-import javax.validation.constraints.NotNull;
 import javax.validation.ConstraintViolationException;
 
 import com.google.gson.Gson;
@@ -36,20 +34,22 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	private DBHelper DBHelper = new DBHelper();
 	
 	@Override
-	public void createInstitution(@NotNull Institution i) throws CustomException {
+	public void createInstitution(Institution i) throws CustomException {
         try{
             if(isContactEmailOrInstitutionNameAlreadyUsed(i.getContactEmail(), i.getInstitutionName())) {
                 throw new CustomException("institution name or contact email already in use");
             } else {
                 em.persist(i);
             }
+        } catch (NullPointerException ne) {
+            throw new CustomException("empty institution");
         } catch (ConstraintViolationException e) {
             throw new CustomException("invalid input");
         }
 	}
 
 	@Override
-	public Institution getInstitution(@NotNull final String id) throws CustomException {
+	public Institution getInstitution(final String id) throws CustomException {
         try{
             Long iid = Long.valueOf(id);
             Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
@@ -75,7 +75,7 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	}
 	
 	@Override
-	public Institution updateInstitution(@NotNull Institution i,@NotNull final String id) throws CustomException {
+	public Institution updateInstitution(Institution i,final String id) throws CustomException {
         try{
             Long iid = Long.valueOf(id);
             if(isContactEmailOrInstitutionNameAlreadyUsed(i.getContactEmail(),i.getInstitutionName(),id)) {
@@ -95,6 +95,8 @@ public class InstitutionsServiceImpl implements InstitutionsService {
                     throw new CustomException("institution not found");
                 }
             }
+        } catch (NullPointerException ne) {
+            throw new CustomException("empty institution");
         }catch (ConstraintViolationException e){
             throw new CustomException("invalid input");
         }catch(NumberFormatException nfe){
@@ -103,7 +105,7 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	}
 
 	@Override
-	public void deleteInstitution(@NotNull final String id) throws CustomException {
+	public void deleteInstitution(final String id) throws CustomException {
          try{
             Long iid = Long.valueOf(id);
             Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
@@ -127,7 +129,7 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 
 	/** add/get-all/remove User to/from an Institution */
 	@Override
-	public User addUser(@NotNull final String uid,@NotNull final String iid) throws CustomException {
+	public User addUser(final String uid,final String iid) throws CustomException {
         try{
             Long uidl = Long.valueOf(uid);
             Map<String, Object> wherePMuser = new HashMap<String, Object>();
@@ -157,7 +159,7 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	}
 	
 	@Override
-	public List<User> getUsers(@NotNull final String iid) throws CustomException {
+	public List<User> getUsers(final String iid) throws CustomException {
         try{
             Long iidl = Long.valueOf(iid);
             Map<String, Object> wherePMinst = new HashMap<String, Object>();
@@ -179,7 +181,7 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	}
 	
 	@Override
-	public void removeUser(@NotNull final String uid,@NotNull final String iid) throws CustomException {
+	public void removeUser(final String uid,final String iid) throws CustomException {
         try{
             Long uidl = Long.valueOf(uid);
             Map<String, Object> wherePMuser = new HashMap<String, Object>();

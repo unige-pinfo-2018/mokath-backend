@@ -3,14 +3,13 @@
  */
 package ch.mokath.uniknowledgerestapi.business.service;
 
+import javax.ejb.Local;
+import javax.validation.constraints.NotNull;
+
 import ch.mokath.uniknowledgerestapi.dom.Answer;
 import ch.mokath.uniknowledgerestapi.dom.Question;
 import ch.mokath.uniknowledgerestapi.dom.User;
 import ch.mokath.uniknowledgerestapi.utils.CustomException;
-
-import javax.ejb.Local;
-import javax.validation.constraints.NotNull;
-
 
 /**
  * @author matteo113
@@ -20,9 +19,10 @@ import javax.validation.constraints.NotNull;
 public interface PostsService {
 
 
-	void createQuestion(@NotNull Question q, User u);
+	void createQuestion(Question q, User u);
 
-	void createAnswer(Question q, Answer a, User u);
+//z	void createAnswer(Question q, Answer a, User u);
+	void createAnswer(final String id, Answer a, User u) throws CustomException;
 
 	void validateAnswer(Answer a, User u);
 

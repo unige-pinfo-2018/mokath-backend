@@ -74,13 +74,9 @@ public class PostsServiceRs {
 			Question question = new Gson().fromJson(requestBody, Question.class);
 			User trustedUserAsAuthor = (User) req.getAttribute("user");
 			postsService.createQuestion(question, trustedUserAsAuthor);
-		// TODO add toString
             return Response.ok(question.toString()).build();
-
 		} catch (JsonSyntaxException e) {
 			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
-//        } catch (CustomException ce) {
-//            return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
            return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
@@ -147,6 +143,7 @@ public class PostsServiceRs {
 		User trustedUser = (User) req.getAttribute("user");
 
 		try {
+		
 			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
 			wherePredicatesMap.put("id", id);
 			Optional<Question> wrappedQuestion = DBHelper.getEntityFromFields(wherePredicatesMap, Question.class, em);
@@ -168,7 +165,8 @@ public class PostsServiceRs {
 
 		// TODO add toString
 		return Response.ok().build();
-	}
+
+    }
 
 	@GET
 	@Path("/questions/{id}")
@@ -212,19 +210,24 @@ public class PostsServiceRs {
 	@Consumes("application/json")
 	public Response newAnswer(@PathParam("qid") String id, @Context HttpServletRequest req,
 			@NotNull final String requestBody) {
-		Question unwrappedQuestion;
 		User trustedUser = (User) req.getAttribute("user");
-		Answer answer;
 
 		try {
-			answer = new Gson().fromJson(requestBody, Answer.class);
+            Answer answer = new Gson().fromJson(requestBody, Answer.class);
+            postsService.createAnswer(id, answer, trustedUser);
+            return Response.ok(answer.toString()).build();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+        }
+/*
+		Answer answer = new Gson().fromJson(requestBody, Answer.class);
 
 			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
 			wherePredicatesMap.put("id", id);
 			Optional<Question> wrappedQuestion = DBHelper.getEntityFromFields(wherePredicatesMap, Question.class, em);
 
 			if (wrappedQuestion.isPresent()) {
-				unwrappedQuestion = wrappedQuestion.get();
+				Question unwrappedQuestion = wrappedQuestion.get();
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
@@ -236,6 +239,7 @@ public class PostsServiceRs {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 		return Response.ok().build();
+*/
 	}
 
 	@PUT
