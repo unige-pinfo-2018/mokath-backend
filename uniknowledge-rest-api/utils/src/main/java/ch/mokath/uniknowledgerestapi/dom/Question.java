@@ -45,7 +45,7 @@ public class Question implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Expose(serialize = false, deserialize= true)
+	@Expose(serialize = true, deserialize= true)
 	private long id;
 
 	@Column(name = "created")

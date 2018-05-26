@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceContextType;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -45,13 +46,17 @@ import ch.mokath.uniknowledgerestapi.utils.CustomErrorResponse;
 import ch.mokath.uniknowledgerestapi.utils.DBHelper;
 import ch.mokath.uniknowledgerestapi.utils.Secured;
 
+//import javax.persistence.Proxy;
+import ch.mokath.uniknowledgerestapi.utils.CustomException;
+
 /**
  * @author matteo113
  *
  */
 @Path("")
 public class PostsServiceRs {
-	@PersistenceContext
+//	@PersistenceContext(type = PersistenceContextType.EXTENDED)
+//	@Proxy(lazy=false)
 	private EntityManager em;
 
 	@Inject
@@ -65,21 +70,20 @@ public class PostsServiceRs {
 	@Consumes("application/json")
 	@Produces("application/json")
 	public Response newQuestion(@Context HttpServletRequest req, @NotNull final String requestBody) {
-
-		Question question;
-		User trustedUserAsAuthor;
-
 		try {
-			question = new Gson().fromJson(requestBody, Question.class);
-			trustedUserAsAuthor = (User) req.getAttribute("user");
+			Question question = new Gson().fromJson(requestBody, Question.class);
+			User trustedUserAsAuthor = (User) req.getAttribute("user");
 			postsService.createQuestion(question, trustedUserAsAuthor);
+		// TODO add toString
+            return Response.ok(question.toString()).build();
 
 		} catch (JsonSyntaxException e) {
 			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
+//        } catch (CustomException ce) {
+//            return ce.getHTTPJsonResponse();
+		} catch (Exception e) {
+           return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
-
-		// TODO add toString
-		return Response.ok().build();
 	}
 
 	@PUT
@@ -178,14 +182,15 @@ public class PostsServiceRs {
 
 			if (wrappedQuestion.isPresent()) {
 				unwrappedQuestion = wrappedQuestion.get();
+		return Response.ok(unwrappedQuestion.toString()).build();
 			} else {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
 		} catch (Exception e) {
 			log.info("Exception thrown while querying question with id : " + id + " : " + e.getMessage());
-			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+             return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
+//			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
-		return Response.ok(unwrappedQuestion.toString()).build();
 	}
 	
 	@GET

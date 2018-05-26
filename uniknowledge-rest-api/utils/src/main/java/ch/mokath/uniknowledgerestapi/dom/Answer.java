@@ -42,7 +42,7 @@ public class Answer implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Expose(serialize = false, deserialize= true)
+	@Expose(serialize = true, deserialize= true)
 	private long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
