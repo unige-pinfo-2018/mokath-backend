@@ -45,15 +45,15 @@ public class Answer implements Serializable {
 	@Expose(serialize = false, deserialize= true)
 	private long id;
 
-	@ManyToOne()
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "question_id")
 	private Question question;
 
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "timestamp")
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date created;
 
-	@ManyToOne( cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "author_id")
 	@Expose(serialize = true, deserialize= true)
 	private User author;
@@ -63,10 +63,10 @@ public class Answer implements Serializable {
 	private String text;
 
 //	@ManyToMany(mappedBy = "likedAnswers",  cascade={CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, fetch = FetchType.EAGER)
-	@ManyToMany(mappedBy = "likedAnswers")
+	@ManyToMany(mappedBy = "likedAnswers",fetch = FetchType.LAZY)
 //	@ManyToMany(mappedBy = "likedAnswers",  cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
 //Do not use this on this end(it will create an unnecesssarey Answer_User table)	@ElementCollection(targetClass = User.class)
-	private Set<User> upvotes;
+    private Set<User> upvotes;
 
 	@Column(name = "validated")
 	@Expose(serialize = true, deserialize= true)
@@ -85,8 +85,8 @@ public class Answer implements Serializable {
 	
 	@Override
 	public String toString() {
-		GsonBuilder builder = new GsonBuilder();  
-	    builder.excludeFieldsWithoutExposeAnnotation();
+		GsonBuilder builder = new GsonBuilder();
+		builder.excludeFieldsWithoutExposeAnnotation();
 		Gson gson = builder.create();  
 		
 		return gson.toJson(this);
@@ -124,36 +124,38 @@ public class Answer implements Serializable {
 				return false;
 		} else if (!text.equals(other.text))
 			return false;
-		if (upvotes == null) {
+/*		if (upvotes == null) {
 			if (other.upvotes != null)
 				return false;
 		} else if (!upvotes.equals(other.upvotes))
 			return false;
-		if (validated != other.validated)
+*/		if (validated != other.validated)
 			return false;
 		return true;
 	}
 
-	public void predel(){
-	    this.author = null;
-        this.question = null;
+/*	public void prepForDelete(){
+	    this.removeAuthor();
+        this.removeQuestion();
 	}
+*/
 	public User getAuthor() {
 		return author;
 	}
 	public void setAuthor(User author) {
 		this.author = author;
 	}
-	public void removeAuthor() {
+/*	public void removeAuthor() {
         this.author = null;
 	}
-
+*/
 	public String getText() {
 		return text;
 	}
 	public void setText(String text) {
 		this.text = text;
 	}
+
 	public long getId() {
 		return id;
 	}
@@ -164,10 +166,10 @@ public class Answer implements Serializable {
 	public Question getQuestion() {
 		return this.question;
 	}
-	public void removeQuestion() {
+/*	public void removeQuestion() {
         this.question = null;
 	}
-
+*/
 	public Date getCreated() {
 		return this.created;
 	}

@@ -23,13 +23,14 @@ import javax.persistence.OneToMany;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
-
+import org.hibernate.validator.constraints.Email;
 import ch.mokath.uniknowledgerestapi.dom.Institution;
+import ch.mokath.uniknowledgerestapi.dom.Points;
 
 /**
  * @author tv0g
  * @author matteo113
- *
+ * @author zue
  */
 @Entity
 public class User implements Serializable {
@@ -58,38 +59,37 @@ public class User implements Serializable {
 	private String profilePictureURL;
 
 	@Column(name = "email")
+	@Email
 	@Expose(serialize = true, deserialize= true)
 	private String email;
 
-
 	@Column(name = "password", length=128, nullable = false)
 	private String password;
-	
-	
-	@OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@ElementCollection(targetClass = Question.class)
+
+	@OneToMany(mappedBy = "author",fetch = FetchType.LAZY)
+//	@ElementCollection(targetClass = Question.class)
 	private Set<Question> questions;
 
-	@OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@ElementCollection(targetClass = Answer.class)
+	@OneToMany(mappedBy = "author",fetch = FetchType.LAZY)
+//	@ElementCollection(targetClass = Answer.class)
 	private Set<Answer> answers;
 	
-	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_upvote_question",
 	joinColumns = @JoinColumn(name = "user_id"),
 	inverseJoinColumns = @JoinColumn(name = "question_id"))
-	@ElementCollection(targetClass = Question.class)
+//	@ElementCollection(targetClass = Question.class)
 	private Set<Question> likedQuestions;
 	
-	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_follow_question",
 	joinColumns = @JoinColumn(name = "user_id"),
 	inverseJoinColumns = @JoinColumn(name = "question_id"))
-	@ElementCollection(targetClass = Question.class)
+//	@ElementCollection(targetClass = Question.class)
 	private Set<Question> followedQuestions;
 	
 //	@ManyToMany(cascade={CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, fetch = FetchType.EAGER)
-	@ManyToMany()
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_upvote_answer",
 	joinColumns = @JoinColumn(name = "user_id"),
 	inverseJoinColumns = @JoinColumn(name = "answer_id"))
@@ -97,11 +97,16 @@ public class User implements Serializable {
 	private Set<Answer> likedAnswers;
 
 	/* field relationship mapping for Institution - Only 1 institution/user */
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "institution_id")
-	@ElementCollection(targetClass = Institution.class)
-	@Expose(serialize = true, deserialize= false)
+//	@ElementCollection(targetClass = Institution.class)
+	@Expose(serialize = true, deserialize = false)
 	private Institution institution;
+
+	@Column(name = "points_earned", nullable = false)
+	@Expose(serialize = true, deserialize = false)
+	private double points;
+
 
 	/* constructors and methods */
 	public User() {
@@ -128,7 +133,7 @@ public class User implements Serializable {
 	public String toString() {
 		
 		GsonBuilder builder = new GsonBuilder();  
-	    builder.excludeFieldsWithoutExposeAnnotation();
+		builder.excludeFieldsWithoutExposeAnnotation();
 		Gson gson = builder.create();  
 		
 		return gson.toJson(this);
@@ -250,36 +255,35 @@ public class User implements Serializable {
 	public Set<Question> getQuestions() {
 		return questions;
 	}
+	public void addQuestion(Question q) {
+		this.questions.add(q);
+	}
+	public void removeQuestion(Question q) {
+		this.questions.remove(q);
+	}
 
 	public Set<Answer> getAnswers() {
 		return answers;
 	}
-
-	public void addQuestion(Question q) {
-		this.questions.add(q);
-	}
-	
-	public void removeQuestion(Question q) {
-		this.questions.remove(q);
-	}
-	
 	public void addAnswer(Answer a) {
 		this.answers.add(a);
 	}
-	
 	public void removeAnswer(Answer a) {
 		this.answers.remove(a);
 	}
-	
+
+	public Set<Question> getLikedQuestions(){
+		return this.likedQuestions;
+	}
 	public void addLikedQuestion(Question q) {
 		this.likedQuestions.add(q);
 	}
 	public void removeLikedQuestion(Question q) {
 		this.likedQuestions.remove(q);
 	}
-	
-	public Set<Question> getLikedQuestions(){
-		return this.likedQuestions;
+
+	public Set<Question> getFollowedQuestions() {
+		return this.followedQuestions;
 	}
 	public void addFollowedQuestion(Question q) {
 		this.followedQuestions.add(q);
@@ -287,11 +291,7 @@ public class User implements Serializable {
 	public void removeFollowedQuestion(Question q) {
 		this.followedQuestions.remove(q);
 	}
-	
-	public Set<Question> getFollowedQuestions() {
-		return this.followedQuestions;
-	}
-	
+
 	public Set<Answer> getLikedAnswers() {
 		return this.getLikedAnswers();
 	}
@@ -301,9 +301,7 @@ public class User implements Serializable {
 	public void removeLikedAnswer(Answer a) {
 		this.likedAnswers.remove(a);
 	}
-	
-	
-	
+
 	public void setInstitution(Institution i) {
         this.institution = i;
 	}
@@ -313,8 +311,15 @@ public class User implements Serializable {
 	public void removeInstitution() {
         this.institution = null;
 	}
-	
-	
+
+	public double getPoints(){
+        return this.points;
+	}
+	public void addPoints(Points point){
+        this.points += point.getPointValue();
+	}
+
+
 	public static class Builder {
 
 		public String username;

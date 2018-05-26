@@ -48,13 +48,13 @@ public class Question implements Serializable {
 	@Expose(serialize = false, deserialize= true)
 	private long id;
 
-    @Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "created")
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date created;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "author_id")
-	@ElementCollection(targetClass = User.class)
+//	@ElementCollection(targetClass = User.class)
     @Expose(serialize = true, deserialize= true)
 	private User author;
 
@@ -70,15 +70,14 @@ public class Question implements Serializable {
 	@Expose(serialize = true, deserialize= true)
 	private String text;
 
-//	@OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.EAGER)//, orphanRemoval = true)
-	@OneToMany(mappedBy = "question")//, fetch = FetchType.EAGER)//, orphanRemoval = true)
-	@ElementCollection(targetClass = Answer.class)
+	@OneToMany(mappedBy = "question",cascade = CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
+//	@ElementCollection(targetClass = Answer.class)
 	private Set<Answer> answers;
 	
-	@ManyToMany(mappedBy = "likedQuestions", cascade={CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, fetch = FetchType.EAGER)
+	@ManyToMany(mappedBy = "likedQuestions",cascade={CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST},fetch = FetchType.LAZY)
 	private Set<User> upvotes;
 	
-	@ManyToMany(mappedBy = "followedQuestions", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToMany(mappedBy = "followedQuestions",cascade={CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST},fetch = FetchType.LAZY)
 	private Set<User> followers;
 
 	/*
@@ -118,8 +117,8 @@ public class Question implements Serializable {
 	
 	@Override
 	public String toString() {
-		GsonBuilder builder = new GsonBuilder();  
-	    builder.excludeFieldsWithoutExposeAnnotation();
+		GsonBuilder builder = new GsonBuilder();
+		builder.excludeFieldsWithoutExposeAnnotation();
 		Gson gson = builder.create();  
 		
 		return gson.toJson(this);
@@ -167,8 +166,6 @@ public class Question implements Serializable {
 	/*
 	 * Getters/ Setters
 	 */
-	
-	
 	public long getId() {
 		return id;
 	}
@@ -176,7 +173,6 @@ public class Question implements Serializable {
 	public Set<User> getFollowers() {
 		return followers;
 	}
-
 	public void addFollower(User follow) {
 		this.followers.add(follow);
 	}
@@ -207,7 +203,6 @@ public class Question implements Serializable {
 	public Date getCreated() {
 		return created;
 	}
-	
 	public void setCreated(Date date) {
 		this.created = date;
 	}
@@ -215,7 +210,6 @@ public class Question implements Serializable {
 	public User getAuthor() {
 		return this.author;
 	}
-
 	public void setAuthor(User author) {
 		this.author = author;
 	}
@@ -223,7 +217,6 @@ public class Question implements Serializable {
 	public Set<String> getDomains() {
 		return domains;
 	}
-
 	public void setDomains(Set<String> domains) {
 		this.domains = domains;
 	}
@@ -231,7 +224,6 @@ public class Question implements Serializable {
 	public String getTitle() {
 		return title;
 	}
-
 	public void setTitle(String title) {
 		this.title = title;
 	}
@@ -239,7 +231,6 @@ public class Question implements Serializable {
 	public String getText() {
 		return text;
 	}
-
 	public void setText(String text) {
 		this.text = text;
 	}

@@ -6,6 +6,7 @@ package ch.mokath.uniknowledgerestapi.business.service;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
+import javax.validation.ConstraintViolationException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -16,6 +17,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.persistence.RollbackException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +30,8 @@ import ch.mokath.uniknowledgerestapi.dom.Institution;
 import ch.mokath.uniknowledgerestapi.dom.User;
 import ch.mokath.uniknowledgerestapi.utils.CustomErrorResponse;
 import ch.mokath.uniknowledgerestapi.utils.CustomException;
+
+import javax.ejb.EJBException;
 
 /**
  * @author tv0g
@@ -98,8 +102,15 @@ public class InstitutionsServiceRs {
 			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
         } catch (CustomException ce) {
             return ce.getHTTPJsonResponse();
-		} catch (Exception e) {
-			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+      } catch (ConstraintViolationException cve) {
+return CustomErrorResponse.BAD_REQUEST.getHTTPResponse();
+} catch (EJBException ejb) {
+return Response.status(Response.Status.BAD_REQUEST).entity("blabl").build();
+      } catch (Exception e) {
+            System.out.println("TOTO : " + e);
+            System.out.println(e instanceof ConstraintViolationException);
+            return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
+//			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 	}
 	
@@ -146,7 +157,7 @@ public class InstitutionsServiceRs {
 	}
 	
 	@DELETE
-	@Path("/{iid}/user/{uid}")
+	@Path("/{iid}/users/{uid}")
 	@Produces("application/json")
 	public Response removeUser(@PathParam("uid") String uid,@PathParam("iid") String iid){
 		try {

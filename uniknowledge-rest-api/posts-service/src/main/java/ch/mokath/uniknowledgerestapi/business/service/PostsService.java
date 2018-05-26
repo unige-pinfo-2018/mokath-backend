@@ -6,6 +6,7 @@ package ch.mokath.uniknowledgerestapi.business.service;
 import ch.mokath.uniknowledgerestapi.dom.Answer;
 import ch.mokath.uniknowledgerestapi.dom.Question;
 import ch.mokath.uniknowledgerestapi.dom.User;
+import ch.mokath.uniknowledgerestapi.utils.CustomException;
 
 import javax.ejb.Local;
 import javax.validation.constraints.NotNull;
@@ -13,7 +14,7 @@ import javax.validation.constraints.NotNull;
 
 /**
  * @author matteo113
- *
+ * @author zue
  */
 @Local
 public interface PostsService {
@@ -31,11 +32,11 @@ public interface PostsService {
 
 	void followQuestion(Question q, User u);
 
-	void deleteQuestion(Question q, User u);
+//z	void deleteQuestion(Question q, User u);
+	void deleteQuestion(Question q, User u) throws CustomException;
 
 //z	void deleteAnswer(Answer a, User u, Question q);
-//	void deleteAnswer(String id, User u);
-	void deleteAnswer(Long id, User u);
+	void deleteAnswer(Long id, User u) throws CustomException;
 
 	void editQuestion(Question oq, Question uq, User u);
 

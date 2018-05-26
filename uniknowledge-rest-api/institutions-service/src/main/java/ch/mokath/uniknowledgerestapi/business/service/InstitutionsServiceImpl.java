@@ -12,7 +12,9 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.RollbackException;
 import javax.validation.constraints.NotNull;
+import javax.validation.ConstraintViolationException;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -35,10 +37,14 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	
 	@Override
 	public void createInstitution(@NotNull Institution i) throws CustomException {
-		if(isContactEmailOrInstitutionNameAlreadyUsed(i.getContactEmail(), i.getInstitutionName())) {
-			throw new CustomException("Institution name or contact email already in use !");
-		} else {
-            em.persist(i);
+        try{
+            if(isContactEmailOrInstitutionNameAlreadyUsed(i.getContactEmail(), i.getInstitutionName())) {
+                throw new CustomException("Institution name or contact email already in use !");
+            } else {
+                em.persist(i);
+            }
+        } catch (ConstraintViolationException e) {
+            throw new CustomException("Invalid input !");
         }
 	}
 
@@ -65,6 +71,7 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	
 	@Override
 	public Institution updateInstitution(@NotNull Institution i,@NotNull final String id) throws CustomException {
+        try{
 		Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
 		wherePredicatesMap.put("id", id);
 		Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
@@ -75,10 +82,15 @@ public class InstitutionsServiceImpl implements InstitutionsService {
             } else {
                 Institution unwrappedInst = wrappedInst.get();
                 i.setId(unwrappedInst.getId());
-                return (Institution) em.merge(i);
+                Institution returnValue = (Institution) em.merge(i);
+                em.flush();
+                return returnValue;
             }
         }else{
             throw new CustomException("Institution not found !");
+        }
+       } catch (ConstraintViolationException e) {
+            throw new CustomException("Invalid input !");
         }
 	}
 	

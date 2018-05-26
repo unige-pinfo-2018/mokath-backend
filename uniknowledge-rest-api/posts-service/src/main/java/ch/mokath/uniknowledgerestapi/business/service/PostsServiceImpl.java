@@ -4,9 +4,6 @@
 package ch.mokath.uniknowledgerestapi.business.service;
 
 /**z*/
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import ch.mokath.uniknowledgerestapi.utils.CustomException;
 /*z*/
 
@@ -30,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import ch.mokath.uniknowledgerestapi.dom.Answer;
 import ch.mokath.uniknowledgerestapi.dom.Question;
 import ch.mokath.uniknowledgerestapi.dom.User;
-import ch.mokath.uniknowledgerestapi.utils.DBHelper;
 
 /**
  * @author matteo113
@@ -42,7 +38,6 @@ public class PostsServiceImpl implements PostsService {
 	@PersistenceContext
 	private EntityManager em;
 	private Logger log = LoggerFactory.getLogger(PostsServiceImpl.class);
-	private DBHelper DBHelper = new DBHelper();
 
 	/**********************************************************************
 	 * QUESTIONS *
@@ -74,7 +69,7 @@ public class PostsServiceImpl implements PostsService {
 	}
 
 	@Override
-	public void deleteQuestion(Question q, User u) {
+/**z	public void deleteQuestion(Question q, User u) {
 		User user = em.merge(u);
 		Question question = em.merge(q);
 
@@ -89,9 +84,26 @@ public class PostsServiceImpl implements PostsService {
 			user.removeQuestion(question);
             question.getFollowers();
 			
-//			em.remove(question);
-em.remove(em.contains(question) ? question : em.merge(question));
-}
+			em.remove(question);
+        }
+	}*/
+	public void deleteQuestion(Question q, User u) throws CustomException {
+		User user = em.merge(u);
+		Question question = em.merge(q);
+
+		// TODO externalize check
+		if (user.equals(question.getAuthor())) {
+			
+//			question.getAnswers().clear();
+//			question.getUpvotes().clear();
+			
+			em.merge(question);
+
+			user.removeQuestion(question);
+            question.getFollowers();
+			
+			em.remove(question);
+        }
 	}
 
 	@Override
@@ -182,21 +194,21 @@ answer.predel();
 	}
 
 	@Override
-	public void deleteAnswer(Long id,User user) {
+	public void deleteAnswer(Long id,User user) throws CustomException {
 		Answer answer = em.find(Answer.class,id);
 		if (user.equals(answer.getAuthor())) {
 			// remove all upvotes
 			for (User usr : answer.getUpvotes()) {
 				usr.removeLikedAnswer(answer);
 			}
-            answer.predel();
+//            answer.prepForDelete();
             em.flush();
-			em.clear(); //need to clear and reload otherwise not Set not equals=>no delete
+			em.clear(); //need to clear and reload otherwise Set not equals=>no delete from em
 			answer = em.find(Answer.class,id);
 			em.remove(answer);
-		}
-//			}
-//        } //else {throw new CustomException("Answer not found !");}
+        } else {
+            throw new CustomException("User is not the author. Unable to delete answer !");
+        }
 	}
 
 }

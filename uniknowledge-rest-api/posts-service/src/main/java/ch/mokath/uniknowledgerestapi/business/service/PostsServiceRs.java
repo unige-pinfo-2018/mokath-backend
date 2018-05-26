@@ -286,13 +286,11 @@ public class PostsServiceRs {
 	@Path("/answers/{id}")
 	public Response deleteAnswer(@Context HttpServletRequest req, @PathParam("id") String answerId) {
 		User trustedUser = (User) req.getAttribute("user");
-//		Question unwrappedQuestion;
-//		Answer unwrappedAnswer;
+/*z		Question unwrappedQuestion;
+		Answer unwrappedAnswer;
 
 		try {
-            Long id = Long.valueOf(answerId);
-
-/*			Map<String, Object> wherePredicatesMapAnswer = new HashMap<String, Object>();
+			Map<String, Object> wherePredicatesMapAnswer = new HashMap<String, Object>();
 			wherePredicatesMapAnswer.put("id", answerId);
 			Optional<Answer> wrappedAnswer = DBHelper.getEntityFromFields(wherePredicatesMapAnswer, Answer.class, em);
 
@@ -302,20 +300,20 @@ public class PostsServiceRs {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
 
-//z			unwrappedQuestion = unwrappedAnswer.getQuestion();
+			unwrappedQuestion = unwrappedAnswer.getQuestion();
 
-//z			postsService.deleteAnswer(unwrappedAnswer, trustedUser, unwrappedQuestion);*/
+			postsService.deleteAnswer(unwrappedAnswer, trustedUser, unwrappedQuestion);*/
+        try {
+            Long id = Long.valueOf(answerId);
 			postsService.deleteAnswer(id, trustedUser);
-
+            return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
         } catch (NumberFormatException nfe) {
-            return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+            return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
         } catch (IllegalArgumentException iae){
-            return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+            return CustomErrorResponse.BAD_REQUEST.getHTTPResponse();
         } catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
-
-		return Response.ok().build();
 	}
 
 	@GET
