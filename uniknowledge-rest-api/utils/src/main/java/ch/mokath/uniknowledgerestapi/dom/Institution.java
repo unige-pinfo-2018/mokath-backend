@@ -62,7 +62,6 @@ public class Institution implements Serializable {
 	@Expose(serialize = true, deserialize= true)
 	private Set<String> domains;
 	@OneToMany(mappedBy="institution",cascade={CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST},fetch=FetchType.LAZY)
-//	@ElementCollection(targetClass = User.class)
     private Set<User> users;
 	
     /* constructors */

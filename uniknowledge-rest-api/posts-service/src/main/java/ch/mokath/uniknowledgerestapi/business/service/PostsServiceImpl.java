@@ -132,7 +132,6 @@ public class PostsServiceImpl implements PostsService {
 	 **********************************************************************/
 
 	@Override
-//	public void createAnswer(Question q, Answer a, User u) {
 	public void createAnswer(final String qid, Answer a, User u) throws CustomException {
         try{
             Long qidl = Long.valueOf(qid);
@@ -151,9 +150,23 @@ public class PostsServiceImpl implements PostsService {
                 a.setCreated(new Date());
 
                 em.persist(a);
+            } else {
+                throw new CustomException("question not found");
             }
-		} catch (NullPointerException ne) {
+		}catch(NullPointerException ne){
             throw new CustomException("empty answer");
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong question ID");
+		}
+	}
+	
+	@Override
+	public Answer getAnswer(final String aid) throws CustomException{
+        try{
+            Long aidl = Long.valueOf(aid);
+            Answer answer=em.find(Answer.class,aidl);
+            if(answer == null) throw new CustomException("empty answer");
+            else return answer;
         }catch(NumberFormatException nfe){
             throw new CustomException("wrong question ID");
 		}
@@ -177,32 +190,6 @@ public class PostsServiceImpl implements PostsService {
 		user.addLikedAnswer(answer);
 	}
 
-/**zue	@Override
-//z	public void deleteAnswer(Answer a, User u, Question q) {
-	public void deleteAnswer(Answer a, User u) {
-		User user = em.merge(u);
-		Answer answer = em.merge(a);
-//z		Question question = em.merge(q);
-
-		if (user.equals(answer.getAuthor())) {
-			// remove all upvotes
-			for (User usr : answer.getUpvotes()) {
-				usr.removeLikedAnswer(answer);
-			}
-
-//			user.removeAnswer(answer);
-//            answer.removeAuthor();
-//            answer.removeQuestion();
-answer.predel();
-			em.flush();
-			em.clear();
-
-//			question.removeAnswer(answer);
-			em.remove(em.contains(a) ? a : em.merge(a));
-//em.remove(answer);
-}
-	}*/
-
 	@Override
 	public void editAnswer(Answer oa, Answer ua, User u) {
 		User user = em.merge(u);
@@ -216,21 +203,28 @@ answer.predel();
 	}
 
 	@Override
-	public void deleteAnswer(Long id,User user) throws CustomException {
-		Answer answer = em.find(Answer.class,id);
-		if (user.equals(answer.getAuthor())) {
-			// remove all upvotes
-			for (User usr : answer.getUpvotes()) {
-				usr.removeLikedAnswer(answer);
-			}
-//            answer.prepForDelete();
-            em.flush();
-			em.clear(); //need to clear and reload otherwise Set not equals=>no delete from em
-			answer = em.find(Answer.class,id);
-			em.remove(answer);
-        } else {
-            throw new CustomException("User is not the author. Unable to delete answer !");
+	public void deleteAnswer(final String aid,User user) throws CustomException {
+        try{
+            Long aidl = Long.valueOf(aid);
+            Answer answer = em.find(Answer.class,aidl);
+            if (user.equals(answer.getAuthor())) {
+                // remove all upvotes
+                for (User usr : answer.getUpvotes()) {
+                    usr.removeLikedAnswer(answer);
+                }
+//            answer.removeAuthor();
+//            answer.removeQuestion();
+                em.flush();
+                em.clear(); //need to clear and reload otherwise Set not equals=>no delete from em
+                answer = em.find(Answer.class,aidl);
+                em.remove(answer);
+            } else {
+                throw new CustomException("User is not the author. Unable to delete answer !");
+            }
+ 		}catch(NullPointerException ne){
+            throw new CustomException("empty answer");
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong question ID");
         }
 	}
-
 }

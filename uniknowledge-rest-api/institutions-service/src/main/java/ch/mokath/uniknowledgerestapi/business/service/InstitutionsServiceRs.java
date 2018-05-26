@@ -65,8 +65,6 @@ public class InstitutionsServiceRs {
 	public Response getInstitution(@PathParam("id") String id) {
 		try {
             return Response.ok(institutionsService.getInstitution(id).toString()).build();
-         } catch (IllegalArgumentException iae){
-            return CustomErrorResponse.BAD_REQUEST.getHTTPResponse();
         } catch (CustomException ce) {
             return ce.getHTTPJsonResponse();
 		} catch (Exception e) {

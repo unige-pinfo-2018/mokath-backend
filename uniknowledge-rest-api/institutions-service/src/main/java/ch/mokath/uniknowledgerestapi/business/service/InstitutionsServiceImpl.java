@@ -57,8 +57,7 @@ public class InstitutionsServiceImpl implements InstitutionsService {
             Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
 
             if (wrappedInst.isPresent()) {
-                Institution i = wrappedInst.get();
-                return i;
+                return wrappedInst.get();
             } else {
                 throw new CustomException("institution not found");
             }

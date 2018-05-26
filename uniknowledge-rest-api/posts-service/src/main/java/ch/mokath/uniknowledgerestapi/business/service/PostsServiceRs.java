@@ -211,38 +211,18 @@ public class PostsServiceRs {
 	@Path("/questions/{qid}/answers")
 	@Consumes("application/json")
 	public Response newAnswer(@PathParam("qid") String id, @Context HttpServletRequest req,final String requestBody) {
-		User trustedUser = (User) req.getAttribute("user");
-
 		try {
+            User trustedUser = (User) req.getAttribute("user");
             Answer answer = new Gson().fromJson(requestBody, Answer.class);
             postsService.createAnswer(id, answer, trustedUser);
             return Response.ok(answer.toString()).build();
+		} catch (JsonSyntaxException e) {
+			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
         } catch (CustomException ce) {
             return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
         }
-/*
-		Answer answer = new Gson().fromJson(requestBody, Answer.class);
-
-			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-			wherePredicatesMap.put("id", id);
-			Optional<Question> wrappedQuestion = DBHelper.getEntityFromFields(wherePredicatesMap, Question.class, em);
-
-			if (wrappedQuestion.isPresent()) {
-				Question unwrappedQuestion = wrappedQuestion.get();
-			} else {
-				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-			}
-
-			postsService.createAnswer(unwrappedQuestion, answer, trustedUser);
-		} catch (JsonSyntaxException e) {
-			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
-		} catch (Exception e) {
-			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
-		}
-		return Response.ok().build();
-*/
 	}
 
 	@PUT
@@ -297,32 +277,12 @@ public class PostsServiceRs {
 	@Secured
 	@Path("/answers/{id}")
 	public Response deleteAnswer(@Context HttpServletRequest req, @PathParam("id") String answerId) {
-		User trustedUser = (User) req.getAttribute("user");
-/*z		Question unwrappedQuestion;
-		Answer unwrappedAnswer;
-
-		try {
-			Map<String, Object> wherePredicatesMapAnswer = new HashMap<String, Object>();
-			wherePredicatesMapAnswer.put("id", answerId);
-			Optional<Answer> wrappedAnswer = DBHelper.getEntityFromFields(wherePredicatesMapAnswer, Answer.class, em);
-
-			if (wrappedAnswer.isPresent()) {
-				unwrappedAnswer = wrappedAnswer.get();
-			} else {
-				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-			}
-
-			unwrappedQuestion = unwrappedAnswer.getQuestion();
-
-			postsService.deleteAnswer(unwrappedAnswer, trustedUser, unwrappedQuestion);*/
         try {
-            Long id = Long.valueOf(answerId);
-			postsService.deleteAnswer(id, trustedUser);
+            User trustedUser = (User) req.getAttribute("user");
+			postsService.deleteAnswer(answerId, trustedUser);
             return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
-        } catch (NumberFormatException nfe) {
-            return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-        } catch (IllegalArgumentException iae){
-            return CustomErrorResponse.BAD_REQUEST.getHTTPResponse();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
         } catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
@@ -331,25 +291,14 @@ public class PostsServiceRs {
 	@GET
 	@Path("/answers/{id}")
 	@Produces("application/json")
-	public Response getAnswer(@PathParam("id") String answerId) {
-		Answer unwrappedAnswer;
-
+	public Response getAnswer(@PathParam("id") String id) {
 		try {
-			Map<String, Object> wherePredicatesMapAnswer = new HashMap<String, Object>();
-			wherePredicatesMapAnswer.put("id", answerId);
-			Optional<Answer> wrappedAnswer = DBHelper.getEntityFromFields(wherePredicatesMapAnswer, Answer.class, em);
-
-			if (wrappedAnswer.isPresent()) {
-				unwrappedAnswer = wrappedAnswer.get();
-			} else {
-				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-			}
-
+            return Response.ok(postsService.getAnswer(id).toString()).build();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
-
-		return Response.ok(unwrappedAnswer.toString()).build();
 	}
 
 	@GET

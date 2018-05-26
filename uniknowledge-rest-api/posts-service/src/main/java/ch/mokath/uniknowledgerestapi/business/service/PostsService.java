@@ -30,17 +30,16 @@ public interface PostsService {
 //z	void deleteQuestion(Question q, User u);
 	void deleteQuestion(Question q, User u) throws CustomException;
 
-//z	void deleteAnswer(Answer a, User u, Question q);
-	void deleteAnswer(Long id, User u) throws CustomException;
 
 	void editQuestion(Question oq, Question uq, User u);
 
     // Answers
 	void createAnswer(final String qid, Answer a, User u) throws CustomException;
-
+    Answer getAnswer(final String id) throws CustomException;
 	
 	void validateAnswer(Answer a, User u);
 
 	void editAnswer(Answer oa, Answer na, User u);
 
+	void deleteAnswer(final String id, User u) throws CustomException;
 }
