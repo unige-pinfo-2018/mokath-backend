@@ -19,7 +19,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -55,6 +54,7 @@ import ch.mokath.uniknowledgerestapi.utils.CustomException;
  */
 @Path("")
 public class PostsServiceRs {
+    @PersistenceContext
 //	@PersistenceContext(type = PersistenceContextType.EXTENDED)
 //	@Proxy(lazy=false)
 	private EntityManager em;
@@ -69,7 +69,7 @@ public class PostsServiceRs {
 	@Path("/questions")
 	@Consumes("application/json")
 	@Produces("application/json")
-	public Response newQuestion(@Context HttpServletRequest req, @NotNull final String requestBody) {
+	public Response newQuestion(@Context HttpServletRequest req,final String requestBody) {
 		try {
 			Question question = new Gson().fromJson(requestBody, Question.class);
 			User trustedUserAsAuthor = (User) req.getAttribute("user");
@@ -77,6 +77,8 @@ public class PostsServiceRs {
             return Response.ok(question.toString()).build();
 		} catch (JsonSyntaxException e) {
 			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
            return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
@@ -208,14 +210,15 @@ public class PostsServiceRs {
 	@Secured
 	@Path("/questions/{qid}/answers")
 	@Consumes("application/json")
-	public Response newAnswer(@PathParam("qid") String id, @Context HttpServletRequest req,
-			@NotNull final String requestBody) {
+	public Response newAnswer(@PathParam("qid") String id, @Context HttpServletRequest req,final String requestBody) {
 		User trustedUser = (User) req.getAttribute("user");
 
 		try {
             Answer answer = new Gson().fromJson(requestBody, Answer.class);
             postsService.createAnswer(id, answer, trustedUser);
             return Response.ok(answer.toString()).build();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
         }

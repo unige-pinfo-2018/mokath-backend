@@ -22,7 +22,6 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,12 +48,16 @@ public class PostsServiceImpl implements PostsService {
 	 **********************************************************************/
 
 	@Override
-	public void createQuestion(@NotNull Question question, User user) {
-		User author = em.merge(user);
-		author.addQuestion(question);
-		question.setAuthor(author);
-		question.setCreated(new Date());
-		em.persist(question);
+	public void createQuestion(Question question, User user) throws CustomException {
+        try{
+            User author = em.merge(user);
+            author.addQuestion(question);
+            question.setAuthor(author);
+            question.setCreated(new Date());
+            em.persist(question);
+		} catch (NullPointerException ne) {
+            throw new CustomException("empty question");
+        }
 	}
 
 	@Override
@@ -130,11 +133,11 @@ public class PostsServiceImpl implements PostsService {
 
 	@Override
 //	public void createAnswer(Question q, Answer a, User u) {
-	public void createAnswer(final String id, Answer a, User u) throws CustomException {
+	public void createAnswer(final String qid, Answer a, User u) throws CustomException {
         try{
-            Long qid = Long.valueOf(id);
+            Long qidl = Long.valueOf(qid);
 			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-			wherePredicatesMap.put("id",qid);
+			wherePredicatesMap.put("id",qidl);
 			Optional<Question> wrappedQuestion = DBHelper.getEntityFromFields(wherePredicatesMap, Question.class, em);
 
 			if (wrappedQuestion.isPresent()) {
@@ -149,6 +152,8 @@ public class PostsServiceImpl implements PostsService {
 
                 em.persist(a);
             }
+		} catch (NullPointerException ne) {
+            throw new CustomException("empty answer");
         }catch(NumberFormatException nfe){
             throw new CustomException("wrong question ID");
 		}
