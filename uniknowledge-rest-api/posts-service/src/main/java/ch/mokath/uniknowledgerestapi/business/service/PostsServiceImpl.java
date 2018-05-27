@@ -103,29 +103,51 @@ public class PostsServiceImpl implements PostsService {
 	}
 
 	@Override
-	public void upvoteQuestion(final String qid, User u) throws NoSuchElementException {
-/*	public void upvoteQuestion(Question q, User u) throws NoSuchElementException {
-		User user = em.merge(u);
-		Question question = em.merge(q);
-
-		if (!user.equals(question.getAuthor())){ //Do not add points to own questions
-            User question_author = em.merge(question.getAuthor());
-            question_author.addPoints(Points.QUESTION_LIKED);
-        }
-		user.addLikedQuestion(question);*/
+	public void upvoteQuestion(final String qid, User u) throws CustomException {
+        try{
+            Long qidl = Long.valueOf(qid);
+            Question question=em.find(Question.class,qidl);
+            if(question == null) throw new CustomException("question not found");
+            else{
+                User user = em.merge(u);
+                if(user.getLikedQuestions().contains(question))
+                    throw new CustomException("already upvoted question",Response.Status.UNAUTHORIZED);
+                else if (user.equals(question.getAuthor())) //Do not upvote or add points to own questions
+                    throw new CustomException("author can't upvote his own question",Response.Status.UNAUTHORIZED);
+                else{
+                    user.addLikedQuestion(question);
+                    User question_author = em.merge(question.getAuthor());
+                    question_author.addPoints(Points.QUESTION_LIKED);
+                }
+            }
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong question ID");
+		}
 	}
 
 	@Override
-	public void followQuestion(final String qid, User u) throws NoSuchElementException {
-/*	public void followQuestion(Question q, User u) throws NoSuchElementException {
-		User user = em.merge(u);
-		Question question = em.merge(q);
-
-        if (!user.equals(question.getAuthor())){ //Do not add points to follow own questions
-            User question_author = em.merge(question.getAuthor());
-            question_author.addPoints(Points.QUESTION_FOLLOWED);
-        }
-		user.addFollowedQuestion(question);*/
+	public void followQuestion(final String qid, User u) throws CustomException {
+        try{
+            Long qidl = Long.valueOf(qid);
+            Question question=em.find(Question.class,qidl);
+            if(question == null) throw new CustomException("question not found");
+            else{
+                User user = em.merge(u);
+                if(user.getFollowedQuestions().contains(question))
+                    throw new CustomException("already following question",Response.Status.UNAUTHORIZED);
+                else if (user.equals(question.getAuthor())) //Do not upvote or add points to own questions
+                    throw new CustomException("author can't upvote his own question",Response.Status.UNAUTHORIZED);
+                else{
+                    user.addFollowedQuestion(question);
+                    if (!user.equals(question.getAuthor())){ //Do not add points to follow own questions
+                        User question_author = em.merge(question.getAuthor());
+                        question_author.addPoints(Points.QUESTION_FOLLOWED);
+                    }
+                }
+            }
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong question ID");
+		}
 	}
 
 	@Override
@@ -191,17 +213,24 @@ public class PostsServiceImpl implements PostsService {
 	}
 
 	@Override
-	public Question editQuestion(final String qid, Question uq, User u) {
-/*	public void editQuestion(Question oq, Question uq, User u) {
-		User user = em.merge(u);
-		Question question = em.merge(oq);
-
-		if (user.equals(question.getAuthor())) {
-			question.setText(uq.getText());
-			question.setTitle(uq.getTitle());
-			question.setDomains(uq.getDomains());
+	public Question editQuestion(final String qid, Question uq, User u) throws CustomException {
+        try{
+            Long qidl = Long.valueOf(qid);
+            Question question=em.find(Question.class,qidl);
+            if(question == null) throw new CustomException("question not found");
+            else{
+                User user = em.merge(u);
+                if (user.equals(question.getAuthor())) {
+                    question.setText(uq.getText());
+                    question.setTitle(uq.getTitle());
+                    question.setDomains(uq.getDomains());
+                    em.merge(question);
+                    return question;
+                }else throw new CustomException("not the author of the question",Response.Status.UNAUTHORIZED);
+            }
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong question ID");
 		}
-		em.merge(question);*/return uq;
 	}
 
 	/**********************************************************************
@@ -319,7 +348,7 @@ public class PostsServiceImpl implements PostsService {
                 }
                 em.merge(answer);
                 return answer;
-            }else throw new CustomException("bad answer (not the owner)",Response.Status.UNAUTHORIZED);
+            }else throw new CustomException("bad answer (not the author)",Response.Status.UNAUTHORIZED);
             
         }catch(NumberFormatException nfe){
             throw new CustomException("wrong answer ID");
