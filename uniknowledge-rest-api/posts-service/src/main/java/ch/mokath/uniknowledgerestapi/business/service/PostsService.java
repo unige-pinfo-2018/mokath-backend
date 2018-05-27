@@ -24,15 +24,16 @@ public interface PostsService {
 	void createQuestion(Question q, User u) throws CustomException;
     Set<Answer> getQuestionAnswers(final String questionId) throws CustomException;
 
-	Question editQuestion(final String id, Question uq, User u) throws CustomException;
+	Question editQuestion(final String questionId, Question uq, User u) throws CustomException;
+    List<Question> getMyQuestions(final User u);
 
-	void followQuestion(final String id, User u) throws CustomException;
-	void upvoteQuestion(final String id, User u) throws CustomException;
+	void followQuestion(final String questionId, User u) throws CustomException;
+	void upvoteQuestion(final String questionId, User u) throws CustomException;
 
 //z	void deleteQuestion(Question q, User u);
 //z	void editQuestion(Question oq, Question uq, User u);
 
-	void deleteQuestion(final String id, User u) throws CustomException;
+	void deleteQuestion(final String questionId, User u) throws CustomException;
 
     /** Answers **/
 	void createAnswer(final String questionId, Answer a, User u) throws CustomException;

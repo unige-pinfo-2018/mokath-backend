@@ -63,10 +63,7 @@ public class Answer implements Serializable {
 	@Expose(serialize = true, deserialize= true)
 	private String text;
 
-//	@ManyToMany(mappedBy = "likedAnswers",  cascade={CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, fetch = FetchType.EAGER)
 	@ManyToMany(mappedBy = "likedAnswers",fetch = FetchType.LAZY)
-//	@ManyToMany(mappedBy = "likedAnswers",  cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
-//Do not use this on this end(it will create an unnecesssarey Answer_User table)	@ElementCollection(targetClass = User.class)
     private Set<User> upvotes;
 
 	@Column(name = "validated")
@@ -140,10 +137,7 @@ public class Answer implements Serializable {
 	public void setAuthor(User author) {
 		this.author = author;
 	}
-/*	public void removeAuthor() {
-        this.author = null;
-	}
-*/
+
 	public String getText() {
 		return text;
 	}
@@ -161,10 +155,7 @@ public class Answer implements Serializable {
 	public Question getQuestion() {
 		return question;
 	}
-/*	public void removeQuestion() {
-        this.question = null;
-	}
-*/
+
 	public Date getCreated() {
 		return this.created;
 	}

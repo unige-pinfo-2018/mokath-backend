@@ -83,7 +83,16 @@ public class PostsServiceImpl implements PostsService {
 	}
 
 	@Override
-	public void upvoteQuestion(Question q, User u) throws NoSuchElementException {
+	public List<Question> getMyQuestions(final User u) {
+        Map<String, Object> wherePM = new HashMap<String, Object>();
+        wherePM.put("author",u.getId());
+        List<Question> questions = DBHelper.getEntitiesFromFields(wherePM,Question.class,em);
+        return questions;
+	}
+
+	@Override
+	public void upvoteQuestion(final String qid, User u) throws NoSuchElementException {
+/*	public void upvoteQuestion(Question q, User u) throws NoSuchElementException {
 		User user = em.merge(u);
 		Question question = em.merge(q);
 
@@ -91,11 +100,12 @@ public class PostsServiceImpl implements PostsService {
             User question_author = em.merge(question.getAuthor());
             question_author.addPoints(Points.QUESTION_LIKED);
         }
-		user.addLikedQuestion(question);
+		user.addLikedQuestion(question);*/
 	}
 
 	@Override
-	public void followQuestion(Question q, User u) throws NoSuchElementException {
+	public void followQuestion(final String qid, User u) throws NoSuchElementException {
+/*	public void followQuestion(Question q, User u) throws NoSuchElementException {
 		User user = em.merge(u);
 		Question question = em.merge(q);
 
@@ -103,7 +113,7 @@ public class PostsServiceImpl implements PostsService {
             User question_author = em.merge(question.getAuthor());
             question_author.addPoints(Points.QUESTION_FOLLOWED);
         }
-		user.addFollowedQuestion(question);
+		user.addFollowedQuestion(question);*/
 	}
 
 	@Override
@@ -125,8 +135,8 @@ public class PostsServiceImpl implements PostsService {
 			em.remove(question);
         }
 	}*/
-	public void deleteQuestion(Question q, User u) throws CustomException {
-		User user = em.merge(u);
+	public void deleteQuestion(final String qid, User u) throws CustomException {
+/*		User user = em.merge(u);
 		Question question = em.merge(q);
 
 		// TODO externalize check
@@ -142,11 +152,12 @@ public class PostsServiceImpl implements PostsService {
 			
 			em.remove(question);
             user.addPoints(Points.QUESTION_REMOVED);
-        }
+        }*/
 	}
 
 	@Override
-	public void editQuestion(Question oq, Question uq, User u) {
+	public Question editQuestion(final String qid, Question uq, User u) {
+/*	public void editQuestion(Question oq, Question uq, User u) {
 		User user = em.merge(u);
 		Question question = em.merge(oq);
 
@@ -155,7 +166,7 @@ public class PostsServiceImpl implements PostsService {
 			question.setTitle(uq.getTitle());
 			question.setDomains(uq.getDomains());
 		}
-		em.merge(question);
+		em.merge(question);*/return uq;
 	}
 
 	/**********************************************************************
