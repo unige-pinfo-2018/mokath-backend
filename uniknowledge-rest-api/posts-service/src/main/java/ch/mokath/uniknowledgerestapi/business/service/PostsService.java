@@ -22,10 +22,12 @@ public interface PostsService {
 
     /** Questions **/
 	void createQuestion(Question q, User u) throws CustomException;
+	
+	Question getQuestion(final String questionId) throws CustomException;
+    List<Question> getMyQuestions(final User u);
     Set<Answer> getQuestionAnswers(final String questionId) throws CustomException;
 
-	Question editQuestion(final String questionId, Question uq, User u) throws CustomException;
-    List<Question> getMyQuestions(final User u);
+    Question editQuestion(final String questionId, Question uq, User u) throws CustomException;
 
 	void followQuestion(final String questionId, User u) throws CustomException;
 	void upvoteQuestion(final String questionId, User u) throws CustomException;

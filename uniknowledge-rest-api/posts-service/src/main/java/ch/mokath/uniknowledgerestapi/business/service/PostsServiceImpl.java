@@ -68,6 +68,26 @@ public class PostsServiceImpl implements PostsService {
 	}
 
 	@Override
+	public Question getQuestion(final String qid) throws CustomException{
+        try{
+            Long qidl = Long.valueOf(qid);
+            Question question=em.find(Question.class,qidl);
+            if(question == null) throw new CustomException("question not found");
+            else return question;
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong question ID");
+		}
+	}
+
+	@Override
+	public List<Question> getMyQuestions(final User u) {
+        Map<String, Object> wherePM = new HashMap<String, Object>();
+        wherePM.put("author",u.getId());
+        List<Question> questions = DBHelper.getEntitiesFromFields(wherePM,Question.class,em);
+        return questions;
+	}
+
+	@Override
 	public Set<Answer> getQuestionAnswers(final String qid) throws CustomException {
         try{
             Long qidl = Long.valueOf(qid);
@@ -80,14 +100,6 @@ public class PostsServiceImpl implements PostsService {
         }catch(NumberFormatException nfe){
             throw new CustomException("wrong question ID");
 		}
-	}
-
-	@Override
-	public List<Question> getMyQuestions(final User u) {
-        Map<String, Object> wherePM = new HashMap<String, Object>();
-        wherePM.put("author",u.getId());
-        List<Question> questions = DBHelper.getEntitiesFromFields(wherePM,Question.class,em);
-        return questions;
 	}
 
 	@Override
@@ -136,6 +148,29 @@ public class PostsServiceImpl implements PostsService {
         }
 	}*/
 	public void deleteQuestion(final String qid, User u) throws CustomException {
+/*        try{
+            Long aidl = Long.valueOf(aid);
+            Answer answer = em.find(Answer.class,aidl);
+            if (user.equals(answer.getAuthor())) {
+                // remove all upvotes
+                for (User usr : answer.getUpvotes()) {
+                    usr.removeLikedAnswer(answer);
+                }
+                em.flush();
+                em.clear(); //need to clear and reload otherwise Set not equals=>no delete from em
+                answer = em.find(Answer.class,aidl);
+                User author = answer.getAuthor();
+                em.remove(answer);
+                author.addPoints(Points.ANSWER_REMOVED);
+            } else {
+                throw new CustomException("unable to delete answer (not the author)");
+            }
+ 		}catch(NullPointerException ne){
+            throw new CustomException("empty answer");
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong question ID");
+        }
+*/
 /*		User user = em.merge(u);
 		Question question = em.merge(q);
 
@@ -308,7 +343,7 @@ public class PostsServiceImpl implements PostsService {
                 em.remove(answer);
                 author.addPoints(Points.ANSWER_REMOVED);
             } else {
-                throw new CustomException("User is not the author. Unable to delete answer !");
+                throw new CustomException("unable to delete answer (not the author)");
             }
  		}catch(NullPointerException ne){
             throw new CustomException("empty answer");

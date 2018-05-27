@@ -159,7 +159,8 @@ public class PostsServiceRs {
 				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
 			}
 */		} catch (Exception e) {
-			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+            return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
+//			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 
 		// TODO add toString
@@ -172,20 +173,11 @@ public class PostsServiceRs {
 	@Produces("application/json")
 	public Response getQuestion(@PathParam("id") String id) {
 		try {
-/*			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-			wherePredicatesMap.put("id", id);
-			Optional<Question> wrappedQuestion = DBHelper.getEntityFromFields(wherePredicatesMap, Question.class, em);
-
-			if (wrappedQuestion.isPresent()) {
-				Question unwrappedQuestion = wrappedQuestion.get();
-		return Response.ok(unwrappedQuestion.toString()).build();
-			} else {
-				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-			}*/return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
+            return Response.ok(postsService.getQuestion(id).toString()).build();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
-			log.info("Exception thrown while querying question with id : " + id + " : " + e.getMessage());
-             return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
-//			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 	}
 	
@@ -200,12 +192,6 @@ public class PostsServiceRs {
 		} catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
-/*		User trustedUser = (User) req.getAttribute("user");
-		
-		GsonBuilder builder = new GsonBuilder();  
-	    builder.excludeFieldsWithoutExposeAnnotation();
-		Gson gson = builder.create();  
-		return Response.ok(gson.toJson(trustedUser.getQuestions())).build();*/
 	}
 
 	/** ANSWER **/
