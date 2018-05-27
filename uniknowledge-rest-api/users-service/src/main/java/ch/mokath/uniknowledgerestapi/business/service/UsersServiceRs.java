@@ -183,6 +183,8 @@ public class UsersServiceRs {
 		// Make sure ID and password remain unchanged
 		requestUpdatedUser.setID(trustedUser.getId());
 		requestUpdatedUser.setPassword(trustedUser.getPassword());
+		// also pass earned Points
+		requestUpdatedUser.setPoints(trustedUser.getPoints());
 
 		// If all checks pass, we update the user
 		try {

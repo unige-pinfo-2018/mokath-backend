@@ -308,6 +308,9 @@ public class User implements Serializable {
 	public long getPoints(){
         return this.points;
 	}
+	public long setPoints(long points){
+        return this.points=points;
+	}
 	public void addPoints(Points point){
         this.points += point.getPointValue();
 	}

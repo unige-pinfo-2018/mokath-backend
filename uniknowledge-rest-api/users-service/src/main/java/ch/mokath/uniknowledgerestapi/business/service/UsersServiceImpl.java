@@ -26,7 +26,7 @@ import ch.mokath.uniknowledgerestapi.utils.DBHelper;
 
 /**
  * @author tv0g
- *
+ * @author zue
  */
 @Stateless
 public class UsersServiceImpl implements UsersService {
@@ -95,7 +95,7 @@ public class UsersServiceImpl implements UsersService {
 	@Override
 	public User updateUser(@NotNull User u) {
 		
-		if(isEmailOrUsernameAlreadyUsed(u.getEmail(), u.getUsername())) {
+		if(isEmailOrUsernameAlreadyUsed(u.getEmail(), u.getUsername(),u.getId())) {
 			throw new EntityExistsException("Email or username is already used");
 		} else {
 			return (User) em.merge(u);
@@ -120,6 +120,28 @@ public class UsersServiceImpl implements UsersService {
 		Optional<User> wrappedUserForUsername = DBHelper.getEntityFromFields(wherePredicatesMapForUserUsername, User.class, em);
 
 		// If user already exists with this email
+		return wrappedUserForEmail.isPresent() || wrappedUserForUsername.isPresent();
+	}
+	
+	/** We do not want 2 User with the same username or email
+	* But omit to check on User with id (needed for update) (zue)
+	*/
+	private boolean isEmailOrUsernameAlreadyUsed(String email, String username,Long id) {
+		// Check if email is already used
+		Map<String, Object> wherePredicatesMapForUserEmail = new HashMap<String, Object>();
+		wherePredicatesMapForUserEmail.put("email", email);
+		
+		// Check if institutionName is already used
+		Map<String, Object> wherePredicatesMapForUserUsername = new HashMap<String, Object>();
+		wherePredicatesMapForUserUsername.put("username", username);
+		
+		Map<String, Object> whereNotPMid = new HashMap<String, Object>();
+		whereNotPMid.put("id", id);
+
+		Optional<User> wrappedUserForEmail = DBHelper.getEntityFromFields(wherePredicatesMapForUserEmail,whereNotPMid,User.class, em);
+		Optional<User> wrappedUserForUsername = DBHelper.getEntityFromFields(wherePredicatesMapForUserUsername,whereNotPMid,User.class, em);
+
+		// If institution already exists with same contact email
 		return wrappedUserForEmail.isPresent() || wrappedUserForUsername.isPresent();
 	}
 }
