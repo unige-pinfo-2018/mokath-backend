@@ -20,29 +20,30 @@ import ch.mokath.uniknowledgerestapi.utils.CustomException;
 @Local
 public interface PostsService {
 
-    //Questions
+    /** Questions **/
 	void createQuestion(Question q, User u) throws CustomException;
     Set<Answer> getQuestionAnswers(final String questionId) throws CustomException;
 
-	void upvoteQuestion(Question q, User u);
+	Question editQuestion(final String id, Question uq, User u) throws CustomException;
 
-
-	void followQuestion(Question q, User u);
+	void followQuestion(final String id, User u) throws CustomException;
+	void upvoteQuestion(final String id, User u) throws CustomException;
 
 //z	void deleteQuestion(Question q, User u);
-	void deleteQuestion(Question q, User u) throws CustomException;
+//z	void editQuestion(Question oq, Question uq, User u);
 
+	void deleteQuestion(final String id, User u) throws CustomException;
 
-	void editQuestion(Question oq, Question uq, User u);
-
-    // Answers
-	void createAnswer(final String qid, Answer a, User u) throws CustomException;
-    Answer getAnswer(final String id) throws CustomException;
+    /** Answers **/
+	void createAnswer(final String questionId, Answer a, User u) throws CustomException;
+	
+    Answer getAnswer(final String answerId) throws CustomException;
     List<Answer> getMyAnswers(final User u);
+
+	Answer editAnswer(final String answerId, Answer na, User u) throws CustomException;
+
     void validateAnswer(final String answerId, User u) throws CustomException;
 	void upvoteAnswer(final String answerId, User u) throws CustomException;
-
-	void editAnswer(Answer oa, Answer na, User u);
 
 	void deleteAnswer(final String id, User u) throws CustomException;
 }

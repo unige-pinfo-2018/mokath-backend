@@ -235,7 +235,7 @@ public class PostsServiceImpl implements PostsService {
 	}
 
 	@Override
-	public void upvoteAnswer(final String aid, User u) throws CustomException { //TODO:if already upvoted=>no additional points
+	public void upvoteAnswer(final String aid, User u) throws CustomException {
         try{
             Long aidl = Long.valueOf(aid);
             Answer answer=em.find(Answer.class,aidl);
@@ -258,15 +258,26 @@ public class PostsServiceImpl implements PostsService {
 	}
 
 	@Override
-	public void editAnswer(Answer oa, Answer ua, User u) {
-		User user = em.merge(u);
-		Answer answer = em.merge(oa);
+	public Answer editAnswer(final String aid, Answer ua, User u) throws CustomException {
+        try{
+            Long aidl = Long.valueOf(aid);
+            Answer answer=em.find(Answer.class,aidl);
+            if(answer == null) throw new CustomException("answer not found");
 
-		// TODO externalise check
-		if (user.equals(answer.getAuthor())) {
-			answer.setText(ua.getText());
-		}
-		em.merge(answer);
+            User user = em.merge(u);
+            if(user.equals(answer.getAuthor())) {
+                answer.setText(ua.getText());
+                if(answer.isValidated()){
+                    answer.unvalidate();
+                    user.addPoints(Points.ANSWER_UNVALIDATED);
+                }
+                em.merge(answer);
+                return answer;
+            }else throw new CustomException("bad answer (not the owner)",Response.Status.UNAUTHORIZED);
+            
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong answer ID");
+        }
 	}
 
 	@Override
@@ -279,8 +290,6 @@ public class PostsServiceImpl implements PostsService {
                 for (User usr : answer.getUpvotes()) {
                     usr.removeLikedAnswer(answer);
                 }
-//            answer.removeAuthor();
-//            answer.removeQuestion();
                 em.flush();
                 em.clear(); //need to clear and reload otherwise Set not equals=>no delete from em
                 answer = em.find(Answer.class,aidl);

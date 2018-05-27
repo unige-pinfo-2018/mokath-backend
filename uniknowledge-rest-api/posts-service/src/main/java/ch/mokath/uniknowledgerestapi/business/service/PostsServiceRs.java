@@ -228,12 +228,12 @@ public class PostsServiceRs {
 	@Consumes("application/json")
 	public Response modifyAnswer(@PathParam("aid") String answerId, @Context UriInfo info,
 			@Context HttpServletRequest req, final String requestBody) {
-		String action = info.getQueryParameters().getFirst("action");
-		User trustedUser = (User) req.getAttribute("user");
 		try {
+            String action = info.getQueryParameters().getFirst("action");
+            User trustedUser = (User) req.getAttribute("user");
 			if (action == null) {
-                
-return CustomErrorResponse.OPERATION_SUCCESS.getHTTPResponse();
+                Answer updatedAnswer = new Gson().fromJson(requestBody, Answer.class);
+                return Response.ok(postsService.editAnswer(answerId, updatedAnswer, trustedUser).toString()).build();
 			} else {
 				switch (action) {
 				case "validate":
@@ -246,53 +246,13 @@ return CustomErrorResponse.OPERATION_SUCCESS.getHTTPResponse();
 					return CustomErrorResponse.INVALID_ACTION.getHTTPResponse();
 				}
             }
+		} catch (JsonSyntaxException e) {
+			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
         } catch (CustomException ce) {
             return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
-return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
-//			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
-		}
-/*	public Response modifyAnswer(@PathParam("aid") String answerId, @Context UriInfo info,
-			@Context HttpServletRequest req, final String requestBody) {
-		String action = info.getQueryParameters().getFirst("action");
-		User trustedUser = (User) req.getAttribute("user");
-		Answer unwrappedAnswer;
-		
-		try {
-			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-			wherePredicatesMap.put("id", answerId);
-			Optional<Answer> wrappedAnswer = DBHelper.getEntityFromFields(wherePredicatesMap, Answer.class, em);
-
-			if (wrappedAnswer.isPresent()) {
-				unwrappedAnswer = wrappedAnswer.get();
-			} else {
-				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-			}
-
-			if (action == null) {
-				Answer updatedAnswer = new Gson().fromJson(requestBody, Answer.class);
-				postsService.editAnswer(unwrappedAnswer, updatedAnswer, trustedUser);
-			} else {
-				switch (action) {
-				case "validate":
-					postsService.validateAnswer(unwrappedAnswer, trustedUser);
-					break;
-				case "upvote":
-					postsService.upvoteAnswer(unwrappedAnswer, trustedUser);
-					break;
-
-				default:
-					return CustomErrorResponse.INVALID_ACTION.getHTTPResponse();
-				}
-			}
-
-		} catch (JsonSyntaxException e) {
-			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
-		} catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
-
-*/
 	}
 
 	@DELETE
