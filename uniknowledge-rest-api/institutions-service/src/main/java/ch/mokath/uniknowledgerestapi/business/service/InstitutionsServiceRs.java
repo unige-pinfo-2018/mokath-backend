@@ -17,9 +17,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -38,8 +35,6 @@ import ch.mokath.uniknowledgerestapi.utils.CustomException;
 public class InstitutionsServiceRs {
 	@Inject
 	private InstitutionsService institutionsService;
-
-	private Logger log = LoggerFactory.getLogger(InstitutionsServiceImpl.class);
 
 	@POST
 	@Path("/")
@@ -112,7 +107,6 @@ public class InstitutionsServiceRs {
         } catch (CustomException ce) {
             return ce.getHTTPJsonResponse();
         } catch(Exception e) {
-			log.error("Exception thrown while deleting institution with id : "+id+ " : "+e.getMessage());
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 	}
@@ -154,7 +148,6 @@ public class InstitutionsServiceRs {
         } catch (CustomException ce) {
             return ce.getHTTPJsonResponse();
 		} catch(Exception e) {
-			log.error("Exception thrown while removing user with id : "+uid+ " : "+e.getMessage());
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 	}

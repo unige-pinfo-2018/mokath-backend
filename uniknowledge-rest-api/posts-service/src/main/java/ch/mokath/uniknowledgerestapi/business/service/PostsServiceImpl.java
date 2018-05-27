@@ -9,24 +9,17 @@ import ch.mokath.uniknowledgerestapi.utils.CustomException;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.NoSuchElementException;
+import java.util.Set;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-
 import javax.ws.rs.core.Response;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ch.mokath.uniknowledgerestapi.dom.Answer;
 import ch.mokath.uniknowledgerestapi.dom.Points;
@@ -34,9 +27,6 @@ import ch.mokath.uniknowledgerestapi.dom.Question;
 import ch.mokath.uniknowledgerestapi.dom.User;
 import ch.mokath.uniknowledgerestapi.utils.DBHelper;
 import ch.mokath.uniknowledgerestapi.utils.CustomException;
-
-
-import java.util.HashSet;
 
 /**
  * @author matteo113
@@ -151,65 +141,29 @@ public class PostsServiceImpl implements PostsService {
 	}
 
 	@Override
-/**z	public void deleteQuestion(Question q, User u) {
-		User user = em.merge(u);
-		Question question = em.merge(q);
-
-		// TODO externalize check
-		if (user.equals(question.getAuthor())) {
-			
-//			question.getAnswers().clear();
-//			question.getUpvotes().clear();
-			
-			em.merge(question);
-
-			user.removeQuestion(question);
-            question.getFollowers();
-			
-			em.remove(question);
-        }
-	}*/
 	public void deleteQuestion(final String qid, User u) throws CustomException {
-/*        try{
-            Long aidl = Long.valueOf(aid);
-            Answer answer = em.find(Answer.class,aidl);
-            if (user.equals(answer.getAuthor())) {
+        try{
+            Long qidl = Long.valueOf(qid);
+            Question question=em.find(Question.class,qidl);
+            if (u.equals(question.getAuthor())) {
+                User author = question.getAuthor();
                 // remove all upvotes
-                for (User usr : answer.getUpvotes()) {
-                    usr.removeLikedAnswer(answer);
+                for (User usrf : question.getFollowers()) {
+                    usrf.removeFollowedQuestion(question);
                 }
-                em.flush();
-                em.clear(); //need to clear and reload otherwise Set not equals=>no delete from em
-                answer = em.find(Answer.class,aidl);
-                User author = answer.getAuthor();
-                em.remove(answer);
-                author.addPoints(Points.ANSWER_REMOVED);
-            } else {
-                throw new CustomException("unable to delete answer (not the author)");
-            }
+                for (User usrl : question.getUpvotes()) {
+                    usrl.removeLikedQuestion(question);
+                    author.addPoints(Points.QUESTION_UNLIKED);
+                }
+                em.remove(question);
+                author.addPoints(Points.QUESTION_REMOVED);
+            }else
+                throw new CustomException("unable to delete the question with ID = "+ qid +" (not the author)",Response.Status.UNAUTHORIZED);
  		}catch(NullPointerException ne){
-            throw new CustomException("empty answer");
+            throw new CustomException("question not found");
         }catch(NumberFormatException nfe){
             throw new CustomException("wrong question ID");
-        }
-*/
-/*		User user = em.merge(u);
-		Question question = em.merge(q);
-
-		// TODO externalize check
-		if (user.equals(question.getAuthor())) {
-			
-//			question.getAnswers().clear();
-//			question.getUpvotes().clear();
-			
-			em.merge(question);
-
-			user.removeQuestion(question);
-            question.getFollowers();
-			
-			em.remove(question);
-            user.addPoints(Points.QUESTION_REMOVED);
-        }*/
+		}
 	}
 
 	@Override
@@ -257,7 +211,7 @@ public class PostsServiceImpl implements PostsService {
 
                 em.persist(a);
                 user.addPoints(Points.ANSWER_CREATED);
-           } else {
+            } else {
                 throw new CustomException("question not found");
             }
 		}catch(NullPointerException ne){
@@ -372,10 +326,10 @@ public class PostsServiceImpl implements PostsService {
                 em.remove(answer);
                 author.addPoints(Points.ANSWER_REMOVED);
             } else {
-                throw new CustomException("unable to delete answer (not the author)");
+                throw new CustomException("unable to delete answer with ID = "+ aid +" (not the author)",Response.Status.UNAUTHORIZED);
             }
  		}catch(NullPointerException ne){
-            throw new CustomException("empty answer");
+            throw new CustomException("answer not found");
         }catch(NumberFormatException nfe){
             throw new CustomException("wrong question ID");
         }

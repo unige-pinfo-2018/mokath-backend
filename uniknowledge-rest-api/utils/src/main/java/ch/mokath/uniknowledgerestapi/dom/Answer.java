@@ -121,12 +121,7 @@ public class Answer implements Serializable {
 				return false;
 		} else if (!text.equals(other.text))
 			return false;
-/*		if (upvotes == null) {
-			if (other.upvotes != null)
-				return false;
-		} else if (!upvotes.equals(other.upvotes))
-			return false;
-*/		if (validated != other.validated)
+		if (validated != other.validated)
 			return false;
 		return true;
 	}

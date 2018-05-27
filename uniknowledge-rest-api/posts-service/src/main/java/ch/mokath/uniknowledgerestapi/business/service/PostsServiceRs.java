@@ -3,20 +3,7 @@
  */
 package ch.mokath.uniknowledgerestapi.business.service;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -30,9 +17,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -41,10 +25,8 @@ import ch.mokath.uniknowledgerestapi.dom.Answer;
 import ch.mokath.uniknowledgerestapi.dom.Question;
 import ch.mokath.uniknowledgerestapi.dom.User;
 import ch.mokath.uniknowledgerestapi.utils.CustomErrorResponse;
-import ch.mokath.uniknowledgerestapi.utils.DBHelper;
-import ch.mokath.uniknowledgerestapi.utils.Secured;
-
 import ch.mokath.uniknowledgerestapi.utils.CustomException;
+import ch.mokath.uniknowledgerestapi.utils.Secured;
 
 /**
  * @author matteo113
@@ -52,13 +34,9 @@ import ch.mokath.uniknowledgerestapi.utils.CustomException;
  */
 @Path("")
 public class PostsServiceRs {
-    @PersistenceContext
-	private EntityManager em;
 
 	@Inject
 	private PostsService postsService;
-	private DBHelper DBHelper = new DBHelper();
-	private Logger log = LoggerFactory.getLogger(PostsServiceRs.class);
 
 	@POST
 	@Secured
@@ -125,25 +103,8 @@ public class PostsServiceRs {
             return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
         } catch (CustomException ce) {
             return ce.getHTTPJsonResponse();
-/*		
-			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-			wherePredicatesMap.put("id", id);
-			Optional<Question> wrappedQuestion = DBHelper.getEntityFromFields(wherePredicatesMap, Question.class, em);
-
-			if (wrappedQuestion.isPresent()) {
-				Question unwrappedQuestion = wrappedQuestion.get();
-
-				if (unwrappedQuestion.getAuthor().equals(trustedUser)) {
-					postsService.deleteQuestion(unwrappedQuestion, trustedUser);
-				} else {
-					return CustomErrorResponse.PERMISSION_DENIED.getHTTPResponse();
-				}
-			} else {
-				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-			}
-*/		} catch (Exception e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
-//			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
     }
 

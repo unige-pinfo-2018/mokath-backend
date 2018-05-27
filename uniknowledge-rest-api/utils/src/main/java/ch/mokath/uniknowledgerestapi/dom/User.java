@@ -67,33 +67,27 @@ public class User implements Serializable {
 	private String password;
 
 	@OneToMany(mappedBy = "author",fetch = FetchType.LAZY)
-//	@ElementCollection(targetClass = Question.class)
 	private Set<Question> questions;
 
 	@OneToMany(mappedBy = "author",fetch = FetchType.LAZY)
-//	@ElementCollection(targetClass = Answer.class)
 	private Set<Answer> answers;
 	
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_upvote_question",
 	joinColumns = @JoinColumn(name = "user_id"),
 	inverseJoinColumns = @JoinColumn(name = "question_id"))
-//	@ElementCollection(targetClass = Question.class)
 	private Set<Question> likedQuestions;
 	
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_follow_question",
 	joinColumns = @JoinColumn(name = "user_id"),
 	inverseJoinColumns = @JoinColumn(name = "question_id"))
-//	@ElementCollection(targetClass = Question.class)
 	private Set<Question> followedQuestions;
 	
-//	@ManyToMany(cascade={CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST}, fetch = FetchType.EAGER)
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_upvote_answer",
 	joinColumns = @JoinColumn(name = "user_id"),
 	inverseJoinColumns = @JoinColumn(name = "answer_id"))
-//	@ElementCollection(targetClass = Answer.class)
 	private Set<Answer> likedAnswers;
 
 	@Column(name = "points_earned", nullable = false)
@@ -103,7 +97,6 @@ public class User implements Serializable {
 	/* field relationship mapping for Institution - Only 1 institution/user */
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "institution_id")
-//	@ElementCollection(targetClass = Institution.class)
 	@Expose(serialize = true, deserialize = false)
 	private Institution institution;
 

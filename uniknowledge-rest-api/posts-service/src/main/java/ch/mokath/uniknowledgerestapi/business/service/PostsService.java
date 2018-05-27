@@ -32,8 +32,8 @@ public interface PostsService {
 	void followQuestion(final String questionId, User u) throws CustomException;
 	void upvoteQuestion(final String questionId, User u) throws CustomException;
 
-//z	void deleteQuestion(Question q, User u);
 	void deleteQuestion(final String questionId, User u) throws CustomException;
+	
 
     /** Answers **/
 	void createAnswer(final String questionId, Answer a, User u) throws CustomException;

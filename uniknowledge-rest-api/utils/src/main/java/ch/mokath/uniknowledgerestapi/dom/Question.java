@@ -54,7 +54,6 @@ public class Question implements Serializable {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "author_id")
-//	@ElementCollection(targetClass = User.class)
     @Expose(serialize = true, deserialize= true)
 	private User author;
 
@@ -71,7 +70,6 @@ public class Question implements Serializable {
 	private String text;
 
 	@OneToMany(mappedBy = "question",cascade = CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
-//	@ElementCollection(targetClass = Answer.class)
 	private Set<Answer> answers;
 	
 	@ManyToMany(mappedBy = "likedQuestions",cascade={CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST},fetch = FetchType.LAZY)
@@ -181,7 +179,7 @@ public class Question implements Serializable {
 	}
 
 	public Set<Answer> getAnswers() {
-		return this.answers;
+		return answers;
 	}
 	public void addAnswer(Answer a) {
 		this.answers.add(a);
