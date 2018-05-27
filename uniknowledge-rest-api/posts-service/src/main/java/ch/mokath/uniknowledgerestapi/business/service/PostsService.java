@@ -25,7 +25,6 @@ public interface PostsService {
 
 	void upvoteQuestion(Question q, User u);
 
-	void upvoteAnswer(Answer a, User u);
 
 	void followQuestion(Question q, User u);
 
@@ -39,7 +38,11 @@ public interface PostsService {
 	void createAnswer(final String qid, Answer a, User u) throws CustomException;
     Answer getAnswer(final String id) throws CustomException;
 	
-	void validateAnswer(Answer a, User u);
+//z	void validateAnswer(Answer a, User u);
+	void validateAnswer(final String answerId, User u) throws CustomException;
+
+//z	void upvoteAnswer(Answer a, User u);
+	void upvoteAnswer(final String answerId, User u);
 
 	void editAnswer(Answer oa, Answer na, User u);
 

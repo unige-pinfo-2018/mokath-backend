@@ -193,22 +193,15 @@ public class PostsServiceImpl implements PostsService {
             Long aidl = Long.valueOf(aid);
             Answer answer=em.find(Answer.class,aidl);
             if(answer == null) throw new CustomException("empty answer");
-            else {
-                Question q = answer.getQuestion();
-//                answer.setQuestion(q);
-System.out.println("TOTO : " + answer.getQuestion()+"\n\t"+answer.getQuestion().getId()+"\n\t"+answer.getCreated().toString());
-System.out.println("TOTO : " + answer.toString());
-System.out.println("TOTO : " + q.toString());
-System.out.println("TOTO : " + answer.toString());
-               return answer;
-            }
+            else return answer;
         }catch(NumberFormatException nfe){
             throw new CustomException("wrong question ID");
 		}
 	}
 
 	@Override
-	public void validateAnswer(Answer a, User u) {
+	public void validateAnswer(final String aid, User u) {
+/*	public void validateAnswer(Answer a, User u) {
 		User user = em.merge(u);
 		Answer answer = em.merge(a);
 
@@ -217,10 +210,12 @@ System.out.println("TOTO : " + answer.toString());
             User answer_author = em.merge(answer.getAuthor());
             answer_author.addPoints(Points.ANSWER_VALIDATED);
 		}
+*/
 	}
 
 	@Override
-	public void upvoteAnswer(Answer a, User u) {
+	public void upvoteAnswer(final String aid, User u) {
+/*	public void upvoteAnswer(Answer a, User u) {
 		User user = em.merge(u);
 		Answer answer = em.merge(a);
 
@@ -229,6 +224,7 @@ System.out.println("TOTO : " + answer.toString());
            User answer_author = em.merge(answer.getAuthor());
             answer_author.addPoints(Points.ANSWER_LIKED);
         }
+*/
 	}
 
 	@Override

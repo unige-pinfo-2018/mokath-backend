@@ -228,9 +228,25 @@ public class PostsServiceRs {
 	@Consumes("application/json")
 	public Response modifyAnswer(@PathParam("aid") String answerId, @Context UriInfo info,
 			@Context HttpServletRequest req, final String requestBody) {
+		String action = info.getQueryParameters().getFirst("action");
+		User trustedUser = (User) req.getAttribute("user");
 		try {
+			if (action == null) {
             
             return CustomErrorResponse.BAD_REQUEST.getHTTPResponse();
+			} else {
+				switch (action) {
+				case "validate":
+					postsService.validateAnswer(answerId, trustedUser);
+					break;
+				case "upvote":
+					postsService.upvoteAnswer(answerId, trustedUser);
+					break;
+
+				default:
+					return CustomErrorResponse.INVALID_ACTION.getHTTPResponse();
+				}
+            }
 		} catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
@@ -274,8 +290,8 @@ public class PostsServiceRs {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 
-		return Response.ok().build();
-*/
+*/		return Response.ok().build();
+
 	}
 
 	@DELETE
@@ -298,9 +314,7 @@ public class PostsServiceRs {
 	@Produces("application/json")
 	public Response getAnswer(@PathParam("id") String id) {
 		try {
-            Answer answer = postsService.getAnswer(id);
-            return Response.ok(answer.toString()).build();
-//            return Response.ok(postsService.getAnswer(id).toString()).build();
+            return Response.ok(postsService.getAnswer(id).toString()).build();
         } catch (CustomException ce) {
             return ce.getHTTPJsonResponse();
 		} catch (Exception e) {

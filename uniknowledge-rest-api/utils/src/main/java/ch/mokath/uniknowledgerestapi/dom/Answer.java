@@ -45,7 +45,7 @@ public class Answer implements Serializable {
 	@Expose(serialize = true, deserialize= true)
 	private long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "question_id")
 	@Expose(serialize = true, deserialize= true)
 	private Question question;
