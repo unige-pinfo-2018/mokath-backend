@@ -4,6 +4,7 @@
 package ch.mokath.uniknowledgerestapi.business.service;
 
 import java.util.Set;
+import java.util.List;
 
 import javax.ejb.Local;
 
@@ -37,7 +38,8 @@ public interface PostsService {
     // Answers
 	void createAnswer(final String qid, Answer a, User u) throws CustomException;
     Answer getAnswer(final String id) throws CustomException;
-	
+    List<Answer> getMyAnswers(final User u);
+
 //z	void validateAnswer(Answer a, User u);
 	void validateAnswer(final String answerId, User u) throws CustomException;
 

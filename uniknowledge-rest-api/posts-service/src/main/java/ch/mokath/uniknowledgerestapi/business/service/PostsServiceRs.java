@@ -340,11 +340,11 @@ public class PostsServiceRs {
 	@Path("/answers/me")
 	@Produces("application/json")
 	public Response getMyAnswers(@Context HttpServletRequest req) {
-		User trustedUser = (User) req.getAttribute("user");
-		
-		GsonBuilder builder = new GsonBuilder();  
-	    builder.excludeFieldsWithoutExposeAnnotation();
-		Gson gson = builder.create();  
-		return Response.ok(gson.toJson(trustedUser.getAnswers())).build();
+		try {
+            User trustedUser = (User) req.getAttribute("user");
+            return Response.ok(postsService.getMyAnswers(trustedUser).toString()).build();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
 	}
 }

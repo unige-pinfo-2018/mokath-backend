@@ -33,6 +33,9 @@ import ch.mokath.uniknowledgerestapi.dom.User;
 import ch.mokath.uniknowledgerestapi.utils.DBHelper;
 import ch.mokath.uniknowledgerestapi.utils.CustomException;
 
+
+import java.util.HashSet;
+
 /**
  * @author matteo113
  * @author zue
@@ -197,6 +200,14 @@ public class PostsServiceImpl implements PostsService {
         }catch(NumberFormatException nfe){
             throw new CustomException("wrong question ID");
 		}
+	}
+
+	@Override
+	public List<Answer> getMyAnswers(final User u) {
+        Map<String, Object> wherePM = new HashMap<String, Object>();
+        wherePM.put("author",u.getId());
+        List<Answer> answers = DBHelper.getEntitiesFromFields(wherePM,Answer.class,em);
+        return answers;
 	}
 
 	@Override
