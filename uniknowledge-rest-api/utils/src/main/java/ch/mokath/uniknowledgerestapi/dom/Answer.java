@@ -74,7 +74,6 @@ public class Answer implements Serializable {
 	private boolean validated;
 
 	public Answer() {
-
 	}
 
 	public Answer(String text, Question question) {
@@ -115,12 +114,12 @@ public class Answer implements Serializable {
 			return false;
 		if (id != other.id)
 			return false;
-/*		if (question == null) {
+		if (question == null) {
 			if (other.question != null)
 				return false;
 		} else if (!question.equals(other.question))
 			return false;
-*/		if (text == null) {
+		if (text == null) {
 			if (other.text != null)
 				return false;
 		} else if (!text.equals(other.text))
@@ -160,7 +159,7 @@ public class Answer implements Serializable {
 		this.question = question;
 	}
 	public Question getQuestion() {
-		return this.question;
+		return question;
 	}
 /*	public void removeQuestion() {
         this.question = null;

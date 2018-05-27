@@ -9,7 +9,7 @@ import ch.mokath.uniknowledgerestapi.utils.CustomException;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Set;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -63,10 +63,18 @@ public class PostsServiceImpl implements PostsService {
 	}
 
 	@Override
-	public HashSet<Answer> getQuestionAnswers(final String questionId) throws CustomException {
-//        try{
-        return new HashSet<Answer>();
-	
+	public Set<Answer> getQuestionAnswers(final String qid) throws CustomException {
+        try{
+            Long qidl = Long.valueOf(qid);
+            Question question=em.find(Question.class,qidl);
+            Set<Answer> answers=question.getAnswers();
+            answers.toString(); //This is needed otherwise org.hibernate.LazyInitializationException
+            return answers;
+		}catch(NullPointerException ne){
+            throw new CustomException("empty question");
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong question ID");
+		}
 	}
 
 	@Override
@@ -185,7 +193,15 @@ public class PostsServiceImpl implements PostsService {
             Long aidl = Long.valueOf(aid);
             Answer answer=em.find(Answer.class,aidl);
             if(answer == null) throw new CustomException("empty answer");
-            else return answer;
+            else {
+                Question q = answer.getQuestion();
+//                answer.setQuestion(q);
+System.out.println("TOTO : " + answer.getQuestion()+"\n\t"+answer.getQuestion().getId()+"\n\t"+answer.getCreated().toString());
+System.out.println("TOTO : " + answer.toString());
+System.out.println("TOTO : " + q.toString());
+System.out.println("TOTO : " + answer.toString());
+               return answer;
+            }
         }catch(NumberFormatException nfe){
             throw new CustomException("wrong question ID");
 		}

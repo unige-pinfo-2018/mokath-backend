@@ -3,7 +3,7 @@
  */
 package ch.mokath.uniknowledgerestapi.business.service;
 
-import java.util.HashSet;
+import java.util.Set;
 
 import javax.ejb.Local;
 
@@ -21,7 +21,7 @@ public interface PostsService {
 
     //Questions
 	void createQuestion(Question q, User u) throws CustomException;
-    HashSet<Answer> getQuestionAnswers(final String questionId) throws CustomException;
+    Set<Answer> getQuestionAnswers(final String questionId) throws CustomException;
 
 	void upvoteQuestion(Question q, User u);
 

@@ -13,7 +13,6 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContextType;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -54,8 +53,6 @@ import ch.mokath.uniknowledgerestapi.utils.CustomException;
 @Path("")
 public class PostsServiceRs {
     @PersistenceContext
-//	@PersistenceContext(type = PersistenceContextType.EXTENDED)
-//	@Proxy(lazy=false)
 	private EntityManager em;
 
 	@Inject
@@ -205,6 +202,7 @@ public class PostsServiceRs {
 		return Response.ok(gson.toJson(trustedUser.getQuestions())).build();
 	}
 
+	/** ANSWER **/
 	@POST
 	@Secured
 	@Path("/questions/{qid}/answers")
@@ -230,7 +228,14 @@ public class PostsServiceRs {
 	@Consumes("application/json")
 	public Response modifyAnswer(@PathParam("aid") String answerId, @Context UriInfo info,
 			@Context HttpServletRequest req, final String requestBody) {
-
+		try {
+            
+            return CustomErrorResponse.BAD_REQUEST.getHTTPResponse();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+/*	public Response modifyAnswer(@PathParam("aid") String answerId, @Context UriInfo info,
+			@Context HttpServletRequest req, final String requestBody) {
 		String action = info.getQueryParameters().getFirst("action");
 		User trustedUser = (User) req.getAttribute("user");
 		Answer unwrappedAnswer;
@@ -270,6 +275,7 @@ public class PostsServiceRs {
 		}
 
 		return Response.ok().build();
+*/
 	}
 
 	@DELETE
@@ -292,7 +298,9 @@ public class PostsServiceRs {
 	@Produces("application/json")
 	public Response getAnswer(@PathParam("id") String id) {
 		try {
-            return Response.ok(postsService.getAnswer(id).toString()).build();
+            Answer answer = postsService.getAnswer(id);
+            return Response.ok(answer.toString()).build();
+//            return Response.ok(postsService.getAnswer(id).toString()).build();
         } catch (CustomException ce) {
             return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
@@ -306,29 +314,6 @@ public class PostsServiceRs {
 	public Response getAllAnswersOfQuestion(@PathParam("qid") String questionId) {
 		try {
             return Response.ok(postsService.getQuestionAnswers(questionId).toString()).build();
-/*		Question unwrappedQuestion;
-
-		try {
-			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-			wherePredicatesMap.put("id", questionId);
-			Optional<Question> wrappedQuestion = DBHelper.getEntityFromFields(wherePredicatesMap, Question.class, em);
-
-			if (wrappedQuestion.isPresent()) {
-				unwrappedQuestion = wrappedQuestion.get();
-			} else {
-				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-			}
-
-		} catch (Exception e) {
-			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
-		}
-		
-		GsonBuilder builder = new GsonBuilder();  
-	    builder.excludeFieldsWithoutExposeAnnotation();
-		Gson gson = builder.create();  
-		
-		return Response.ok(gson.toJson(unwrappedQuestion.getAnswers())).build();
-*/
         } catch (CustomException ce) {
             return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
