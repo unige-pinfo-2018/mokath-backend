@@ -40,11 +40,10 @@ public interface PostsService {
     Answer getAnswer(final String id) throws CustomException;
     List<Answer> getMyAnswers(final User u);
 
-//z	void validateAnswer(Answer a, User u);
-	void validateAnswer(final String answerId, User u) throws CustomException;
+    void validateAnswer(final String answerId, User u) throws CustomException;
 
 //z	void upvoteAnswer(Answer a, User u);
-	void upvoteAnswer(final String answerId, User u);
+	void upvoteAnswer(final String answerId, User u) throws CustomException;
 
 	void editAnswer(Answer oa, Answer na, User u);
 

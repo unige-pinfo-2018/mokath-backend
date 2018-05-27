@@ -232,23 +232,25 @@ public class PostsServiceRs {
 		User trustedUser = (User) req.getAttribute("user");
 		try {
 			if (action == null) {
-            
-            return CustomErrorResponse.BAD_REQUEST.getHTTPResponse();
+                
+return CustomErrorResponse.OPERATION_SUCCESS.getHTTPResponse();
 			} else {
 				switch (action) {
 				case "validate":
 					postsService.validateAnswer(answerId, trustedUser);
-					break;
+					return CustomErrorResponse.OPERATION_SUCCESS.getHTTPResponse();
 				case "upvote":
 					postsService.upvoteAnswer(answerId, trustedUser);
-					break;
-
+					return CustomErrorResponse.OPERATION_SUCCESS.getHTTPResponse();
 				default:
 					return CustomErrorResponse.INVALID_ACTION.getHTTPResponse();
 				}
             }
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
-			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
+//			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 /*	public Response modifyAnswer(@PathParam("aid") String answerId, @Context UriInfo info,
 			@Context HttpServletRequest req, final String requestBody) {
@@ -290,8 +292,7 @@ public class PostsServiceRs {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 
-*/		return Response.ok().build();
-
+*/
 	}
 
 	@DELETE

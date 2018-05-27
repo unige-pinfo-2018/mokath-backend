@@ -23,6 +23,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import javax.ws.rs.core.Response;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -191,14 +193,14 @@ public class PostsServiceImpl implements PostsService {
 	}
 	
 	@Override
-	public Answer getAnswer(final String aid) throws CustomException{
+	public Answer getAnswer(final String aid) throws CustomException {
         try{
             Long aidl = Long.valueOf(aid);
             Answer answer=em.find(Answer.class,aidl);
-            if(answer == null) throw new CustomException("empty answer");
+            if(answer == null) throw new CustomException("answer not found");
             else return answer;
         }catch(NumberFormatException nfe){
-            throw new CustomException("wrong question ID");
+            throw new CustomException("wrong answer ID");
 		}
 	}
 
@@ -211,21 +213,41 @@ public class PostsServiceImpl implements PostsService {
 	}
 
 	@Override
-	public void validateAnswer(final String aid, User u) {
-/*	public void validateAnswer(Answer a, User u) {
-		User user = em.merge(u);
-		Answer answer = em.merge(a);
-
-		if (user.equals(answer.getAuthor())) {
-			answer.validate();
-            User answer_author = em.merge(answer.getAuthor());
-            answer_author.addPoints(Points.ANSWER_VALIDATED);
+	public void validateAnswer(final String aid, User u) throws CustomException {
+        try{
+            Long aidl = Long.valueOf(aid);
+            Answer answer=em.find(Answer.class,aidl);
+            if(answer == null) throw new CustomException("answer not found");
+            else{
+                if(answer.isValidated()) throw new CustomException("answer is already validated",Response.Status.OK);
+                else {
+                    User user = em.merge(u);
+                    if (user.equals(answer.getQuestion().getAuthor())) {
+                        answer.validate();
+                        User answer_author = em.merge(answer.getAuthor());
+                        answer_author.addPoints(Points.ANSWER_VALIDATED);
+                    } else throw new CustomException("not the author of the question",Response.Status.UNAUTHORIZED);
+                }
+            }
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong question ID");
 		}
-*/
 	}
 
 	@Override
-	public void upvoteAnswer(final String aid, User u) {
+	public void upvoteAnswer(final String aid, User u) throws CustomException {
+        try{
+            Long aidl = Long.valueOf(aid);
+            Answer answer=em.find(Answer.class,aidl);
+            if(answer == null) throw new CustomException("answer not found");
+            else{
+                User user = em.merge(u);
+                user.addLikedAnswer(answer);
+                if (!user.equals(answer.getAuthor())){ //Do not add points to like own answers
+                    User answer_author = em.merge(answer.getAuthor());
+                    answer_author.addPoints(Points.ANSWER_LIKED);
+                } else throw new CustomException("the author can't upvote his answer",Response.Status.UNAUTHORIZED);
+            }
 /*	public void upvoteAnswer(Answer a, User u) {
 		User user = em.merge(u);
 		Answer answer = em.merge(a);
@@ -236,6 +258,9 @@ public class PostsServiceImpl implements PostsService {
             answer_author.addPoints(Points.ANSWER_LIKED);
         }
 */
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong question ID");
+		}
 	}
 
 	@Override
