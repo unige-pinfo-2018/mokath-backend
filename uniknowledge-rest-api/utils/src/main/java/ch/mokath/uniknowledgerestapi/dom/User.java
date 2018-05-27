@@ -98,7 +98,7 @@ public class User implements Serializable {
 
 	@Column(name = "points_earned", nullable = false)
 	@Expose(serialize = true, deserialize = false)
-	private double points;
+	private long points;
 
 	/* field relationship mapping for Institution - Only 1 institution/user */
 	@ManyToOne(fetch = FetchType.EAGER)
@@ -312,7 +312,7 @@ public class User implements Serializable {
         this.institution = null;
 	}
 
-	public double getPoints(){
+	public long getPoints(){
         return this.points;
 	}
 	public void addPoints(Points point){

@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.mokath.uniknowledgerestapi.dom.Answer;
+import ch.mokath.uniknowledgerestapi.dom.Points;
 import ch.mokath.uniknowledgerestapi.dom.Question;
 import ch.mokath.uniknowledgerestapi.dom.User;
 import ch.mokath.uniknowledgerestapi.utils.DBHelper;
@@ -54,10 +55,18 @@ public class PostsServiceImpl implements PostsService {
             author.addQuestion(question);
             question.setAuthor(author);
             question.setCreated(new Date());
-            em.persist(question);
+            author.addPoints(Points.QUESTION_CREATED);
+           em.persist(question);
 		} catch (NullPointerException ne) {
             throw new CustomException("empty question");
         }
+	}
+
+	@Override
+	public HashSet<Answer> getQuestionAnswers(final String questionId) throws CustomException {
+//        try{
+        return new HashSet<Answer>();
+	
 	}
 
 	@Override
@@ -65,6 +74,10 @@ public class PostsServiceImpl implements PostsService {
 		User user = em.merge(u);
 		Question question = em.merge(q);
 
+		if (!user.equals(question.getAuthor())){ //Do not add points to own questions
+            User question_author = em.merge(question.getAuthor());
+            question_author.addPoints(Points.QUESTION_LIKED);
+        }
 		user.addLikedQuestion(question);
 	}
 
@@ -73,6 +86,10 @@ public class PostsServiceImpl implements PostsService {
 		User user = em.merge(u);
 		Question question = em.merge(q);
 
+        if (!user.equals(question.getAuthor())){ //Do not add points to follow own questions
+            User question_author = em.merge(question.getAuthor());
+            question_author.addPoints(Points.QUESTION_FOLLOWED);
+        }
 		user.addFollowedQuestion(question);
 	}
 
@@ -111,6 +128,7 @@ public class PostsServiceImpl implements PostsService {
             question.getFollowers();
 			
 			em.remove(question);
+            user.addPoints(Points.QUESTION_REMOVED);
         }
 	}
 
@@ -150,7 +168,8 @@ public class PostsServiceImpl implements PostsService {
                 a.setCreated(new Date());
 
                 em.persist(a);
-            } else {
+                user.addPoints(Points.ANSWER_CREATED);
+           } else {
                 throw new CustomException("question not found");
             }
 		}catch(NullPointerException ne){
@@ -179,6 +198,8 @@ public class PostsServiceImpl implements PostsService {
 
 		if (user.equals(answer.getAuthor())) {
 			answer.validate();
+            User answer_author = em.merge(answer.getAuthor());
+            answer_author.addPoints(Points.ANSWER_VALIDATED);
 		}
 	}
 
@@ -188,6 +209,10 @@ public class PostsServiceImpl implements PostsService {
 		Answer answer = em.merge(a);
 
 		user.addLikedAnswer(answer);
+ 		if (!user.equals(answer.getAuthor())){ //Do not add points to like own answers
+           User answer_author = em.merge(answer.getAuthor());
+            answer_author.addPoints(Points.ANSWER_LIKED);
+        }
 	}
 
 	@Override
@@ -218,6 +243,7 @@ public class PostsServiceImpl implements PostsService {
                 em.clear(); //need to clear and reload otherwise Set not equals=>no delete from em
                 answer = em.find(Answer.class,aidl);
                 em.remove(answer);
+                user.addPoints(Points.ANSWER_REMOVED);
             } else {
                 throw new CustomException("User is not the author. Unable to delete answer !");
             }

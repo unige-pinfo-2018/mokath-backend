@@ -45,7 +45,6 @@ import ch.mokath.uniknowledgerestapi.utils.CustomErrorResponse;
 import ch.mokath.uniknowledgerestapi.utils.DBHelper;
 import ch.mokath.uniknowledgerestapi.utils.Secured;
 
-//import javax.persistence.Proxy;
 import ch.mokath.uniknowledgerestapi.utils.CustomException;
 
 /**
@@ -305,7 +304,9 @@ public class PostsServiceRs {
 	@Path("/questions/{qid}/answers")
 	@Produces("application/json")
 	public Response getAllAnswersOfQuestion(@PathParam("qid") String questionId) {
-		Question unwrappedQuestion;
+		try {
+            return Response.ok(postsService.getQuestionAnswers(questionId).toString()).build();
+/*		Question unwrappedQuestion;
 
 		try {
 			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
@@ -327,7 +328,13 @@ public class PostsServiceRs {
 		Gson gson = builder.create();  
 		
 		return Response.ok(gson.toJson(unwrappedQuestion.getAnswers())).build();
-	}
+*/
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+    }
 	
 	@GET
 	@Secured
