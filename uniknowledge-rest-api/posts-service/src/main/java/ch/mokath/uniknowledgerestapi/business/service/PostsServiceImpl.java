@@ -235,29 +235,23 @@ public class PostsServiceImpl implements PostsService {
 	}
 
 	@Override
-	public void upvoteAnswer(final String aid, User u) throws CustomException {
+	public void upvoteAnswer(final String aid, User u) throws CustomException { //TODO:if already upvoted=>no additional points
         try{
             Long aidl = Long.valueOf(aid);
             Answer answer=em.find(Answer.class,aidl);
             if(answer == null) throw new CustomException("answer not found");
             else{
                 User user = em.merge(u);
-                user.addLikedAnswer(answer);
-                if (!user.equals(answer.getAuthor())){ //Do not add points to like own answers
+                if(user.getLikedAnswers().contains(answer))
+                    throw new CustomException("already upvoted answer",Response.Status.UNAUTHORIZED);
+                else if (user.equals(answer.getAuthor())) //Do not upvote or add points to own answers
+                     throw new CustomException("author can't upvote his own answer",Response.Status.UNAUTHORIZED);
+                else {
+                    user.addLikedAnswer(answer);
                     User answer_author = em.merge(answer.getAuthor());
                     answer_author.addPoints(Points.ANSWER_LIKED);
-                } else throw new CustomException("the author can't upvote his answer",Response.Status.UNAUTHORIZED);
+                }
             }
-/*	public void upvoteAnswer(Answer a, User u) {
-		User user = em.merge(u);
-		Answer answer = em.merge(a);
-
-		user.addLikedAnswer(answer);
- 		if (!user.equals(answer.getAuthor())){ //Do not add points to like own answers
-           User answer_author = em.merge(answer.getAuthor());
-            answer_author.addPoints(Points.ANSWER_LIKED);
-        }
-*/
         }catch(NumberFormatException nfe){
             throw new CustomException("wrong question ID");
 		}

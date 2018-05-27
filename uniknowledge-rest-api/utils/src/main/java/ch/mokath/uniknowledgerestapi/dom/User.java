@@ -293,7 +293,7 @@ public class User implements Serializable {
 	}
 
 	public Set<Answer> getLikedAnswers() {
-		return this.getLikedAnswers();
+		return this.likedAnswers;
 	}
 	public void addLikedAnswer(Answer a) {
 		this.likedAnswers.add(a);

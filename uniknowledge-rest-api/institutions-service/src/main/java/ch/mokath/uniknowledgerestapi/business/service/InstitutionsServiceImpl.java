@@ -68,7 +68,6 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 
 	@Override
 	public List<Institution> getInstitutions() throws CustomException {
-		Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
         List<Institution> institutions = em.createQuery("select i from Institution i",Institution.class).getResultList();
         return institutions;
 	}
