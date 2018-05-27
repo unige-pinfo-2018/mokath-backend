@@ -56,7 +56,7 @@ public class PostsServiceImpl implements PostsService {
             question.setAuthor(author);
             question.setCreated(new Date());
             author.addPoints(Points.QUESTION_CREATED);
-           em.persist(question);
+            em.persist(question);
 		} catch (NullPointerException ne) {
             throw new CustomException("empty question");
         }
@@ -242,8 +242,9 @@ public class PostsServiceImpl implements PostsService {
                 em.flush();
                 em.clear(); //need to clear and reload otherwise Set not equals=>no delete from em
                 answer = em.find(Answer.class,aidl);
+                User author = answer.getAuthor();
                 em.remove(answer);
-                user.addPoints(Points.ANSWER_REMOVED);
+                author.addPoints(Points.ANSWER_REMOVED);
             } else {
                 throw new CustomException("User is not the author. Unable to delete answer !");
             }
