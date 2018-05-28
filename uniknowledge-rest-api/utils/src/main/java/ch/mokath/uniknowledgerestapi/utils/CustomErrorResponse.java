@@ -25,7 +25,8 @@ public enum CustomErrorResponse {
 	INVALID_ACTION(false, Response.Status.BAD_REQUEST, "Invalid action !"),
 	PERMISSION_DENIED(false, Response.Status.UNAUTHORIZED, "Permission Denied !"),
 	IDENTIFIER_ALREADY_USED(false, Response.Status.BAD_REQUEST, "Email or Username already in use !"),
-	BAD_REQUEST(false, Response.Status.BAD_REQUEST, "Bad request"),
+//	BAD_REQUEST(false, Response.Status.BAD_REQUEST, "Bad request"),
+	INVALID_INPUT(false, Response.Status.BAD_REQUEST, "Invalid input"),
 	CONSTRAINT_VIOLATION(false, Response.Status.BAD_REQUEST, "Constraint violation"),
 
 	// SUCCESS

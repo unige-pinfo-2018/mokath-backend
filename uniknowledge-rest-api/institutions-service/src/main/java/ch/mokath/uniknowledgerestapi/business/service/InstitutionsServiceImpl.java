@@ -18,8 +18,8 @@ import com.google.gson.GsonBuilder;
 
 import ch.mokath.uniknowledgerestapi.dom.Institution;
 import ch.mokath.uniknowledgerestapi.dom.User;
-import ch.mokath.uniknowledgerestapi.utils.DBHelper;
 import ch.mokath.uniknowledgerestapi.utils.CustomException;
+import ch.mokath.uniknowledgerestapi.utils.DBHelper;
 
 /**
  * @author tv0g
@@ -42,7 +42,7 @@ public class InstitutionsServiceImpl implements InstitutionsService {
             }
         } catch (NullPointerException ne) {
             throw new CustomException("empty institution");
-        } catch (ConstraintViolationException e) {
+        } catch (ConstraintViolationException cve) {
             throw new CustomException("invalid input");
         }
 	}
@@ -92,9 +92,9 @@ public class InstitutionsServiceImpl implements InstitutionsService {
                     throw new CustomException("institution not found");
                 }
             }
-        } catch (NullPointerException ne) {
+        }catch (NullPointerException ne) {
             throw new CustomException("empty institution");
-        }catch (ConstraintViolationException e){
+        }catch (ConstraintViolationException cve){
             throw new CustomException("invalid input");
         }catch(NumberFormatException nfe){
             throw new CustomException("wrong institution ID");
