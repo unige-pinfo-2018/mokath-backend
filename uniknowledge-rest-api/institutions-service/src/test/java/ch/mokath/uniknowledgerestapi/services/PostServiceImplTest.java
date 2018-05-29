@@ -1,5 +1,0 @@
-
-/**
-* @author ornella
-* @author zue
-*/

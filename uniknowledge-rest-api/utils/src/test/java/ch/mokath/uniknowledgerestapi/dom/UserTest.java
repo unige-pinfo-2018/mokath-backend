@@ -1,11 +1,16 @@
 package ch.mokath.uniknowledgerestapi.dom;
 
-
 import java.util.HashSet;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+
+
+/**
+* @author ornela
+* @author zue
+*/
 public class UserTest {
 	
 	//test of equal function
@@ -301,6 +306,31 @@ public void UserTestOfRemoveFolowedQUestionMethod() {
 	user.addFollowedQuestion(question);
 	user.removeFollowedQuestion(question);
 	Assert.assertTrue(user.getFollowedQuestions().size()==0);
+}
+
+/** INSTITUTIONS **/
+//TODO
+
+/** POINTS **/
+@Test
+public void UserTestSetGetPointsMethods() {
+	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
+			"mePassword");
+	HashSet<String> domains = new HashSet<String>();
+	
+	user.setPoints(2);
+	Assert.assertTrue(user.getPoints() == 2);
+}
+
+@Test
+public void UserTestAddGetPointsMethods() {
+	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
+			"mePassword");
+	HashSet<String> domains = new HashSet<String>();
+	
+	user.addPoints(Points.QUESTION_CREATED);
+	Points pointsFromQuestionCreated = Points.QUESTION_CREATED;
+	Assert.assertTrue(user.getPoints() == pointsFromQuestionCreated.getPointValue());
 }
 	
 }
