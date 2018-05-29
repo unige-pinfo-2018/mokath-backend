@@ -6,16 +6,6 @@ pipeline {
     	}
     }
 
-    stages {
-
-				stage('Prepare') {
-					steps {
-						dir ('docker-config'){
-							sh './run_local.sh'
-						}
-					}
-				}
-
         stage('Build') {
 					steps {
 						dir ('uniknowledge-rest-api') {
