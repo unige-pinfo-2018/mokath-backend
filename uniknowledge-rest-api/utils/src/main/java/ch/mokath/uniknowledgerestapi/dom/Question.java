@@ -72,6 +72,10 @@ public class Question implements Serializable {
 	@Column(name = "popularity")
 	@Expose(serialize = true, deserialize= false)
 	private int popularity;
+	
+	@Column(name = "nb_answers")
+	@Expose (serialize = true, deserialize= false)
+	private int nbAnswers;
 
 	@OneToMany(mappedBy = "question",cascade = CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
 	private Set<Answer> answers;
@@ -110,6 +114,8 @@ public class Question implements Serializable {
 		this.domains = domains;
 		this.title = title;
 		this.text = text;
+		this.popularity = 0;
+		this.nbAnswers = 0;
 
 		//TODO choose between HashSet or SortedSet
 		this.answers = new HashSet<Answer>();
@@ -165,6 +171,22 @@ public class Question implements Serializable {
 		return true;
 	}
 	
+
+	/*
+	 * Getters/ Setters
+	 */
+	public int getNbAnswers() {
+		return this.nbAnswers;
+	}
+	
+	public void addNbAnswers() {
+		this.nbAnswers ++;
+	}
+	
+	public void removeNbAnswers() {
+		this.nbAnswers --;
+	}
+	
 	public int getPopularity() {
 		return upvoters.size();
 	}
@@ -172,10 +194,7 @@ public class Question implements Serializable {
 	public void addPopularity() {
 		this.popularity ++;
 	}
-
-	/*
-	 * Getters/ Setters
-	 */
+	
 	public long getId() {
 		return id;
 	}
