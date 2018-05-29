@@ -19,8 +19,10 @@ public class InstitutionTest {
 
 	@Test
 	public void institutionBuilderShouldReturnInstitution() {
+
 		HashSet<String> domains = new HashSet<String>();
 		Institution institution = new Institution("InsName", "InsLogo", "contact@institution.com", domains);
+
 		Assert.assertEquals(institution.getInstitutionName(), "InsName");
 		Assert.assertTrue(institution.getInstitutionName()!= "IsName");
 	    

@@ -18,15 +18,20 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.UniqueConstraint;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
+import org.hibernate.validator.constraints.Email;
+import ch.mokath.uniknowledgerestapi.dom.Institution;
+import ch.mokath.uniknowledgerestapi.dom.Points;
 
 /**
  * @author tv0g
  * @author matteo113
- *
+ * @author zue
  */
 @Entity
 public class User implements Serializable {
@@ -55,56 +60,60 @@ public class User implements Serializable {
 	private String profilePictureURL;
 
 	@Column(name = "email")
+	@Email
 	@Expose(serialize = true, deserialize= true)
 	private String email;
 
-
 	@Column(name = "password", length=128, nullable = false)
 	private String password;
-	
-	
-	@OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@ElementCollection(targetClass = Question.class)
+
+	@OneToMany(mappedBy = "author",fetch = FetchType.LAZY)
 	private Set<Question> questions;
 
-	@OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@ElementCollection(targetClass = Answer.class)
+	@OneToMany(mappedBy = "author",fetch = FetchType.LAZY)
 	private Set<Answer> answers;
 	
-	@ManyToMany(cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_upvote_question",
 	joinColumns = @JoinColumn(name = "user_id"),
-	inverseJoinColumns = @JoinColumn(name = "question_id"))
-	@ElementCollection(targetClass = Question.class)
+	inverseJoinColumns = @JoinColumn(name = "question_id"),
+	uniqueConstraints = @UniqueConstraint(columnNames = {
+        "user_id",
+        "question_id"
+    }))
 	private Set<Question> likedQuestions;
 	
-	@ManyToMany(cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_follow_question",
 	joinColumns = @JoinColumn(name = "user_id"),
-	inverseJoinColumns = @JoinColumn(name = "question_id"))
-	@ElementCollection(targetClass = Question.class)
+	inverseJoinColumns = @JoinColumn(name = "question_id"),
+	uniqueConstraints = @UniqueConstraint(columnNames = {
+        "user_id",
+        "question_id"
+    }))
 	private Set<Question> followedQuestions;
 	
-	@ManyToMany(cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_upvote_answer",
 	joinColumns = @JoinColumn(name = "user_id"),
-	inverseJoinColumns = @JoinColumn(name = "answer_id"))
-	@ElementCollection(targetClass = Answer.class)
+	inverseJoinColumns = @JoinColumn(name = "answer_id"),
+	uniqueConstraints = @UniqueConstraint(columnNames = {
+        "user_id",
+        "answer_id"
+    }))
 	private Set<Answer> likedAnswers;
 
-	/* field relationship mapping for Institution * /
-	@OneToMany(mappedBy = "administrators", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@ElementCollection(targetClass = Institution.class)
-	private Set<Institution> administrators;
+	@Column(name = "points_earned", nullable = false)
+	@Expose(serialize = true, deserialize = false)
+	private long points;
 
-	@OneToMany(mappedBy = "repliers", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@ElementCollection(targetClass = Institution.class)
-	private Set<Institution> repliers;
-	
-	@OneToMany(mappedBy = "askers", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@ElementCollection(targetClass = Institution.class)
-	private Set<Institution> askers;
-	
+	/* field relationship mapping for Institution - Only 1 institution/user */
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "institution_id")
+	@Expose(serialize = true, deserialize = false)
+	private Institution institution;
+
+
 	/* constructors and methods */
 	public User() {
 	}
@@ -122,13 +131,15 @@ public class User implements Serializable {
 		this.likedQuestions = new HashSet<Question>();
 		this.followedQuestions = new HashSet<Question>();
 		this.likedAnswers = new HashSet<Answer>();
-	}
+		this.institution = new Institution();
+    }
+
 
 	@Override
 	public String toString() {
 		
 		GsonBuilder builder = new GsonBuilder();  
-	    builder.excludeFieldsWithoutExposeAnnotation();
+		builder.excludeFieldsWithoutExposeAnnotation();
 		Gson gson = builder.create();  
 		
 		return gson.toJson(this);
@@ -137,7 +148,7 @@ public class User implements Serializable {
 	
 
 	@Override
-	public int hashCode() {
+	public int hashCode() { //TODO ? add institution to hashcode?
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
@@ -250,63 +261,74 @@ public class User implements Serializable {
 	public Set<Question> getQuestions() {
 		return questions;
 	}
+	public void addQuestion(Question q) {
+		this.questions.add(q);
+	}
+	public void removeQuestion(Question q) {
+		this.questions.remove(q);
+	}
 
 	public Set<Answer> getAnswers() {
 		return answers;
 	}
-
-	public void addQuestion(Question q) {
-		this.questions.add(q);
-	}
-	
-	public void removeQuestion(Question q) {
-		this.questions.remove(q);
-	}
-	
 	public void addAnswer(Answer a) {
 		this.answers.add(a);
 	}
-	
 	public void removeAnswer(Answer a) {
 		this.answers.remove(a);
 	}
-	
-	public void addLikedQuestion(Question q) {
-		this.likedQuestions.add(q);
-	}
-	
-	public void removeLikedQuestion(Question q) {
-		this.likedQuestions.remove(q);
-	}
-	
+
 	public Set<Question> getLikedQuestions(){
 		return this.likedQuestions;
 	}
-	
-	public void addFollowedQuestion(Question q) {
-		this.followedQuestions.add(q);
+	public void addLikedQuestion(Question q) {
+		this.likedQuestions.add(q);
 	}
-	
-	public void removeFollowedQuestion(Question q) {
-		this.followedQuestions.remove(q);
+	public void removeLikedQuestion(Question q) {
+		this.likedQuestions.remove(q);
 	}
-	
+
 	public Set<Question> getFollowedQuestions() {
 		return this.followedQuestions;
 	}
-	
+	public void addFollowedQuestion(Question q) {
+		this.followedQuestions.add(q);
+	}
+	public void removeFollowedQuestion(Question q) {
+		this.followedQuestions.remove(q);
+	}
+
+	public Set<Answer> getLikedAnswers() {
+		return this.likedAnswers;
+	}
 	public void addLikedAnswer(Answer a) {
 		this.likedAnswers.add(a);
 	}
-	
 	public void removeLikedAnswer(Answer a) {
 		this.likedAnswers.remove(a);
 	}
-	
-	public Set<Answer> getLikedAnswers() {
-		return this.getLikedAnswers();
+
+	public void setInstitution(Institution i) {
+        this.institution = i;
 	}
-	
+	public Institution getInstitution() {
+        return this.institution;
+	}	
+	public void removeInstitution() {
+        this.institution = null;
+	}
+
+	public long getPoints(){
+        return this.points;
+	}
+	public long setPoints(long points){
+        return this.points=points;
+	}
+	public void addPoints(Points point){
+        this.points += point.getPointValue();
+	}
+
+
 	public static class Builder {
 
 		public String username;

@@ -33,7 +33,7 @@ import com.google.gson.annotations.Expose;
 
 /**
  * @author matteo113
- *
+ * @author zue
  */
 @Entity
 public class Answer implements Serializable {
@@ -42,18 +42,19 @@ public class Answer implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Expose(serialize = false, deserialize= true)
+	@Expose(serialize = true, deserialize= true)
 	private long id;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "question_id")
+	@Expose(serialize = true, deserialize= true)
 	private Question question;
 
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "timestamp")
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date created;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "author_id")
 	@Expose(serialize = true, deserialize= true)
 	private User author;
@@ -62,29 +63,27 @@ public class Answer implements Serializable {
 	@Expose(serialize = true, deserialize= true)
 	private String text;
 
-	@ManyToMany(mappedBy = "likedAnswers", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@ElementCollection(targetClass = User.class)
-	private Set<User> upvotes;
+	@ManyToMany(mappedBy = "likedAnswers",fetch = FetchType.LAZY)
+    private Set<User> upvoters;
 
 	@Column(name = "validated")
 	@Expose(serialize = true, deserialize= true)
 	private boolean validated;
 
 	public Answer() {
-
 	}
 
 	public Answer(String text, Question question) {
 		this.text = text;
 		this.question = question;
-		this.upvotes = new HashSet<User>();
+		this.upvoters = new HashSet<User>();
 		this.validated = false;
 	}
 	
 	@Override
 	public String toString() {
-		GsonBuilder builder = new GsonBuilder();  
-	    builder.excludeFieldsWithoutExposeAnnotation();
+		GsonBuilder builder = new GsonBuilder();
+		builder.excludeFieldsWithoutExposeAnnotation();
 		Gson gson = builder.create();  
 		
 		return gson.toJson(this);
@@ -122,11 +121,6 @@ public class Answer implements Serializable {
 				return false;
 		} else if (!text.equals(other.text))
 			return false;
-		if (upvotes == null) {
-			if (other.upvotes != null)
-				return false;
-		} else if (!upvotes.equals(other.upvotes))
-			return false;
 		if (validated != other.validated)
 			return false;
 		return true;
@@ -135,7 +129,6 @@ public class Answer implements Serializable {
 	public User getAuthor() {
 		return author;
 	}
-
 	public void setAuthor(User author) {
 		this.author = author;
 	}
@@ -143,7 +136,6 @@ public class Answer implements Serializable {
 	public String getText() {
 		return text;
 	}
-
 	public void setText(String text) {
 		this.text = text;
 	}
@@ -155,39 +147,33 @@ public class Answer implements Serializable {
 	public void setQuestion(Question question) {
 		this.question = question;
 	}
-
 	public Question getQuestion() {
-		return this.question;
+		return question;
 	}
 
 	public Date getCreated() {
 		return this.created;
 	}
-
 	public void setCreated(Date created) {
 		this.created = created;
 	}
 
-	public Set<User> getUpvotes() {
-		return upvotes;
+	public Set<User> getUpvoters() {
+		return upvoters;
 	}
-
 	public void addUpvote(User u) {
-		this.upvotes.add(u);
-	}
-	
+		this.upvoters.add(u);
+	}	
 	public void removeUpvote(User u) {
-		this.upvotes.remove(u);
+		this.upvoters.remove(u);
 	}
 
 	public void validate() {
 		this.validated = true;
 	}
-
 	public void unvalidate() {
 		this.validated = false;
 	}
-
 	public boolean isValidated() {
 		return this.validated;
 	}
