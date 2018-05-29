@@ -9,8 +9,10 @@ pipeline {
     stages {
 
 				stage('Prepare') {
-					dir ('docker-config'){
-						sh './run_local.sh'
+					steps {
+						dir ('docker-config'){
+							sh './run_local.sh'
+						}
 					}
 				}
 
