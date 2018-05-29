@@ -14,6 +14,7 @@ import javax.validation.constraints.NotNull;
 import ch.mokath.uniknowledgerestapi.dom.AuthInfos;
 import ch.mokath.uniknowledgerestapi.dom.Token;
 import ch.mokath.uniknowledgerestapi.dom.User;
+import ch.mokath.uniknowledgerestapi.utils.CustomException;
 
 /**
  * @author tv0g
@@ -49,7 +50,7 @@ public interface UsersService {
 	 * @param user
 	 *            User to store
 	 */
-	void createUser(@NotNull final User u) throws EntityExistsException;
+	void createUser(@NotNull final User u) throws CustomException;
 
 	/**
 	 * Delete user from database
@@ -65,6 +66,6 @@ public interface UsersService {
 	 * @param u
 	 *            New user informations
 	 */
-	User updateUser(@NotNull final User u);
+	User updateUser(@NotNull final User u) throws CustomException;
 
 }

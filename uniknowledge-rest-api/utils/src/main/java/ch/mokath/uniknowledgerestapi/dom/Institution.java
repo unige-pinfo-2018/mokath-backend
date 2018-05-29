@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -20,12 +19,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.Size;
-
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-
+import org.hibernate.validator.constraints.Email;
 
 //	private UUID id; //20180511: decision to use Long instead of UUID, as for User [zue]
 
@@ -55,20 +53,15 @@ public class Institution implements Serializable {
 	private String logoPictureURL;
 
 	@Column(name = "contactEmail")
+	@Email
 	@Expose(serialize = true, deserialize= true)
-	private String contactEmail;
+    private String contactEmail;
 	
 	/* External field-mapping */
 	@ElementCollection(targetClass = String.class,fetch=FetchType.EAGER)
 	@Expose(serialize = true, deserialize= true)
 	private Set<String> domains;
-
-
-	@OneToMany(mappedBy="institution",cascade=CascadeType.ALL)//,orphanRemoval = true) //TODO !!cascade-remove /no ,orphanRemoval = true here
-/*	@OneToMany(mappedBy="institution",cascade=CascadeType.ALL) //TODO !!cascade-remove /no ,orphanRemoval = true here
-	@JoinColumn(name="institution_id"), //ok if unidirectional
-*/	@ElementCollection(targetClass = User.class,fetch=FetchType.EAGER)
-//TODO	@Expose(serialize = true, deserialize= true)
+	@OneToMany(mappedBy="institution",cascade={CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST},fetch=FetchType.LAZY)
     private Set<User> users;
 	
     /* constructors */
@@ -125,17 +118,13 @@ public class Institution implements Serializable {
    }
         
 
-    /* get-/set-ter */
+    /* get-/set- ters */
 	public Long getId() {
 		return id;
 	}
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public void setId(String id) {
-		this.id = Long.parseLong(id);
-	}
-
 	public String getInstitutionName() {
 		return institutionName;
 	}
@@ -174,8 +163,7 @@ public class Institution implements Serializable {
 	public void removeUser(User u) {
 		this.users.remove(u);
 	}
-	
-	
+
 
 	/* builder */
 	public static class Builder {

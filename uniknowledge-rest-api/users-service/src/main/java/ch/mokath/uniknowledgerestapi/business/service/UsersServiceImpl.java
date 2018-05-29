@@ -15,6 +15,7 @@ import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.validation.constraints.NotNull;
+import javax.validation.ConstraintViolationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,11 +23,12 @@ import org.slf4j.LoggerFactory;
 import ch.mokath.uniknowledgerestapi.dom.AuthInfos;
 import ch.mokath.uniknowledgerestapi.dom.Token;
 import ch.mokath.uniknowledgerestapi.dom.User;
+import ch.mokath.uniknowledgerestapi.utils.CustomException;
 import ch.mokath.uniknowledgerestapi.utils.DBHelper;
 
 /**
  * @author tv0g
- *
+ * @author zue
  */
 @Stateless
 public class UsersServiceImpl implements UsersService {
@@ -36,13 +38,16 @@ public class UsersServiceImpl implements UsersService {
 	private DBHelper DBHelper = new DBHelper();
 
 	@Override
-	public void createUser(@NotNull User u) throws EntityExistsException {
-		
-		if(isEmailOrUsernameAlreadyUsed(u.getEmail(), u.getUsername())) {
-			throw new EntityExistsException("Email or username is already used");
-		} else {
-			em.persist(u);
-		}
+	public void createUser(@NotNull User u) throws CustomException {
+		try{
+            if(isEmailOrUsernameAlreadyUsed(u.getEmail(), u.getUsername())) {
+                throw new CustomException("Email or username is already used");
+            } else {
+                em.persist(u);
+            }
+        } catch (ConstraintViolationException cve) {
+            throw new CustomException("invalid input");
+        }
 	}
 
 	@Override
@@ -93,13 +98,18 @@ public class UsersServiceImpl implements UsersService {
 	}
 
 	@Override
-	public User updateUser(@NotNull User u) {
-		
-		if(isEmailOrUsernameAlreadyUsed(u.getEmail(), u.getUsername())) {
-			throw new EntityExistsException("Email or username is already used");
-		} else {
-			return (User) em.merge(u);
-		}
+	public User updateUser(@NotNull User u) throws CustomException {
+        try{
+            if(isEmailOrUsernameAlreadyUsed(u.getEmail(), u.getUsername(),u.getId())) {
+                throw new CustomException("Email or username is already used");
+            } else {
+                User user=em.merge(u);
+                em.flush();
+                return user;
+            }
+        }catch (ConstraintViolationException cve){
+            throw new CustomException("invalid input");
+        }
 	}
 
 	@Override
@@ -120,6 +130,28 @@ public class UsersServiceImpl implements UsersService {
 		Optional<User> wrappedUserForUsername = DBHelper.getEntityFromFields(wherePredicatesMapForUserUsername, User.class, em);
 
 		// If user already exists with this email
+		return wrappedUserForEmail.isPresent() || wrappedUserForUsername.isPresent();
+	}
+	
+	/** We do not want 2 User with the same username or email
+	* But omit to check on User with id (needed for update) (zue)
+	*/
+	private boolean isEmailOrUsernameAlreadyUsed(String email, String username, Long id) {
+		// Check if email is already used
+		Map<String, Object> wherePredicatesMapForUserEmail = new HashMap<String, Object>();
+		wherePredicatesMapForUserEmail.put("email", email);
+		
+		// Check if institutionName is already used
+		Map<String, Object> wherePredicatesMapForUserUsername = new HashMap<String, Object>();
+		wherePredicatesMapForUserUsername.put("username", username);
+		
+		Map<String, Object> whereNotPMid = new HashMap<String, Object>();
+		whereNotPMid.put("id", id);
+
+		Optional<User> wrappedUserForEmail = DBHelper.getEntityFromFields(wherePredicatesMapForUserEmail,whereNotPMid,User.class, em);
+		Optional<User> wrappedUserForUsername = DBHelper.getEntityFromFields(wherePredicatesMapForUserUsername,whereNotPMid,User.class, em);
+
+		// If institution already exists with same contact email
 		return wrappedUserForEmail.isPresent() || wrappedUserForUsername.isPresent();
 	}
 }

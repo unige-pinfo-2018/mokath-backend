@@ -32,7 +32,7 @@ import com.google.gson.annotations.Expose;
 
 /**
  * @author matteo113
- *
+ * @author zue
  */
 @Entity
 public class Question implements Serializable {
@@ -45,14 +45,14 @@ public class Question implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Expose(serialize = false, deserialize= true)
+	@Expose(serialize = true, deserialize= true)
 	private long id;
 
-    @Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "created")
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date created;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "author_id")
     @Expose(serialize = true, deserialize= true)
 	private User author;
@@ -69,16 +69,13 @@ public class Question implements Serializable {
 	@Expose(serialize = true, deserialize= true)
 	private String text;
 
-	@ElementCollection(targetClass = Answer.class)
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "question", orphanRemoval = true, fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "question",cascade = CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
 	private Set<Answer> answers;
 	
-	@ManyToMany(mappedBy = "likedQuestions", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@ElementCollection(targetClass = User.class)
-	private Set<User> upvotes;
+	@ManyToMany(mappedBy = "likedQuestions",cascade={CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST},fetch = FetchType.LAZY)
+	private Set<User> upvoters;
 	
-	@ManyToMany(mappedBy = "followedQuestions", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@ElementCollection(targetClass = User.class)
+	@ManyToMany(mappedBy = "followedQuestions",cascade={CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST},fetch = FetchType.LAZY)
 	private Set<User> followers;
 
 	/*
@@ -112,14 +109,14 @@ public class Question implements Serializable {
 
 		//TODO choose between HashSet or SortedSet
 		this.answers = new HashSet<Answer>();
-		this.upvotes = new HashSet<User>();
+		this.upvoters = new HashSet<User>();
 		this.followers =  new HashSet<User>();
 	}
 	
 	@Override
 	public String toString() {
-		GsonBuilder builder = new GsonBuilder();  
-	    builder.excludeFieldsWithoutExposeAnnotation();
+		GsonBuilder builder = new GsonBuilder();
+		builder.excludeFieldsWithoutExposeAnnotation();
 		Gson gson = builder.create();  
 		
 		return gson.toJson(this);
@@ -167,8 +164,6 @@ public class Question implements Serializable {
 	/*
 	 * Getters/ Setters
 	 */
-	
-	
 	public long getId() {
 		return id;
 	}
@@ -176,35 +171,36 @@ public class Question implements Serializable {
 	public Set<User> getFollowers() {
 		return followers;
 	}
-
 	public void addFollower(User follow) {
 		this.followers.add(follow);
+	}
+	public void removeFollower(User follow) {
+		this.followers.remove(follow);
 	}
 
 	public Set<Answer> getAnswers() {
 		return answers;
 	}
-
 	public void addAnswer(Answer a) {
 		this.answers.add(a);
 	}
-	
 	public void removeAnswer(Answer a) {
 		this.answers.remove(a);
 	}
 
-	public Set<User> getUpvotes() {
-		return upvotes;
+	public Set<User> getUpvoters() {
+		return upvoters;
 	}
-
 	public void addUpvote(User like) {
-		this.upvotes.add(like);
+		this.upvoters.add(like);
+	}
+	public void removeUpvote(User like) {
+		this.upvoters.remove(like);
 	}
 
 	public Date getCreated() {
 		return created;
 	}
-	
 	public void setCreated(Date date) {
 		this.created = date;
 	}
@@ -212,7 +208,6 @@ public class Question implements Serializable {
 	public User getAuthor() {
 		return this.author;
 	}
-
 	public void setAuthor(User author) {
 		this.author = author;
 	}
@@ -220,7 +215,6 @@ public class Question implements Serializable {
 	public Set<String> getDomains() {
 		return domains;
 	}
-
 	public void setDomains(Set<String> domains) {
 		this.domains = domains;
 	}
@@ -228,7 +222,6 @@ public class Question implements Serializable {
 	public String getTitle() {
 		return title;
 	}
-
 	public void setTitle(String title) {
 		this.title = title;
 	}
@@ -236,7 +229,6 @@ public class Question implements Serializable {
 	public String getText() {
 		return text;
 	}
-
 	public void setText(String text) {
 		this.text = text;
 	}

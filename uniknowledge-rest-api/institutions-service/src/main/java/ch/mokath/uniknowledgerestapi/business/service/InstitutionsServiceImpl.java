@@ -4,7 +4,6 @@
 package ch.mokath.uniknowledgerestapi.business.service;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.List;
@@ -12,15 +11,15 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.validation.constraints.NotNull;
+import javax.validation.ConstraintViolationException;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import ch.mokath.uniknowledgerestapi.dom.Institution;
 import ch.mokath.uniknowledgerestapi.dom.User;
-import ch.mokath.uniknowledgerestapi.utils.DBHelper;
 import ch.mokath.uniknowledgerestapi.utils.CustomException;
+import ch.mokath.uniknowledgerestapi.utils.DBHelper;
 
 /**
  * @author tv0g
@@ -34,144 +33,173 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	private DBHelper DBHelper = new DBHelper();
 	
 	@Override
-	public void createInstitution(@NotNull Institution i) throws CustomException {
-		if(isContactEmailOrInstitutionNameAlreadyUsed(i.getContactEmail(), i.getInstitutionName())) {
-			throw new CustomException("Institution name or contact email already in use !");
-		} else {
-            em.persist(i);
+	public void createInstitution(Institution i) throws CustomException {
+        try{
+            if(isContactEmailOrInstitutionNameAlreadyUsed(i.getContactEmail(), i.getInstitutionName())) {
+                throw new CustomException("institution name or contact email already in use");
+            } else {
+                em.persist(i);
+            }
+        } catch (NullPointerException ne) {
+            throw new CustomException("empty institution");
+        } catch (ConstraintViolationException cve) {
+            throw new CustomException("invalid input");
         }
 	}
 
 	@Override
-	public Institution getInstitution(@NotNull final String id) throws CustomException {
-		Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-		wherePredicatesMap.put("id", id);
-		Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
+	public Institution getInstitution(final String id) throws CustomException {
+        try{
+            Long iid = Long.valueOf(id);
+            Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+            wherePredicatesMap.put("id",iid);
+            Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
 
-		if (wrappedInst.isPresent()) {
-			Institution i = wrappedInst.get();
-            return i;
-		} else {
-			throw new CustomException("Institution not found !");
-		}
+            if (wrappedInst.isPresent()) {
+                return wrappedInst.get();
+            } else {
+                throw new CustomException("institution not found");
+            }
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong institution ID");
+        }
 	}
-	
+
 	@Override
-	public List<Institution> getInstitutions() throws CustomException {
-		Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+	public List<Institution> getInstitutions() {
         List<Institution> institutions = em.createQuery("select i from Institution i",Institution.class).getResultList();
         return institutions;
 	}
 	
 	@Override
-	public Institution updateInstitution(@NotNull Institution i,@NotNull final String id) throws CustomException {
-		Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-		wherePredicatesMap.put("id", id);
-		Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
+	public Institution updateInstitution(Institution i,final String id) throws CustomException {
+        try{
+            Long iid = Long.valueOf(id);
+            if(isContactEmailOrInstitutionNameAlreadyUsed(i.getContactEmail(),i.getInstitutionName(),id)) {
+                throw new CustomException("institution name or contact email already in use");
+            }else{
+                Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+                wherePredicatesMap.put("id",iid);
+                Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
 
-		if (wrappedInst.isPresent()) {
-            if(isContactEmailOrInstitutionNameAlreadyUsed(i.getContactEmail(), i.getInstitutionName(),id)) {
-                throw new CustomException("Institution name or contact email already in use !");
-            } else {
-                Institution unwrappedInst = wrappedInst.get();
-                i.setId(unwrappedInst.getId());
-                return (Institution) em.merge(i);
+                if (wrappedInst.isPresent()) {
+                    Institution inst = wrappedInst.get();
+                    i.setId(inst.getId());
+                    Institution returnValue = (Institution) em.merge(i);
+                    em.flush();
+                    return returnValue;
+                }else{
+                    throw new CustomException("institution not found");
+                }
             }
-        }else{
-            throw new CustomException("Institution not found !");
+        }catch (NullPointerException ne) {
+            throw new CustomException("empty institution");
+        }catch (ConstraintViolationException cve){
+            throw new CustomException("invalid input");
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong institution ID");
         }
 	}
-	
-	@Override
-	public void deleteInstitution(@NotNull final String id) throws CustomException {
-        Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-        wherePredicatesMap.put("id", id);
-        Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
-        
-        if (wrappedInst.isPresent()) {
-            Institution inst= em.merge(wrappedInst.get());
 
-            Map<String, Object> wherePMuser = new HashMap<String, Object>();
-            wherePMuser.put("institution",inst.getId());
-            List<User> users = DBHelper.getEntitiesFromFields(wherePMuser,User.class,em);
-            for(User u : users){ //Remove all users from institution first
-                User user = em.merge(u);
-                user.removeInstitution();
+	@Override
+	public void deleteInstitution(final String id) throws CustomException {
+         try{
+            Long iid = Long.valueOf(id);
+            Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+            wherePredicatesMap.put("id", id);
+            Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePredicatesMap,Institution.class,em);
+
+            if (wrappedInst.isPresent()) {
+                Institution inst= em.merge(wrappedInst.get());
+                for(User u : inst.getUsers()){ //Remove all users from institution first
+                    User user = em.merge(u);
+                    user.removeInstitution();
+                }
+                em.remove(inst);
+            } else {
+                throw new CustomException("institution not found");
             }
-            
-            List<User> users2 = DBHelper.getEntitiesFromFields(wherePMuser,User.class,em);
-            if(users2.size() > 0){
-                throw new CustomException("Could not remove User with id:"+users.get(0).getId()+" from Institution !");
-            }else{            
-                em.remove(em.contains(inst) ? inst : em.merge(inst));
-            }
-        } else {
-            throw new CustomException("Institution not found !");
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong institution ID");
         }
 	}
 
 	/** add/get-all/remove User to/from an Institution */
 	@Override
-	public User addUser(@NotNull final String uid,@NotNull final String iid) throws CustomException {
-		Map<String, Object> wherePMinst = new HashMap<String, Object>();
-		wherePMinst.put("id", iid);
-		Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePMinst,Institution.class,em);
-
-		if (wrappedInst.isPresent()) {
+	public User addUser(final String uid,final String iid) throws CustomException {
+        try{
+            Long uidl = Long.valueOf(uid);
             Map<String, Object> wherePMuser = new HashMap<String, Object>();
-            wherePMuser.put("id", uid);
+            wherePMuser.put("id",uidl);
             Optional<User> wrappedUser = DBHelper.getEntityFromFields(wherePMuser,User.class,em);
 
             if (wrappedUser.isPresent()) {
-                Institution inst = wrappedInst.get();
-                User user = em.merge(wrappedUser.get());
-                user.setInstitution(inst);
-                return user;
+                Long iidl = Long.valueOf(iid);
+                Map<String, Object> wherePMinst = new HashMap<String, Object>();
+                wherePMinst.put("id",iidl);
+                Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePMinst,Institution.class,em);
+
+                if (wrappedInst.isPresent()) {
+                    Institution inst = wrappedInst.get();
+                    User user = em.merge(wrappedUser.get());
+                    user.setInstitution(inst);
+                    return user;
+                }else{
+                    throw new CustomException("institution not found");
+                }
             }else{
-                throw new CustomException("User not found !");
+                throw new CustomException("user not found");
             }
-        }else{
-            throw new CustomException("Institution not found !");
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong institution or user ID");
         }
 	}
 	
 	@Override
-	public List<User> getUsers(@NotNull final String iid) throws CustomException {
-		Map<String, Object> wherePMinst = new HashMap<String, Object>();
-		wherePMinst.put("id", iid);
-		Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePMinst,Institution.class,em);
+	public List<User> getUsers(final String iid) throws CustomException {
+        try{
+            Long iidl = Long.valueOf(iid);
+            Map<String, Object> wherePMinst = new HashMap<String, Object>();
+            wherePMinst.put("id",iidl);
+            Optional<Institution> wrappedInst = DBHelper.getEntityFromFields(wherePMinst,Institution.class,em);
 
-		if (wrappedInst.isPresent()) {
-			Institution inst = wrappedInst.get();
+            if (wrappedInst.isPresent()) {
+                Institution inst = em.merge(wrappedInst.get());
+                Map<String, Object> wherePMuser = new HashMap<String, Object>();
+                wherePMuser.put("institution",inst.getId());
+                List<User> users = DBHelper.getEntitiesFromFields(wherePMuser,User.class,em);
+                return users;
+                }else{
+                    throw new CustomException("institution not found");
+            }
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong institution ID");
+        }
+	}
+	
+	@Override
+	public void removeUser(final String uid,final String iid) throws CustomException {
+        try{
+            Long uidl = Long.valueOf(uid);
             Map<String, Object> wherePMuser = new HashMap<String, Object>();
-            wherePMuser.put("institution",inst.getId());
-            List<User> users = DBHelper.getEntitiesFromFields(wherePMuser,User.class,em);
-            return users;
-		} else {
-			throw new CustomException("Institution not found !");
-        }
-	}
-	
-	@Override
-	public void removeUser(@NotNull final String uid,@NotNull final String iid) throws CustomException {
-		Map<String, Object> wherePMuser = new HashMap<String, Object>();
-		wherePMuser.put("id", uid);
-		Optional<User> wrappedUser = DBHelper.getEntityFromFields(wherePMuser,User.class,em);
+            wherePMuser.put("id",uidl);
+            Optional<User> wrappedUser = DBHelper.getEntityFromFields(wherePMuser,User.class,em);
 
-		if (wrappedUser.isPresent()) {
-			User user = em.merge(wrappedUser.get());
-			try{
-				if(user.getInstitution().getId() == Long.parseLong(iid)){
+            if (wrappedUser.isPresent()) {
+                User user = em.merge(wrappedUser.get());
+                if(user.getInstitution().getId() == Long.parseLong(iid)){
                     user.removeInstitution();
-				}else{
-                    throw new CustomException("User does not belong to provided institution !");
-				}
-			}catch (NullPointerException e) {
-                throw new CustomException("User does not belong to any institution !");
-            }
-		}else{
-            throw new CustomException("User not found !");
-        }            
+                }else{
+                    throw new CustomException("user does not belong to provided institution");
+                }
+            }else{
+                throw new CustomException("user not found");
+            }            
+        }catch(NullPointerException e){
+            throw new CustomException("user does not belong to any institution");
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong institution or user ID");
+        }
 	}
 
 	/** We do not want 2 Institutions with the same name or contact email
