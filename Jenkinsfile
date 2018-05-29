@@ -6,6 +6,8 @@ pipeline {
     	}
     }
 
+    stages {
+
         stage('Build') {
 					steps {
 						dir ('uniknowledge-rest-api') {
@@ -29,3 +31,4 @@ pipeline {
             }
         }
     }
+}
