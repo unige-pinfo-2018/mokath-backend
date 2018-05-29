@@ -7,22 +7,33 @@ pipeline {
     }
 
     stages {
+
+				stage('Prepare') {
+					dir ('docker-config'){
+						sh './run_local.sh'
+					}
+				}
+
         stage('Build') {
 					steps {
 						dir ('uniknowledge-rest-api') {
-							sh 'mvn clean install'
+							sh 'mvn clean compile'
 						}
         	}
 
         }
         stage('Test') {
             steps {
-                echo 'Testing..'
+							dir ('uniknowledge-rest-api') {
+								sh 'mvn test'
+							}
             }
         }
         stage('Deploy') {
             steps {
-                echo 'Deploying....'
+							dir ('uniknowledge-rest-api') {
+								sh 'mvn clean install'
+							}
             }
         }
     }
