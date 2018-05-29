@@ -16,8 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
-* @author terry ou matteo??
+* @author tv0g
 * @author zue
+* @author matteo113
 */
 
 public class DBHelper {
@@ -179,6 +180,22 @@ public class DBHelper {
 		// Link Query to Entity Class
 		CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(entityClass);
 		Root<T> from = criteriaQuery.from(entityClass);
+		
+		TypedQuery<T> finalQuery = em.createQuery(criteriaQuery);
+		
+		List<T> matchedObjects = finalQuery.getResultList();
+		return matchedObjects;
+	}
+	
+	public <T> List<T> getAllEntitiesDescOrder(Class<T> entityClass, EntityManager em, String order){
+		
+		// Create the Criteria Builder
+				CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+				
+		// Link Query to Entity Class
+		CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(entityClass);
+		Root<T> from = criteriaQuery.from(entityClass);
+		criteriaQuery.orderBy(criteriaBuilder.desc(from.get(order)));
 		
 		TypedQuery<T> finalQuery = em.createQuery(criteriaQuery);
 		

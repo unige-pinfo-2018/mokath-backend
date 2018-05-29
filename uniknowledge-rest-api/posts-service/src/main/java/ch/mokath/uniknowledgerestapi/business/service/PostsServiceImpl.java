@@ -71,7 +71,7 @@ public class PostsServiceImpl implements PostsService {
 
 	@Override
 	public List<Question> getQuestions(){
-        List<Question> questions = em.createQuery("select i from Question i",Question.class).getResultList();
+		List<Question> questions = DBHelper.getAllEntitiesDescOrder(Question.class, em, "popularity");
         return questions;
 	}
 
@@ -138,6 +138,7 @@ public class PostsServiceImpl implements PostsService {
                     user.addLikedQuestion(question);
                     User question_author = em.merge(question.getAuthor());
                     question_author.addPoints(Points.QUESTION_LIKED);
+                    question.addPopularity();
                 }
             }
         }catch(NumberFormatException nfe){
