@@ -73,7 +73,7 @@ public class Question implements Serializable {
 	private Set<Answer> answers;
 	
 	@ManyToMany(mappedBy = "likedQuestions",cascade={CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST},fetch = FetchType.LAZY)
-	private Set<User> upvotes;
+	private Set<User> upvoters;
 	
 	@ManyToMany(mappedBy = "followedQuestions",cascade={CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST},fetch = FetchType.LAZY)
 	private Set<User> followers;
@@ -109,7 +109,7 @@ public class Question implements Serializable {
 
 		//TODO choose between HashSet or SortedSet
 		this.answers = new HashSet<Answer>();
-		this.upvotes = new HashSet<User>();
+		this.upvoters = new HashSet<User>();
 		this.followers =  new HashSet<User>();
 	}
 	
@@ -188,14 +188,14 @@ public class Question implements Serializable {
 		this.answers.remove(a);
 	}
 
-	public Set<User> getUpvotes() {
-		return upvotes;
+	public Set<User> getUpvoters() {
+		return upvoters;
 	}
 	public void addUpvote(User like) {
-		this.upvotes.add(like);
+		this.upvoters.add(like);
 	}
 	public void removeUpvote(User like) {
-		this.upvotes.remove(like);
+		this.upvoters.remove(like);
 	}
 
 	public Date getCreated() {

@@ -64,7 +64,7 @@ public class Answer implements Serializable {
 	private String text;
 
 	@ManyToMany(mappedBy = "likedAnswers",fetch = FetchType.LAZY)
-    private Set<User> upvotes;
+    private Set<User> upvoters;
 
 	@Column(name = "validated")
 	@Expose(serialize = true, deserialize= true)
@@ -76,7 +76,7 @@ public class Answer implements Serializable {
 	public Answer(String text, Question question) {
 		this.text = text;
 		this.question = question;
-		this.upvotes = new HashSet<User>();
+		this.upvoters = new HashSet<User>();
 		this.validated = false;
 	}
 	
@@ -158,14 +158,14 @@ public class Answer implements Serializable {
 		this.created = created;
 	}
 
-	public Set<User> getUpvotes() {
-		return upvotes;
+	public Set<User> getUpvoters() {
+		return upvoters;
 	}
 	public void addUpvote(User u) {
-		this.upvotes.add(u);
+		this.upvoters.add(u);
 	}	
 	public void removeUpvote(User u) {
-		this.upvotes.remove(u);
+		this.upvoters.remove(u);
 	}
 
 	public void validate() {

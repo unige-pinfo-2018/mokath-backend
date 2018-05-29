@@ -92,27 +92,19 @@ public class PostsServiceImpl implements PostsService {
 	}
 
 	@Override
-	public Set<User> getQuestionUpvotes(final String qid) throws CustomException{
+	public Set<User> getQuestionUpvoters(final String qid) throws CustomException{
         try{
             Long qidl = Long.valueOf(qid);
             Question question=em.find(Question.class,qidl);
             if(question == null) throw new CustomException("question not found");
             else{
-                Set<User> upvotes = question.getUpvotes();
-                upvotes.toString(); //This is needed otherwise org.hibernate.LazyInitializationException
-                return upvotes;
+                Set<User> upvoters = question.getUpvoters();
+                upvoters.toString(); //This is needed otherwise org.hibernate.LazyInitializationException
+                return upvoters;
             }
         }catch(NumberFormatException nfe){
             throw new CustomException("wrong question ID");
 		}
-	}
-
-	@Override
-	public List<Question> getMyQuestions(final User u) {
-        Map<String, Object> wherePM = new HashMap<String, Object>();
-        wherePM.put("author",u.getId());
-        List<Question> questions = DBHelper.getEntitiesFromFields(wherePM,Question.class,em);
-        return questions;
 	}
 
 	@Override
@@ -185,11 +177,11 @@ public class PostsServiceImpl implements PostsService {
             Question question=em.find(Question.class,qidl);
             if (u.equals(question.getAuthor())) {
                 User author = question.getAuthor();
-                // remove all upvotes
+                // remove all followers/upvoters
                 for (User usrf : question.getFollowers()) {
                     usrf.removeFollowedQuestion(question);
                 }
-                for (User usrl : question.getUpvotes()) {
+                for (User usrl : question.getUpvoters()) {
                     usrl.removeLikedQuestion(question);
                     author.addPoints(Points.QUESTION_UNLIKED);
                 }
@@ -223,6 +215,30 @@ public class PostsServiceImpl implements PostsService {
         }catch(NumberFormatException nfe){
             throw new CustomException("wrong question ID");
 		}
+	}
+
+	@Override
+	public List<Question> getMyQuestions(final User u) {
+        Map<String, Object> wherePM = new HashMap<String, Object>();
+        wherePM.put("author",u.getId());
+        List<Question> questions = DBHelper.getEntitiesFromFields(wherePM,Question.class,em);
+        return questions;
+	}
+
+	@Override
+	public Set<Question> getMyFollowedQuestions(final User u) {
+        User user = em.find(User.class,u.getId());
+        Set<Question> questions = user.getFollowedQuestions();
+        questions.toString(); //This is needed otherwise org.hibernate.LazyInitializationException
+        return questions;
+	}
+
+	@Override
+	public Set<Question> getMyUpvotedQuestions(final User u) {
+        User user = em.find(User.class,u.getId());
+        Set<Question> questions = user.getLikedQuestions();
+        questions.toString(); //This is needed otherwise org.hibernate.LazyInitializationException
+        return questions;
 	}
 
 	/**********************************************************************
@@ -272,15 +288,15 @@ public class PostsServiceImpl implements PostsService {
 	}
 
 	@Override
-	public Set<User> getAnswerUpvotes(final String aid) throws CustomException {
+	public Set<User> getAnswerUpvoters(final String aid) throws CustomException {
         try{
             Long aidl = Long.valueOf(aid);
             Answer answer=em.find(Answer.class,aidl);
             if(answer == null) throw new CustomException("answer not found");
             else{
-                Set<User> upvotes = answer.getUpvotes();
-                upvotes.toString(); //This is needed otherwise org.hibernate.LazyInitializationException
-                return upvotes;
+                Set<User> upvoters = answer.getUpvoters();
+                upvoters.toString(); //This is needed otherwise org.hibernate.LazyInitializationException
+                return upvoters;
             }
         }catch(NumberFormatException nfe){
             throw new CustomException("wrong answer ID");
@@ -292,6 +308,14 @@ public class PostsServiceImpl implements PostsService {
         Map<String, Object> wherePM = new HashMap<String, Object>();
         wherePM.put("author",u.getId());
         List<Answer> answers = DBHelper.getEntitiesFromFields(wherePM,Answer.class,em);
+        return answers;
+	}
+
+	@Override
+	public Set<Answer> getMyUpvotedAnswers(final User u) {
+        User user = em.find(User.class,u.getId());
+        Set<Answer> answers = user.getLikedAnswers();
+        answers.toString(); //This is needed otherwise org.hibernate.LazyInitializationException
         return answers;
 	}
 
@@ -369,8 +393,8 @@ public class PostsServiceImpl implements PostsService {
             Long aidl = Long.valueOf(aid);
             Answer answer = em.find(Answer.class,aidl);
             if (user.equals(answer.getAuthor())) {
-                // remove all upvotes
-                for (User usr : answer.getUpvotes()) {
+                // remove all upvoters
+                for (User usr : answer.getUpvoters()) {
                     usr.removeLikedAnswer(answer);
                 }
                 em.flush();

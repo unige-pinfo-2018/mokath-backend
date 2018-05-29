@@ -25,11 +25,14 @@ public interface PostsService {
 	
 	Question getQuestion(final String questionId) throws CustomException;
     List<Question> getQuestions();
-    List<Question> getMyQuestions(final User u);
     Set<Answer> getQuestionAnswers(final String questionId) throws CustomException;
     Set<User> getQuestionFollowers(final String questionId) throws CustomException;
-    Set<User> getQuestionUpvotes(final String qid) throws CustomException;
+    Set<User> getQuestionUpvoters(final String qid) throws CustomException;
     
+    List<Question> getMyQuestions(final User u);
+    Set<Question> getMyFollowedQuestions(final User u);
+    Set<Question> getMyUpvotedQuestions(final User u);
+   
     Question editQuestion(final String questionId, Question uq, User u) throws CustomException;
 
 	void followQuestion(final String questionId, User u) throws CustomException;
@@ -42,9 +45,11 @@ public interface PostsService {
 	void createAnswer(final String questionId, Answer a, User u) throws CustomException;
 	
     Answer getAnswer(final String answerId) throws CustomException;
+    Set<User> getAnswerUpvoters(final String answerId) throws CustomException;
+    
     List<Answer> getMyAnswers(final User u);
-    Set<User> getAnswerUpvotes(final String answerId) throws CustomException;
-
+    Set<Answer> getMyUpvotedAnswers(final User u);
+    
 	Answer editAnswer(final String answerId, Answer na, User u) throws CustomException;
 
     void validateAnswer(final String answerId, User u) throws CustomException;

@@ -133,19 +133,6 @@ public class PostsServiceRs {
 	}
 	
 	@GET
-	@Secured
-	@Path("/questions/me")
-	@Produces("application/json")
-	public Response getMyQuestions(@Context HttpServletRequest req) {
-		try {
-            User trustedUser = (User) req.getAttribute("user");
-            return Response.ok(postsService.getMyQuestions(trustedUser).toString()).build();
-		} catch (Exception e) {
-			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
-		}
-	}
-
-	@GET
 	@Path("/questions/{id}/followers")
 	@Produces("application/json")
 	public Response getQuestionFollowers(@PathParam("id") String id) {
@@ -159,11 +146,11 @@ public class PostsServiceRs {
 	}
 	
 	@GET
-	@Path("/questions/{id}/upvotes")
+	@Path("/questions/{id}/upvoters")
 	@Produces("application/json")
-	public Response getQuestionUpvotes(@PathParam("id") String id) {
+	public Response getQuestionUpvoters(@PathParam("id") String id) {
 		try {
-            return Response.ok(postsService.getQuestionUpvotes(id).toString()).build();
+            return Response.ok(postsService.getQuestionUpvoters(id).toString()).build();
         } catch (CustomException ce) {
             return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
@@ -171,6 +158,46 @@ public class PostsServiceRs {
 		}
 	}
 	
+	@GET
+	@Secured
+	@Path("/questions/me")
+	@Produces("application/json")
+	public Response getMyQuestions(@Context HttpServletRequest req) {
+		try {
+            User trustedUser = (User) req.getAttribute("user");
+            return Response.ok(postsService.getMyQuestions(trustedUser).toString()).build();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+
+	@GET
+	@Secured
+	@Path("/questions/me/followed")
+	@Produces("application/json")
+	public Response getMyFollowedQuestions(@Context HttpServletRequest req) {
+		try {
+            User trustedUser = (User) req.getAttribute("user");
+            return Response.ok(postsService.getMyFollowedQuestions(trustedUser).toString()).build();
+		} catch (Exception e) {
+return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
+//			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+
+	@GET
+	@Secured
+	@Path("/questions/me/upvoted")
+	@Produces("application/json")
+	public Response getMyUpvotedQuestions(@Context HttpServletRequest req) {
+		try {
+            User trustedUser = (User) req.getAttribute("user");
+            return Response.ok(postsService.getMyUpvotedQuestions(trustedUser).toString()).build();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+
 	
 	/** ANSWER **/
 	@POST
@@ -254,11 +281,11 @@ public class PostsServiceRs {
 	}
 
 	@GET
-	@Path("/answers/{id}/updvotes")
+	@Path("/answers/{id}/updvoters")
 	@Produces("application/json")
-	public Response getAnswerUpvotes(@PathParam("id") String id) {
+	public Response getAnswerUpvoters(@PathParam("id") String id) {
 		try {
-            return Response.ok(postsService.getAnswerUpvotes(id).toString()).build();
+            return Response.ok(postsService.getAnswerUpvoters(id).toString()).build();
         } catch (CustomException ce) {
             return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
@@ -291,4 +318,18 @@ public class PostsServiceRs {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
 	}
+
+	@GET
+	@Secured
+	@Path("/answers/me/upvoted")
+	@Produces("application/json")
+	public Response getMyUpvotedAnswers(@Context HttpServletRequest req) {
+		try {
+            User trustedUser = (User) req.getAttribute("user");
+            return Response.ok(postsService.getMyUpvotedAnswers(trustedUser).toString()).build();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+
 }
