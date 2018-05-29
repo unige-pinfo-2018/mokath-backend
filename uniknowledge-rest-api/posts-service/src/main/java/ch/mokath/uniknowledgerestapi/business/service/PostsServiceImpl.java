@@ -266,6 +266,7 @@ public class PostsServiceImpl implements PostsService {
 
                 em.persist(a);
                 user.addPoints(Points.ANSWER_CREATED);
+                question.addNbAnswers();
             } else {
                 throw new CustomException("question not found");
             }
@@ -401,9 +402,11 @@ public class PostsServiceImpl implements PostsService {
                 em.flush();
                 em.clear(); //need to clear and reload otherwise Set not equals=>no delete from em
                 answer = em.find(Answer.class,aidl);
+                Question question = em.find(Question.class, answer.getId());
                 User author = answer.getAuthor();
                 em.remove(answer);
                 author.addPoints(Points.ANSWER_REMOVED);
+                question.removeNbAnswers();
             } else {
                 throw new CustomException("unable to delete answer with ID = "+ aid +" (not the author)",Response.Status.UNAUTHORIZED);
             }
