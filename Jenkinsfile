@@ -10,8 +10,9 @@ pipeline {
 
         stage('Build') {
 					steps {
+
 						dir ('uniknowledge-rest-api') {
-							sh 'mvn -B -DskipTests clean package'
+							mvn -B -DskipTests clean package
 						}
         	}
 
@@ -19,14 +20,14 @@ pipeline {
         stage('Test') {
             steps {
 							dir ('uniknowledge-rest-api') {
-								sh 'mvn test'
+								mvn test
 							}
             }
         }
         stage('Deploy') {
             steps {
 							dir ('uniknowledge-rest-api') {
-								sh 'mvn clean install'
+								mvn clean install
 							}
             }
         }
