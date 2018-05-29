@@ -186,6 +186,22 @@ public class DBHelper {
 		return matchedObjects;
 	}
 	
+	public <T> List<T> getAllEntitiesDescOrder(Class<T> entityClass, EntityManager em, String order){
+		
+		// Create the Criteria Builder
+				CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+				
+		// Link Query to Entity Class
+		CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(entityClass);
+		Root<T> from = criteriaQuery.from(entityClass);
+		criteriaQuery.orderBy(criteriaBuilder.desc(from.get(order)));
+		
+		TypedQuery<T> finalQuery = em.createQuery(criteriaQuery);
+		
+		List<T> matchedObjects = finalQuery.getResultList();
+		return matchedObjects;
+	}
+	
 }
 
 

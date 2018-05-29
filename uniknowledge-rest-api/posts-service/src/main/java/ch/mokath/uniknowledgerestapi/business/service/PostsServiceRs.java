@@ -198,19 +198,19 @@ return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
 		}
 	}
 	
-	@GET
-	@Path("/questions")
-	@Produces("application/json")
-	public Response getQuestions() {
-		GsonBuilder gBuilder = new GsonBuilder();
-		gBuilder.excludeFieldsWithoutExposeAnnotation();
-		
-		Gson gson = gBuilder.create();
-		
-		List<Question> questions = DBHelper.getAllEntities(Question.class, em);
-		
-		return Response.ok(gson.toJson(questions)).build();
-	}
+//	@GET
+//	@Path("/questions")
+//	@Produces("application/json")
+//	public Response getQuestions() {
+//		GsonBuilder gBuilder = new GsonBuilder();
+//		gBuilder.excludeFieldsWithoutExposeAnnotation();
+//		
+//		Gson gson = gBuilder.create();
+//		
+//		List<Question> questions = DBHelper.getAllEntities(Question.class, em);
+//		
+//		return Response.ok(gson.toJson(questions)).build();
+//	}
 
 	
 	/** ANSWER **/

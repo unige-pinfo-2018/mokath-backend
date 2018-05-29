@@ -68,6 +68,10 @@ public class Question implements Serializable {
 	@Column(name = "text", columnDefinition="text")
 	@Expose(serialize = true, deserialize= true)
 	private String text;
+	
+	@Column(name = "popularity")
+	@Expose(serialize = true, deserialize= false)
+	private int popularity;
 
 	@OneToMany(mappedBy = "question",cascade = CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
 	private Set<Answer> answers;
@@ -159,6 +163,14 @@ public class Question implements Serializable {
 		} else if (!title.equals(other.title))
 			return false;
 		return true;
+	}
+	
+	public int getPopularity() {
+		return upvoters.size();
+	}
+	
+	public void addPopularity() {
+		this.popularity ++;
 	}
 
 	/*
