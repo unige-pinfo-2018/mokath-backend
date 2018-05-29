@@ -145,7 +145,7 @@ public class DBHelper {
 
 		final List<Predicate> wherePredicates = new ArrayList<Predicate>();
 
-		// Create the Critera Builder
+		// Create the Criteria Builder
 		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
 
 		// Link Query to Entity Class
@@ -171,4 +171,21 @@ public class DBHelper {
 		return matchedObjects;
 	}
 	
+	public <T> List<T> getAllEntities(Class<T> entityClass, EntityManager em){
+		
+		// Create the Criteria Builder
+				CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+				
+		// Link Query to Entity Class
+		CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(entityClass);
+		Root<T> from = criteriaQuery.from(entityClass);
+		
+		TypedQuery<T> finalQuery = em.createQuery(criteriaQuery);
+		
+		List<T> matchedObjects = finalQuery.getResultList();
+		return matchedObjects;
+	}
+	
 }
+
+

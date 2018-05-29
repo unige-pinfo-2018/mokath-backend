@@ -200,6 +200,20 @@ public class PostsServiceRs {
 		Gson gson = builder.create();  
 		return Response.ok(gson.toJson(trustedUser.getQuestions())).build();
 	}
+	
+	@GET
+	@Path("/questions")
+	@Produces("application/json")
+	public Response getQuestions() {
+		GsonBuilder gBuilder = new GsonBuilder();
+		gBuilder.excludeFieldsWithoutExposeAnnotation();
+		
+		Gson gson = gBuilder.create();
+		
+		List<Question> questions = DBHelper.getAllEntities(Question.class, em);
+		
+		return Response.ok(gson.toJson(questions)).build();
+	}
 
 	@POST
 	@Secured
