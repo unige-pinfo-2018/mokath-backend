@@ -11,7 +11,7 @@ pipeline {
         stage('Build') {
 					steps {
 						dir ('uniknowledge-rest-api') {
-							sh 'mvn clean compile'
+							sh 'mvn -B -DskipTests clean package'
 						}
         	}
 
