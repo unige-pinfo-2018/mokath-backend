@@ -20,6 +20,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.UniqueConstraint;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
@@ -75,19 +76,31 @@ public class User implements Serializable {
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_upvote_question",
 	joinColumns = @JoinColumn(name = "user_id"),
-	inverseJoinColumns = @JoinColumn(name = "question_id"))
+	inverseJoinColumns = @JoinColumn(name = "question_id"),
+	uniqueConstraints = @UniqueConstraint(columnNames = {
+        "user_id",
+        "question_id"
+    }))
 	private Set<Question> likedQuestions;
 	
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_follow_question",
 	joinColumns = @JoinColumn(name = "user_id"),
-	inverseJoinColumns = @JoinColumn(name = "question_id"))
+	inverseJoinColumns = @JoinColumn(name = "question_id"),
+	uniqueConstraints = @UniqueConstraint(columnNames = {
+        "user_id",
+        "question_id"
+    }))
 	private Set<Question> followedQuestions;
 	
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_upvote_answer",
 	joinColumns = @JoinColumn(name = "user_id"),
-	inverseJoinColumns = @JoinColumn(name = "answer_id"))
+	inverseJoinColumns = @JoinColumn(name = "answer_id"),
+	uniqueConstraints = @UniqueConstraint(columnNames = {
+        "user_id",
+        "answer_id"
+    }))
 	private Set<Answer> likedAnswers;
 
 	@Column(name = "points_earned", nullable = false)

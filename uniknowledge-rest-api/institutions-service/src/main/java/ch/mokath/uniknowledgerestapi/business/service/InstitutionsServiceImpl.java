@@ -66,7 +66,7 @@ public class InstitutionsServiceImpl implements InstitutionsService {
 	}
 
 	@Override
-	public List<Institution> getInstitutions() throws CustomException {
+	public List<Institution> getInstitutions() {
         List<Institution> institutions = em.createQuery("select i from Institution i",Institution.class).getResultList();
         return institutions;
 	}

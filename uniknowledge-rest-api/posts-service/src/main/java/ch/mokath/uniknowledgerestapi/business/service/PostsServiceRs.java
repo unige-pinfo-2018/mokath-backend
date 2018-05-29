@@ -109,6 +109,17 @@ public class PostsServiceRs {
     }
 
 	@GET
+	@Path("/questions")
+	@Produces("application/json")
+	public Response getQuestions() {
+		try {
+            return Response.ok(postsService.getQuestions().toString()).build();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+	
+	@GET
 	@Path("/questions/{id}")
 	@Produces("application/json")
 	public Response getQuestion(@PathParam("id") String id) {
@@ -134,6 +145,33 @@ public class PostsServiceRs {
 		}
 	}
 
+	@GET
+	@Path("/questions/{id}/followers")
+	@Produces("application/json")
+	public Response getQuestionFollowers(@PathParam("id") String id) {
+		try {
+            return Response.ok(postsService.getQuestionFollowers(id).toString()).build();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+	
+	@GET
+	@Path("/questions/{id}/upvotes")
+	@Produces("application/json")
+	public Response getQuestionUpvotes(@PathParam("id") String id) {
+		try {
+            return Response.ok(postsService.getQuestionUpvotes(id).toString()).build();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+	
+	
 	/** ANSWER **/
 	@POST
 	@Secured
@@ -208,6 +246,19 @@ public class PostsServiceRs {
 	public Response getAnswer(@PathParam("id") String id) {
 		try {
             return Response.ok(postsService.getAnswer(id).toString()).build();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+
+	@GET
+	@Path("/answers/{id}/updvotes")
+	@Produces("application/json")
+	public Response getAnswerUpvotes(@PathParam("id") String id) {
+		try {
+            return Response.ok(postsService.getAnswerUpvotes(id).toString()).build();
         } catch (CustomException ce) {
             return ce.getHTTPJsonResponse();
 		} catch (Exception e) {

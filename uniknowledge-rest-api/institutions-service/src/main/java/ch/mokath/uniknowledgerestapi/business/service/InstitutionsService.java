@@ -35,7 +35,7 @@ public interface InstitutionsService {
 	 * Get all institutions in the database
 	 * @return List<Institution> List of all institutions in the database
 	 */
-	List<Institution> getInstitutions() throws CustomException;
+	List<Institution> getInstitutions();
 	
 	/**
 	 * Update institution informations in the database

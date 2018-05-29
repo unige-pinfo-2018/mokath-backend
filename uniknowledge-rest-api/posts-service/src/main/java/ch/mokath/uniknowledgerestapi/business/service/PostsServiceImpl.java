@@ -70,6 +70,44 @@ public class PostsServiceImpl implements PostsService {
 	}
 
 	@Override
+	public List<Question> getQuestions(){
+        List<Question> questions = em.createQuery("select i from Question i",Question.class).getResultList();
+        return questions;
+	}
+
+	@Override
+	public Set<User> getQuestionFollowers(final String qid) throws CustomException{
+        try{
+            Long qidl = Long.valueOf(qid);
+            Question question=em.find(Question.class,qidl);
+            if(question == null) throw new CustomException("question not found");
+            else{
+                Set<User> followers = question.getFollowers();
+                followers.toString(); //This is needed otherwise org.hibernate.LazyInitializationException
+                return followers;
+            }
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong question ID");
+		}
+	}
+
+	@Override
+	public Set<User> getQuestionUpvotes(final String qid) throws CustomException{
+        try{
+            Long qidl = Long.valueOf(qid);
+            Question question=em.find(Question.class,qidl);
+            if(question == null) throw new CustomException("question not found");
+            else{
+                Set<User> upvotes = question.getUpvotes();
+                upvotes.toString(); //This is needed otherwise org.hibernate.LazyInitializationException
+                return upvotes;
+            }
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong question ID");
+		}
+	}
+
+	@Override
 	public List<Question> getMyQuestions(final User u) {
         Map<String, Object> wherePM = new HashMap<String, Object>();
         wherePM.put("author",u.getId());
@@ -86,7 +124,7 @@ public class PostsServiceImpl implements PostsService {
             answers.toString(); //This is needed otherwise org.hibernate.LazyInitializationException
             return answers;
 		}catch(NullPointerException ne){
-            throw new CustomException("empty question");
+            throw new CustomException("question not found");
         }catch(NumberFormatException nfe){
             throw new CustomException("wrong question ID");
 		}
@@ -228,6 +266,22 @@ public class PostsServiceImpl implements PostsService {
             Answer answer=em.find(Answer.class,aidl);
             if(answer == null) throw new CustomException("answer not found");
             else return answer;
+        }catch(NumberFormatException nfe){
+            throw new CustomException("wrong answer ID");
+		}
+	}
+
+	@Override
+	public Set<User> getAnswerUpvotes(final String aid) throws CustomException {
+        try{
+            Long aidl = Long.valueOf(aid);
+            Answer answer=em.find(Answer.class,aidl);
+            if(answer == null) throw new CustomException("answer not found");
+            else{
+                Set<User> upvotes = answer.getUpvotes();
+                upvotes.toString(); //This is needed otherwise org.hibernate.LazyInitializationException
+                return upvotes;
+            }
         }catch(NumberFormatException nfe){
             throw new CustomException("wrong answer ID");
 		}

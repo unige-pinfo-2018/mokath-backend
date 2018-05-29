@@ -73,8 +73,6 @@ public class InstitutionsServiceRs {
 	public Response getInstitutions() {
 		try {
             return Response.ok(institutionsService.getInstitutions().toString()).build();
-        } catch (CustomException ce) {
-            return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
 			return  CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
