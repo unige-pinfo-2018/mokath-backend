@@ -1,11 +1,18 @@
 package ch.mokath.uniknowledgerestapi.dom;
 
-
 import java.util.HashSet;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.google.gson.Gson;
+//import com.google.gson.GsonBuilder;
+
+
+/**
+* @author ornela
+* @author zue
+*/
 public class UserTest {
 	
 	//test of equal function
@@ -163,8 +170,6 @@ public void UserTestOfAddQuestionMethod() {
 	Question question = new Question(domains, "test","what is the framework of the test?");
 	
 	user.addQuestion(question);
-
-	
 	Assert.assertTrue(user.getQuestions().size()==1);
 }
 @Test
@@ -178,8 +183,6 @@ public void UserTestOfRemoveQuestionMethod() {
 	
 	user.addQuestion(question);
 	user.removeQuestion(question);
-
-	
 	Assert.assertTrue(user.getQuestions().size()==0);
 }
 @Test
@@ -194,7 +197,6 @@ public void UserTestOfAddAnswerMethod() {
 	Answer answer = new Answer("junit",question);
 	
 	user.addAnswer(answer);
-
 	
 	Assert.assertTrue(user.getAnswers().size()==1);
 }
@@ -211,7 +213,6 @@ public void UserTestOfRemoveAnswerMethod() {
 	
 	user.addAnswer(answer);
 	user.removeAnswer(answer);
-
 	
 	Assert.assertTrue(user.getAnswers().size()==0);
 }
@@ -223,8 +224,6 @@ public void UserTestOfAddLikedQuestionMethod() {
 	HashSet<String> domains = new HashSet<String>();
 	
 	Question question = new Question(domains, "test","what is the framework of the test?");
-	
-	
 	
 	user.addLikedQuestion(question);
 	
@@ -239,44 +238,43 @@ public void UserTestOfRemoveLikedQuestionMethod() {
 	
 	Question question = new Question(domains, "test","what is the framework of the test?");
 	
-	
-	
 	user.addLikedQuestion(question);
 	user.removeLikedQuestion(question);
 
-	
 	Assert.assertTrue(user.getLikedQuestions().size()==0);
 }
-//???
-//@Test//public void UserTestOfAddLikedAnswerMethod() {
+
+@Test
+public void UserTestOfAddLikedAnswerMethod() {
 	
-	//User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
-	//		"mePassword");
-	//HashSet<String> domains = new HashSet<String>();
+	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
+			"mePassword");
+	HashSet<String> domains = new HashSet<String>();
 	
-	//Question question = new Question(domains, "test","what is the framework of the test?");
+	Question question = new Question(domains, "test","what is the framework of the test?");
 	
-	//Answer answer = new Answer("junit",question);
+	Answer answer = new Answer("junit",question);
 	
-	//user.addLikedAnswer(answer);
+	user.addLikedAnswer(answer);
 	
-	//Assert.assertTrue(user.getLikedAnswers().size()==1);
-//}
-//???
-//@Test//public void UserTestOfRemoveLikedAnswerMethod() {
+	Assert.assertTrue(user.getLikedAnswers().size()==1);
+}
+
+@Test
+public void UserTestOfRemoveLikedAnswerMethod() {
 	
-	//User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
-	//		"mePassword");
-	//HashSet<String> domains = new HashSet<String>();
+	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
+			"mePassword");
+	HashSet<String> domains = new HashSet<String>();
 	
-	//Question question = new Question(domains, "test","what is the framework of the test?");
+	Question question = new Question(domains, "test","what is the framework of the test?");
 	
-	//Answer answer = new Answer("junit",question);
+	Answer answer = new Answer("junit",question);
 	
-	//user.addLikedAnswer(answer);
-	//user.removeLikedAnswer(answer);
-	//Assert.assertTrue(user.getLikedAnswers().size()==0);
-//}
+	user.addLikedAnswer(answer);
+	user.removeLikedAnswer(answer);
+	Assert.assertTrue(user.getLikedAnswers().size()==0);
+}
 
 @Test
 public void UserTestOfAddFolowedQUestionMethod() {
@@ -301,6 +299,77 @@ public void UserTestOfRemoveFolowedQUestionMethod() {
 	user.addFollowedQuestion(question);
 	user.removeFollowedQuestion(question);
 	Assert.assertTrue(user.getFollowedQuestions().size()==0);
+}
+
+/** INSTITUTIONS **/
+@Test
+public void UserTestOfInstitutionsMethods() {
+	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
+			"mePassword");
+	HashSet<String> domains = new HashSet<String>();
+
+	HashSet<String> InstDomains = new HashSet<String>();
+	Institution inst = new Institution("InsName", "InsLogo", "contact@institution.com", InstDomains);
+	
+	user.setInstitution(inst);
+	Assert.assertTrue(user.getInstitution().getInstitutionName() == "InsName");
+	user.removeInstitution();
+	Assert.assertTrue(user.getInstitution() == null);
+}
+
+/** POINTS **/
+@Test
+public void UserTestSetGetPointsMethods() {
+	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
+			"mePassword");
+	HashSet<String> domains = new HashSet<String>();
+	
+	user.setPoints(2);
+	Assert.assertTrue(user.getPoints() == 2);
+}
+
+@Test
+public void UserTestAddGetPointsMethods() {
+	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
+			"mePassword");
+	HashSet<String> domains = new HashSet<String>();
+	
+	user.addPoints(Points.QUESTION_CREATED);
+	Points pointsFromQuestionCreated = Points.QUESTION_CREATED;
+	Assert.assertTrue(user.getPoints() == pointsFromQuestionCreated.getPointValue());
+}
+
+/** BUILDER & toString() **/
+@Test
+public void UserTestEmptyUserToStringMethod() {
+	User user = new User();
+    Assert.assertTrue(user.toString().equals("{\"points\":0}"));
+}
+/*@Test
+public void UserTestUserToFromGsonMethod() {
+	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail","mePassword");
+	HashSet<String> domains = new HashSet<String>();
+
+	String userToString = user.toString();
+	User userFromJsonString = new Gson().fromJson(userToString, User.class);
+
+	Assert.assertEquals(user.equals(userFromJsonString),true);
+}*/
+
+@Test
+public void UserTestBuilderMethod() {
+	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail","mePassword");
+	HashSet<String> domains = new HashSet<String>();
+
+	User.Builder userBuilder = new User.Builder();
+	userBuilder.username = "meUsername";
+	userBuilder.firstName = "meFirstName";
+	userBuilder.lastName = "meLastName";
+	userBuilder.profilePictureURL = "http:/me/profile/Picture";
+	userBuilder.email = "meEmail";
+	userBuilder.password = "mePassword";
+	User userFromBuilder = userBuilder.build(); //.with(User::,"").with(User::,"").with(User::,"").with(User::,"").with(User::password,"mePassword");
+	Assert.assertEquals(user.equals(userFromBuilder),true);
 }
 	
 }

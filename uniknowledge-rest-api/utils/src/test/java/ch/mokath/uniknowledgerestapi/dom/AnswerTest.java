@@ -7,6 +7,10 @@ import org.junit.Test;
 
 import ch.mokath.uniknowledgerestapi.dom.Answer;
 
+/**
+* @author ornela
+* @author zue
+*/
 public class AnswerTest {
 	
 	@Test
