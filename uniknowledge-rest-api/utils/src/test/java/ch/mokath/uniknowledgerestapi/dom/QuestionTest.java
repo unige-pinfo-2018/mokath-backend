@@ -6,6 +6,10 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+* @author ornela
+* @author zue
+*/
 public class QuestionTest {
 	@Test
 	public void questionEqualsTestFunction() {

@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
-* @author ornella
+* @author ornela
 * @author zue
 */
 public class InstitutionsServiceRSTest {

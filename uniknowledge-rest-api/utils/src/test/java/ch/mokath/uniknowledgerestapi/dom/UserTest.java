@@ -197,7 +197,6 @@ public void UserTestOfAddAnswerMethod() {
 	Answer answer = new Answer("junit",question);
 	
 	user.addAnswer(answer);
-
 	
 	Assert.assertTrue(user.getAnswers().size()==1);
 }
@@ -214,7 +213,6 @@ public void UserTestOfRemoveAnswerMethod() {
 	
 	user.addAnswer(answer);
 	user.removeAnswer(answer);
-
 	
 	Assert.assertTrue(user.getAnswers().size()==0);
 }
@@ -226,8 +224,6 @@ public void UserTestOfAddLikedQuestionMethod() {
 	HashSet<String> domains = new HashSet<String>();
 	
 	Question question = new Question(domains, "test","what is the framework of the test?");
-	
-	
 	
 	user.addLikedQuestion(question);
 	
@@ -347,7 +343,7 @@ public void UserTestAddGetPointsMethods() {
 @Test
 public void UserTestEmptyUserToStringMethod() {
 	User user = new User();
-    Assert.assertTrue(user.toString() == "{\"points\":0}");
+    Assert.assertTrue(user.toString().equals("{\"points\":0}"));
 }
 /*@Test
 public void UserTestUserToFromGsonMethod() {
