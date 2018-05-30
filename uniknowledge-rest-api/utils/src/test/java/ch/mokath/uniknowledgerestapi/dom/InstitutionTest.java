@@ -13,7 +13,8 @@ import org.junit.Test;
 
 /**
  * @author tv0g
- *
+ * @author ornela
+ * @author zue
  */
 public class InstitutionTest {
 

@@ -5,6 +5,10 @@ import java.util.HashSet;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+* @author ornela
+* @author zue
+*/
 public class AuthInfosTest {
 	@Test
 	public void AuthInfosTestGetEmail() {
