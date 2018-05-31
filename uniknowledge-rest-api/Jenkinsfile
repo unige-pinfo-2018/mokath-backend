@@ -9,18 +9,18 @@ pipeline {
     stages {
         stage('Build') {
 					steps {
-						sh 'mvn clean compile'
+						sh 'mvn -B -DskipTests -f uniknowledge-rest-api/pom.xml clean package'
         	}
 
         }
         stage('Test') {
             steps {
-							sh 'mvn test'
+							sh 'mvn -f uniknowledge-rest-api/pom.xml -e test'
             }
         }
         stage('Deploy') {
             steps {
-							sh 'mvn clean install'
+							sh 'mvn -f uniknowledge-rest-api/pom.xml clean install'
             }
         }
     }
