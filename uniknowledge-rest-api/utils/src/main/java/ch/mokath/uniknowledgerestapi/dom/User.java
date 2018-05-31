@@ -40,7 +40,7 @@ public class User implements Serializable {
 
 	@Id 
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Expose(serialize = false, deserialize= true)
+	@Expose(serialize = true, deserialize= true)
 	private Long id;
 
 	@Column(name = "username")

@@ -10,6 +10,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
+import com.google.gson.Gson;
+
+import ch.mokath.uniknowledgerestapi.dom.SearchText;
+
 /*
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
@@ -39,6 +43,7 @@ import ch.mokath.uniknowledgerestapi.utils.CustomException;
 
 /**
  * @author zue
+ * @author matteo113
  */
 @Path("")
 public class SearchServiceRs {
@@ -50,7 +55,12 @@ public class SearchServiceRs {
 	@Consumes("application/json")
     @Produces("application/json")
 	public Response getSearch(final String requestBody) {
-        return Response.status(Response.Status.BAD_REQUEST).entity("not implemented...yet...").build();
+        
+		SearchText search = new Gson().fromJson(requestBody, SearchText.class);
+		
+		String response = searchService.esSearch(search.getText());
+		
+		return Response.ok(response).build();
 
 	}
 
