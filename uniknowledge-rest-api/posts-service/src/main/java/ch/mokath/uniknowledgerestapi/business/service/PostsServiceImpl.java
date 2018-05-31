@@ -25,8 +25,12 @@ import javax.ws.rs.core.Response;
 
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.DocWriteRequest;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -51,10 +55,10 @@ public class PostsServiceImpl implements PostsService {
 	@PersistenceContext
 	private EntityManager em;
 	private DBHelper DBHelper = new DBHelper();
-	private Logger log = LoggerFactory.getLogger(Question.class);
+	private Logger log = LoggerFactory.getLogger(PostsServiceImpl.class);
 	private RestHighLevelClient client = new RestHighLevelClient(
 	        RestClient.builder(
-	                new HttpHost("129.194.69.24", 9200, "http")));
+	                new HttpHost("172.18.0.5", 9200, "http")));
 
 	/**********************************************************************
 	 * QUESTIONS *
@@ -157,6 +161,7 @@ public class PostsServiceImpl implements PostsService {
                     User question_author = em.merge(question.getAuthor());
                     question_author.addPoints(Points.QUESTION_LIKED);
                     question.addPopularity();
+                    updateIndexedQuestion(question);
                 }
             }
         }catch(NumberFormatException nfe){
@@ -205,6 +210,7 @@ public class PostsServiceImpl implements PostsService {
                     author.addPoints(Points.QUESTION_UNLIKED);
                 }
                 em.remove(question);
+                deleteIndexedQuestion(question);
                 author.addPoints(Points.QUESTION_REMOVED);
             }else
                 throw new CustomException("unable to delete the question with ID = "+ qid +" (not the author)",Response.Status.UNAUTHORIZED);
@@ -228,6 +234,7 @@ public class PostsServiceImpl implements PostsService {
                     question.setTitle(uq.getTitle());
                     question.setDomains(uq.getDomains());
                     em.merge(question);
+                    updateIndexedQuestion(question);
                     return question;
                 }else throw new CustomException("not the author of the question",Response.Status.UNAUTHORIZED);
             }
@@ -273,7 +280,29 @@ public class PostsServiceImpl implements PostsService {
 			IndexResponse indexResponse = client.index(indexRequest);
 		} catch (IOException e) {
 			log.error("Exception thrown in indexQuestion : " + e.getMessage());
-			e.printStackTrace();
+		}
+	}
+	
+	private void updateIndexedQuestion(final Question q) {
+		String json = q.toString();
+		
+		UpdateRequest updateRequest = new UpdateRequest("questions", "doc", String.valueOf(q.getId()));
+		updateRequest.doc(json, XContentType.JSON);
+		
+		try {
+			UpdateResponse updateResponse = client.update(updateRequest);
+		} catch (IOException e) {
+			log.error("Exception thrown in updateIndexedQuestion : " + e.getMessage());
+		}
+	}
+	
+	private void deleteIndexedQuestion(final Question q) {
+		DeleteRequest deleteRequest = new DeleteRequest("questions", "doc", String.valueOf(q.getId()));
+		
+		try {
+			DeleteResponse deleteResponse = client.delete(deleteRequest);
+		} catch (IOException e) {
+			log.error("Exception thrown in deleteIndexedQuestion : " + e.getMessage());
 		}
 	}
 
@@ -300,8 +329,10 @@ public class PostsServiceImpl implements PostsService {
                 a.setCreated(new Date());
 
                 em.persist(a);
+                indexAnswer(a);
                 user.addPoints(Points.ANSWER_CREATED);
                 question.addNbAnswers();
+                updateIndexedQuestion(question);
             } else {
                 throw new CustomException("question not found");
             }
@@ -368,6 +399,7 @@ public class PostsServiceImpl implements PostsService {
                     User user = em.merge(u);
                     if (user.equals(answer.getQuestion().getAuthor())) {
                         answer.validate();
+                        updateIndexedAnswer(answer);
                         User answer_author = em.merge(answer.getAuthor());
                         answer_author.addPoints(Points.ANSWER_VALIDATED);
                     } else throw new CustomException("not the author of the question",Response.Status.UNAUTHORIZED);
@@ -416,6 +448,7 @@ public class PostsServiceImpl implements PostsService {
                     user.addPoints(Points.ANSWER_UNVALIDATED);
                 }
                 em.merge(answer);
+                updateIndexedAnswer(answer);
                 return answer;
             }else throw new CustomException("bad answer (not the author)",Response.Status.UNAUTHORIZED);
             
@@ -441,7 +474,9 @@ public class PostsServiceImpl implements PostsService {
                 User author = answer.getAuthor();
                 em.remove(answer);
                 author.addPoints(Points.ANSWER_REMOVED);
+                deleteIndexedAnswer(answer);
                 question.removeNbAnswers();
+                updateIndexedAnswer(answer);
             } else {
                 throw new CustomException("unable to delete answer with ID = "+ aid +" (not the author)",Response.Status.UNAUTHORIZED);
             }
@@ -450,5 +485,44 @@ public class PostsServiceImpl implements PostsService {
         }catch(NumberFormatException nfe){
             throw new CustomException("wrong question ID");
         }
+	}
+	
+	//Privates Methods
+	
+	private void indexAnswer(final Answer a) {
+		String json = a.toString();
+		
+		IndexRequest indexRequest = new IndexRequest("answers", "doc", String.valueOf(a.getId()));
+		indexRequest.source(json, XContentType.JSON);
+		indexRequest.opType(DocWriteRequest.OpType.CREATE);
+		
+		try {
+			IndexResponse indexResponse = client.index(indexRequest);
+		} catch (IOException e) {
+			log.error("Exception thrown in indexAnswer : " + e.getMessage());
+		}
+	}
+	
+	private void updateIndexedAnswer(final Answer a) {
+		String json = a.toString();
+		
+		UpdateRequest updateRequest = new UpdateRequest("answers", "doc", String.valueOf(a.getId()));
+		updateRequest.doc(json, XContentType.JSON);
+		
+		try {
+			UpdateResponse updateResponse = client.update(updateRequest);
+		} catch (IOException e) {
+			log.error("Exception thrown in updateIndexedAnswer : " + e.getMessage());
+		}
+	}
+	
+	private void deleteIndexedAnswer(final Answer a) {
+		DeleteRequest deleteRequest = new DeleteRequest("answers", "doc", String.valueOf(a.getId()));
+		
+		try {
+			DeleteResponse deleteResponse = client.delete(deleteRequest);
+		} catch (IOException e) {
+			log.error("Exception thrown in deleteIndexedAnswer : " + e.getMessage());
+		}
 	}
 }
