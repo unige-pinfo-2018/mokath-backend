@@ -93,6 +93,15 @@ public class PostsServiceImpl implements PostsService {
 		List<Question> questions = DBHelper.getAllEntitiesDescOrder(Question.class, em, "popularity");
         return questions;
 	}
+	
+	@Override
+	public List<Question> getTopQuestions(int nb){
+		List<Question> questions = DBHelper.getAllEntitiesDescOrder(Question.class, em, "popularity");
+		
+		List<Question> subList = (questions.size() < nb) ? questions : questions.subList(0, nb);
+		
+		return subList;
+	}
 
 	@Override
 	public Set<User> getQuestionFollowers(final String qid) throws CustomException{
