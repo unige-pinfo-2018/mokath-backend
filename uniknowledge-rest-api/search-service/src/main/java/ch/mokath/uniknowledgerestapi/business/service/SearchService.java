@@ -1,20 +1,14 @@
-/**
- * 
- */
 package ch.mokath.uniknowledgerestapi.business.service;
 
 import javax.ejb.Local;
 
 /**
   * @author zue
+  * @author matteo113
  */
 @Local
 public interface SearchService {
 
-	/**
-	 * Create an institution in the database
-	 * @param i Institution to store
-	 */
-	void allSearch();
+	String esSearch(String query);
 	
 }

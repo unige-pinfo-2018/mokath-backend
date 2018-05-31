@@ -56,9 +56,6 @@ public class PostsServiceImpl implements PostsService {
 	private EntityManager em;
 	private DBHelper DBHelper = new DBHelper();
 	private Logger log = LoggerFactory.getLogger(PostsServiceImpl.class);
-	private RestHighLevelClient client = new RestHighLevelClient(
-	        RestClient.builder(
-	                new HttpHost("172.18.0.5", 9200, "http")));
 
 	/**********************************************************************
 	 * QUESTIONS *
@@ -270,20 +267,29 @@ public class PostsServiceImpl implements PostsService {
 	//Privates methods
 	
 	private void indexQuestion(final Question q) {
+		RestHighLevelClient client = new RestHighLevelClient(
+		        RestClient.builder(
+		                new HttpHost("129.194.69.24", 9201, "http")));
+		
 		String json = q.toString();
 		
 		IndexRequest indexRequest = new IndexRequest("questions", "doc", String.valueOf(q.getId()));
 		indexRequest.source(json, XContentType.JSON);
-		indexRequest.opType(DocWriteRequest.OpType.CREATE);
+		//indexRequest.opType(DocWriteRequest.OpType.CREATE);
 		
 		try {
 			IndexResponse indexResponse = client.index(indexRequest);
+			client.close();
 		} catch (IOException e) {
 			log.error("Exception thrown in indexQuestion : " + e.getMessage());
 		}
 	}
 	
 	private void updateIndexedQuestion(final Question q) {
+		RestHighLevelClient client = new RestHighLevelClient(
+		        RestClient.builder(
+		                new HttpHost("129.194.69.24", 9201, "http")));
+		
 		String json = q.toString();
 		
 		UpdateRequest updateRequest = new UpdateRequest("questions", "doc", String.valueOf(q.getId()));
@@ -291,16 +297,22 @@ public class PostsServiceImpl implements PostsService {
 		
 		try {
 			UpdateResponse updateResponse = client.update(updateRequest);
+			client.close();
 		} catch (IOException e) {
 			log.error("Exception thrown in updateIndexedQuestion : " + e.getMessage());
 		}
 	}
 	
 	private void deleteIndexedQuestion(final Question q) {
+		RestHighLevelClient client = new RestHighLevelClient(
+		        RestClient.builder(
+		                new HttpHost("129.194.69.24", 9201, "http")));
+		
 		DeleteRequest deleteRequest = new DeleteRequest("questions", "doc", String.valueOf(q.getId()));
 		
 		try {
 			DeleteResponse deleteResponse = client.delete(deleteRequest);
+			client.close();
 		} catch (IOException e) {
 			log.error("Exception thrown in deleteIndexedQuestion : " + e.getMessage());
 		}
@@ -490,20 +502,29 @@ public class PostsServiceImpl implements PostsService {
 	//Privates Methods
 	
 	private void indexAnswer(final Answer a) {
+		RestHighLevelClient client = new RestHighLevelClient(
+		        RestClient.builder(
+		                new HttpHost("129.194.69.24", 9201, "http")));
+		
 		String json = a.toString();
 		
 		IndexRequest indexRequest = new IndexRequest("answers", "doc", String.valueOf(a.getId()));
 		indexRequest.source(json, XContentType.JSON);
-		indexRequest.opType(DocWriteRequest.OpType.CREATE);
+		//indexRequest.opType(DocWriteRequest.OpType.CREATE);
 		
 		try {
 			IndexResponse indexResponse = client.index(indexRequest);
+			client.close();
 		} catch (IOException e) {
 			log.error("Exception thrown in indexAnswer : " + e.getMessage());
 		}
 	}
 	
 	private void updateIndexedAnswer(final Answer a) {
+		RestHighLevelClient client = new RestHighLevelClient(
+		        RestClient.builder(
+		                new HttpHost("129.194.69.24", 9201, "http")));
+		
 		String json = a.toString();
 		
 		UpdateRequest updateRequest = new UpdateRequest("answers", "doc", String.valueOf(a.getId()));
@@ -511,16 +532,22 @@ public class PostsServiceImpl implements PostsService {
 		
 		try {
 			UpdateResponse updateResponse = client.update(updateRequest);
+			client.close();
 		} catch (IOException e) {
 			log.error("Exception thrown in updateIndexedAnswer : " + e.getMessage());
 		}
 	}
 	
 	private void deleteIndexedAnswer(final Answer a) {
+		RestHighLevelClient client = new RestHighLevelClient(
+		        RestClient.builder(
+		                new HttpHost("129.194.69.24", 9201, "http")));
+		
 		DeleteRequest deleteRequest = new DeleteRequest("answers", "doc", String.valueOf(a.getId()));
 		
 		try {
 			DeleteResponse deleteResponse = client.delete(deleteRequest);
+			client.close();
 		} catch (IOException e) {
 			log.error("Exception thrown in deleteIndexedAnswer : " + e.getMessage());
 		}
