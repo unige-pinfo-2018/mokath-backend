@@ -20,6 +20,11 @@
 			<version>7.0</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+				<groupId>org.elasticsearch.client</groupId>
+				<artifactId>elasticsearch-rest-high-level-client</artifactId>
+				<version>6.2.4</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<finalName>posts-service</finalName>

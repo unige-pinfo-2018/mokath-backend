@@ -3,10 +3,12 @@
  */
 package ch.mokath.uniknowledgerestapi.business.service;
 
+import ch.mokath.uniknowledgerestapi.utils.AuthenticationMiddleware;
 /**z*/
 import ch.mokath.uniknowledgerestapi.utils.CustomException;
 /*z*/
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +22,17 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.ws.rs.core.Response;
+
+import org.apache.http.HttpHost;
+import org.elasticsearch.action.DocWriteRequest;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentType;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.mokath.uniknowledgerestapi.dom.Answer;
 import ch.mokath.uniknowledgerestapi.dom.Points;
@@ -38,6 +51,10 @@ public class PostsServiceImpl implements PostsService {
 	@PersistenceContext
 	private EntityManager em;
 	private DBHelper DBHelper = new DBHelper();
+	private Logger log = LoggerFactory.getLogger(Question.class);
+	private RestHighLevelClient client = new RestHighLevelClient(
+	        RestClient.builder(
+	                new HttpHost("129.194.69.24", 9200, "http")));
 
 	/**********************************************************************
 	 * QUESTIONS *
@@ -52,6 +69,7 @@ public class PostsServiceImpl implements PostsService {
             question.setCreated(new Date());
             author.addPoints(Points.QUESTION_CREATED);
             em.persist(question);
+            indexQuestion(question);
 		} catch (NullPointerException ne) {
             throw new CustomException("empty question");
         }
@@ -240,6 +258,23 @@ public class PostsServiceImpl implements PostsService {
         Set<Question> questions = user.getLikedQuestions();
         questions.toString(); //This is needed otherwise org.hibernate.LazyInitializationException
         return questions;
+	}
+	
+	//Privates methods
+	
+	private void indexQuestion(final Question q) {
+		String json = q.toString();
+		
+		IndexRequest indexRequest = new IndexRequest("questions", "doc", String.valueOf(q.getId()));
+		indexRequest.source(json, XContentType.JSON);
+		indexRequest.opType(DocWriteRequest.OpType.CREATE);
+		
+		try {
+			IndexResponse indexResponse = client.index(indexRequest);
+		} catch (IOException e) {
+			log.error("Exception thrown in indexQuestion : " + e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 	/**********************************************************************
