@@ -109,6 +109,7 @@ public class PostsServiceRs {
     }
 
 	@GET
+	@Secured
 	@Path("/questions")
 	@Produces("application/json")
 	public Response getQuestions(@Context UriInfo info) {
@@ -126,6 +127,7 @@ public class PostsServiceRs {
 	}
 	
 	@GET
+	@Secured
 	@Path("/questions/top")
 	@Produces("application/json")
 	public Response getTopQuestions(@Context UriInfo info) {
@@ -150,6 +152,7 @@ public class PostsServiceRs {
 	
 	
 	@GET
+	@Secured
 	@Path("/questions/{id}")
 	@Produces("application/json")
 	public Response getQuestion(@PathParam("id") String id) {
@@ -163,6 +166,7 @@ public class PostsServiceRs {
 	}
 	
 	@GET
+	@Secured
 	@Path("/questions/{id}/followers")
 	@Produces("application/json")
 	public Response getQuestionFollowers(@PathParam("id") String id) {
@@ -176,6 +180,7 @@ public class PostsServiceRs {
 	}
 	
 	@GET
+	@Secured
 	@Path("/questions/{id}/upvoters")
 	@Produces("application/json")
 	public Response getQuestionUpvoters(@PathParam("id") String id) {
@@ -312,6 +317,7 @@ return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
 	}
 
 	@GET
+	@Secured
 	@Path("/answers/{id}")
 	@Produces("application/json")
 	public Response getAnswer(@PathParam("id") String id) {
@@ -325,6 +331,7 @@ return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
 	}
 
 	@GET
+	@Secured
 	@Path("/answers/{id}/updvoters")
 	@Produces("application/json")
 	public Response getAnswerUpvoters(@PathParam("id") String id) {
@@ -338,6 +345,7 @@ return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
 	}
 
 	@GET
+	@Secured
 	@Path("/questions/{qid}/answers")
 	@Produces("application/json")
 	public Response getAllAnswersOfQuestion(@PathParam("qid") String questionId) {
