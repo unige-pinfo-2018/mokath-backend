@@ -20,7 +20,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-							sh 'mvn -f uniknowledge-rest-api/pom.xml clean install'
+							sh 'mvn -DskipTests -f uniknowledge-rest-api/pom.xml clean install'
             }
         }
     }
