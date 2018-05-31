@@ -241,9 +241,8 @@ public class UserTest {
 		
 		User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
 				"mePassword");
-		HashSet<String> domains = new HashSet<String>();
 		
-		Question question = new Question(domains, "test","what is the framework of the test?");
+		Question question = new Question("domain", "test","what is the framework of the test?");
 		question.setAuthor(user);
 		Assert.assertTrue(question.getAuthor()==user);
 		
@@ -254,9 +253,8 @@ public void UserTestOfgettersMethodOfAnswer() {
 		
 		User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
 				"mePassword");
-		HashSet<String> domains = new HashSet<String>();
 		
-		Question question = new Question(domains, "test","what is the framework of the test?");
+		Question question = new Question("domain", "test","what is the framework of the test?");
 		
 		Answer answer = new Answer("junit",question);
 		answer.setAuthor(user);
@@ -270,9 +268,8 @@ public void UserTestOfAddQuestionMethod() {
 	
 	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
 			"mePassword");
-	HashSet<String> domains = new HashSet<String>();
 	
-	Question question = new Question(domains, "test","what is the framework of the test?");
+	Question question = new Question("domain", "test","what is the framework of the test?");
 	
 	user.addQuestion(question);
 	Assert.assertTrue(user.getQuestions().size()==1);
@@ -282,9 +279,9 @@ public void UserTestOfRemoveQuestionMethod() {
 	
 	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
 			"mePassword");
-	HashSet<String> domains = new HashSet<String>();
 	
-	Question question = new Question(domains, "test","what is the framework of the test?");
+	
+	Question question = new Question("domain", "test","what is the framework of the test?");
 	
 	user.addQuestion(question);
 	user.removeQuestion(question);
@@ -295,9 +292,9 @@ public void UserTestOfAddAnswerMethod() {
 	
 	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
 			"mePassword");
-	HashSet<String> domains = new HashSet<String>();
 	
-	Question question = new Question(domains, "test","what is the framework of the test?");
+	
+	Question question = new Question("domain", "test","what is the framework of the test?");
 	
 	Answer answer = new Answer("junit",question);
 	
@@ -310,9 +307,9 @@ public void UserTestOfRemoveAnswerMethod() {
 	
 	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
 			"mePassword");
-	HashSet<String> domains = new HashSet<String>();
 	
-	Question question = new Question(domains, "test","what is the framework of the test?");
+	
+	Question question = new Question("domain", "test","what is the framework of the test?");
 	
 	Answer answer = new Answer("junit",question);
 	
@@ -326,9 +323,9 @@ public void UserTestOfAddLikedQuestionMethod() {
 	
 	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
 			"mePassword");
-	HashSet<String> domains = new HashSet<String>();
 	
-	Question question = new Question(domains, "test","what is the framework of the test?");
+	
+	Question question = new Question("domain", "test","what is the framework of the test?");
 	
 	user.addLikedQuestion(question);
 	
@@ -339,9 +336,9 @@ public void UserTestOfRemoveLikedQuestionMethod() {
 	
 	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
 			"mePassword");
-	HashSet<String> domains = new HashSet<String>();
 	
-	Question question = new Question(domains, "test","what is the framework of the test?");
+	
+	Question question = new Question("domain", "test","what is the framework of the test?");
 	
 	user.addLikedQuestion(question);
 	user.removeLikedQuestion(question);
@@ -354,9 +351,9 @@ public void UserTestOfAddLikedAnswerMethod() {
 	
 	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
 			"mePassword");
-	HashSet<String> domains = new HashSet<String>();
 	
-	Question question = new Question(domains, "test","what is the framework of the test?");
+	
+	Question question = new Question("domain", "test","what is the framework of the test?");
 	
 	Answer answer = new Answer("junit",question);
 	
@@ -370,9 +367,9 @@ public void UserTestOfRemoveLikedAnswerMethod() {
 	
 	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
 			"mePassword");
-	HashSet<String> domains = new HashSet<String>();
 	
-	Question question = new Question(domains, "test","what is the framework of the test?");
+	
+	Question question = new Question("domain", "test","what is the framework of the test?");
 	
 	Answer answer = new Answer("junit",question);
 	
@@ -386,9 +383,9 @@ public void UserTestOfAddFolowedQUestionMethod() {
 	
 	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
 			"mePassword");
-	HashSet<String> domains = new HashSet<String>();
 	
-	Question question = new Question(domains, "test","what is the framework of the test?");
+	
+	Question question = new Question("domain", "test","what is the framework of the test?");
 	user.addFollowedQuestion(question);
 	
 	Assert.assertTrue(user.getFollowedQuestions().size()==1);
@@ -398,9 +395,9 @@ public void UserTestOfRemoveFolowedQUestionMethod() {
 	
 	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
 			"mePassword");
-	HashSet<String> domains = new HashSet<String>();
 	
-	Question question = new Question(domains, "test","what is the framework of the test?");
+	
+	Question question = new Question("domain", "test","what is the framework of the test?");
 	user.addFollowedQuestion(question);
 	user.removeFollowedQuestion(question);
 	Assert.assertTrue(user.getFollowedQuestions().size()==0);
@@ -411,7 +408,7 @@ public void UserTestOfRemoveFolowedQUestionMethod() {
 public void UserTestOfInstitutionsMethods() {
 	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
 			"mePassword");
-	HashSet<String> domains = new HashSet<String>();
+	
 
 	HashSet<String> InstDomains = new HashSet<String>();
 	Institution inst = new Institution("InsName", "InsLogo", "contact@institution.com", InstDomains);
@@ -427,7 +424,7 @@ public void UserTestOfInstitutionsMethods() {
 public void UserTestSetGetPointsMethods() {
 	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
 			"mePassword");
-	HashSet<String> domains = new HashSet<String>();
+	
 	
 	user.setPoints(2);
 	Assert.assertTrue(user.getPoints() == 2);
@@ -437,7 +434,7 @@ public void UserTestSetGetPointsMethods() {
 public void UserTestAddGetPointsMethods() {
 	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
 			"mePassword");
-	HashSet<String> domains = new HashSet<String>();
+	
 	
 	user.addPoints(Points.QUESTION_CREATED);
 	Points pointsFromQuestionCreated = Points.QUESTION_CREATED;
@@ -453,7 +450,7 @@ public void UserTestEmptyUserToStringMethod() {
 /*@Test
 public void UserTestUserToFromGsonMethod() {
 	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail","mePassword");
-	HashSet<String> domains = new HashSet<String>();
+	
 
 	String userToString = user.toString();
 	User userFromJsonString = new Gson().fromJson(userToString, User.class);
@@ -464,7 +461,7 @@ public void UserTestUserToFromGsonMethod() {
 @Test
 public void UserTestBuilderMethod() {
 	User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail","mePassword");
-	HashSet<String> domains = new HashSet<String>();
+	
 
 	User.Builder userBuilder = new User.Builder();
 	userBuilder.username = "meUsername";

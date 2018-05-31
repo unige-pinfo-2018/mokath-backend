@@ -68,6 +68,7 @@ public class PostsServiceImpl implements PostsService {
             author.addQuestion(question);
             question.setAuthor(author);
             question.setCreated(new Date());
+            question.seIsClosed(false);
             author.addPoints(Points.QUESTION_CREATED);
             em.persist(question);
             indexQuestion(question);
@@ -92,6 +93,16 @@ public class PostsServiceImpl implements PostsService {
 	public List<Question> getQuestions(){
 		List<Question> questions = DBHelper.getAllEntitiesDescOrder(Question.class, em, "popularity");
         return questions;
+	}
+	
+	@Override
+	public List<Question> getQuestionsDomain(String domain){
+		HashMap<String, Object> wherePredicatesMap = new HashMap<String, Object>();
+		wherePredicatesMap.put("domain", domain);
+		wherePredicatesMap.put("isClosed", false);
+		List<Question> questions = DBHelper.getEntitiesFromFields(wherePredicatesMap, Question.class, em);
+		
+		return questions;
 	}
 	
 	@Override
@@ -238,7 +249,7 @@ public class PostsServiceImpl implements PostsService {
                 if (user.equals(question.getAuthor())) {
                     question.setText(uq.getText());
                     question.setTitle(uq.getTitle());
-                    question.setDomains(uq.getDomains());
+                    question.setDomain(uq.getDomain());
                     em.merge(question);
                     updateIndexedQuestion(question);
                     return question;
@@ -420,7 +431,10 @@ public class PostsServiceImpl implements PostsService {
                     User user = em.merge(u);
                     if (user.equals(answer.getQuestion().getAuthor())) {
                         answer.validate();
+                        Question q = em.merge(answer.getQuestion());
+                        q.close();
                         updateIndexedAnswer(answer);
+                        updateIndexedQuestion(q);
                         User answer_author = em.merge(answer.getAuthor());
                         answer_author.addPoints(Points.ANSWER_VALIDATED);
                     } else throw new CustomException("not the author of the question",Response.Status.UNAUTHORIZED);

@@ -172,6 +172,36 @@ public class DBHelper {
 		return matchedObjects;
 	}
 	
+	public <T> List<T> getEntitiesFromFieldsOr(Map<String, Object> wherePredicatesMap, Class<T> entityClass, EntityManager em) {
+
+		final List<Predicate> wherePredicates = new ArrayList<Predicate>();
+
+		// Create the Criteria Builder
+		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+
+		// Link Query to Entity Class
+		CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(entityClass);
+		Root<T> from = criteriaQuery.from(entityClass);
+
+		// Add all WHERE predicates to the query's predicates
+		for (final Map.Entry<String, Object> entry : wherePredicatesMap.entrySet()) {
+			final String key = entry.getKey();
+			final Object value = entry.getValue();
+
+			if (key != null && value != null) {
+				wherePredicates.add(criteriaBuilder.equal(from.get(key), value));
+			}
+		}
+
+		criteriaQuery.where(criteriaBuilder.or(wherePredicates.toArray(new Predicate[wherePredicates.size()])));
+
+		// Craft the final query
+		TypedQuery<T> finalQuery = em.createQuery(criteriaQuery);
+
+		List<T> matchedObjects = finalQuery.getResultList();
+		return matchedObjects;
+	}
+	
 	public <T> List<T> getAllEntities(Class<T> entityClass, EntityManager em){
 		
 		// Create the Criteria Builder

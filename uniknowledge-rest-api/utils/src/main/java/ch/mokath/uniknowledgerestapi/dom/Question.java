@@ -57,9 +57,9 @@ public class Question implements Serializable {
     @Expose(serialize = true, deserialize= true)
 	private User author;
 
-	@ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
+	@Column(name = "domain")
 	@Expose(serialize = true, deserialize= true)
-	private Set<String> domains;
+	private String domain;
 
 	@Column(name = "title")
 	@Expose(serialize = true, deserialize= true)
@@ -76,6 +76,10 @@ public class Question implements Serializable {
 	@Column(name = "nb_answers")
 	@Expose (serialize = true, deserialize= false)
 	private int nbAnswers;
+	
+	@Column(name = "isClosed")
+	@Expose(serialize = true, deserialize = false)
+	private Boolean isClosed;
 
 	@OneToMany(mappedBy = "question",cascade = CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
 	private Set<Answer> answers;
@@ -110,12 +114,13 @@ public class Question implements Serializable {
 	 * @param text
 	 *            Text of the Question
 	 */
-	public Question(HashSet<String> domains, String title, String text) {
-		this.domains = domains;
+	public Question(String domain, String title, String text) {
+		this.domain = domain;
 		this.title = title;
 		this.text = text;
 		this.popularity = 0;
 		this.nbAnswers = 0;
+		this.isClosed = false;
 
 		//TODO choose between HashSet or SortedSet
 		this.answers = new HashSet<Answer>();
@@ -151,10 +156,10 @@ public class Question implements Serializable {
 				return false;
 		} else if (!created.equals(other.created))
 			return false;
-		if (domains == null) {
-			if (other.domains != null)
+		if (domain == null) {
+			if (other.domain != null)
 				return false;
-		} else if (!domains.equals(other.domains))
+		} else if (!domain.equals(other.domain))
 			return false;
 		if (id != other.id)
 			return false;
@@ -175,6 +180,22 @@ public class Question implements Serializable {
 	/*
 	 * Getters/ Setters
 	 */
+	public boolean getIsClosed() {
+		return this.isClosed;
+	}
+	
+	public void close() {
+		this.isClosed = true;
+	}
+	
+	public void reopen() {
+		this.isClosed = false;
+	}
+	
+	public void seIsClosed(boolean isClosed) {
+		this.isClosed = isClosed;
+	}
+	
 	public int getNbAnswers() {
 		return this.nbAnswers;
 	}
@@ -243,11 +264,11 @@ public class Question implements Serializable {
 		this.author = author;
 	}
 
-	public Set<String> getDomains() {
-		return domains;
+	public String getDomain() {
+		return this.domain;
 	}
-	public void setDomains(Set<String> domains) {
-		this.domains = domains;
+	public void setDomain(String domain) {
+		this.domain = domain;
 	}
 
 	public String getTitle() {
@@ -266,7 +287,7 @@ public class Question implements Serializable {
 
 
 	public static class Builder{
-		public HashSet<String> domains;
+		public String domain;
 		public String title;
 		public String text;
 
@@ -276,7 +297,7 @@ public class Question implements Serializable {
 		}
 
 		public Question build() {
-			return new Question( domains, title, text);
+			return new Question(domain, title, text);
 		}
 	}
 
