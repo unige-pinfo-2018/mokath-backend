@@ -111,9 +111,15 @@ public class PostsServiceRs {
 	@GET
 	@Path("/questions")
 	@Produces("application/json")
-	public Response getQuestions() {
+	public Response getQuestions(@Context UriInfo info) {
 		try {
-            return Response.ok(postsService.getQuestions().toString()).build();
+			String domain = info.getQueryParameters().getFirst("domain");
+			
+			if (domain != null) {
+				return Response.ok(postsService.getQuestionsDomain(domain).toString()).build();
+			} else {
+				return Response.ok(postsService.getQuestions().toString()).build();
+			}
 		} catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
@@ -141,6 +147,7 @@ public class PostsServiceRs {
 			}
 		}
 	}
+	
 	
 	@GET
 	@Path("/questions/{id}")

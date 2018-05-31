@@ -31,6 +31,7 @@ public interface PostsService {
     Set<User> getQuestionUpvoters(final String qid) throws CustomException;
     
     List<Question> getMyQuestions(final User u);
+    List<Question> getQuestionsDomain(String domain);
     Set<Question> getMyFollowedQuestions(final User u);
     Set<Question> getMyUpvotedQuestions(final User u);
    

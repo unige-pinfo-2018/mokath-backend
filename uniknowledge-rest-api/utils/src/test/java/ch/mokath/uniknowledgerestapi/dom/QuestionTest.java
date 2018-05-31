@@ -13,9 +13,9 @@ import org.junit.Test;
 public class QuestionTest {
 	@Test
 	public void questionEqualsTestFunction() {
-		HashSet<String> domains = new HashSet<String>();
-		Question question = new Question(domains,"test","what is the framework of the test?");
-		Question otherQuestion = new Question(domains,"test","what is the framework of the test?");
+		
+		Question question = new Question("domain","test","what is the framework of the test?");
+		Question otherQuestion = new Question("domain","test","what is the framework of the test?");
 		
 		User questionAuthor = new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
 				"baba");
@@ -32,9 +32,9 @@ public class QuestionTest {
 	
 	@Test
 	public void questionEqualsTestFunctionByTitle() {
-		HashSet<String> domains = new HashSet<String>();
-		Question question = new Question(domains,"test","what is the framework of the test?");
-		Question otherQuestion = new Question(domains,"test","what is the framework of the test?");
+		
+		Question question = new Question("domain","test","what is the framework of the test?");
+		Question otherQuestion = new Question("domain","test","what is the framework of the test?");
 		
 		question.setTitle(null);
 						
@@ -43,9 +43,9 @@ public class QuestionTest {
 	}
 	@Test
 	public void questionEqualsTestFunctionByText() {
-		HashSet<String> domains = new HashSet<String>();
-		Question question = new Question(domains,"test","what is the framework of the test?");
-		Question otherQuestion = new Question(domains,"test","what is the framework of the test?");
+		
+		Question question = new Question("domain","test","what is the framework of the test?");
+		Question otherQuestion = new Question("domain","test","what is the framework of the test?");
 		
 		Assert.assertEquals(question.equals(otherQuestion), true);
 		
@@ -55,20 +55,20 @@ public class QuestionTest {
 	}
 	@Test
 	public void questionEqualsTestFunctionByDomain() {
-		HashSet<String> domains = new HashSet<String>();
-		Question question = new Question(domains,"test","what is the framework of the test?");
-		Question otherQuestion = new Question(domains,"test","what is the framework of the test?");
 		
-		question.setDomains(null);
+		Question question = new Question("domain","test","what is the framework of the test?");
+		Question otherQuestion = new Question("domain","test","what is the framework of the test?");
+		
+		question.setDomain(null);
 						
 		Assert.assertEquals(question.equals(otherQuestion), false);//false cause the 2 authors of the 2 questions are different
 		
 	}
 	@Test
 	public void questionEqualsTestFunctionBycreated() {
-		HashSet<String> domains = new HashSet<String>();
-		Question question = new Question(domains,"test","what is the framework of the test?");
-		Question otherQuestion = new Question(domains,"test","what is the framework of the test?");
+		
+		Question question = new Question("domain","test","what is the framework of the test?");
+		Question otherQuestion = new Question("domain","test","what is the framework of the test?");
 		
 		otherQuestion.setCreated(null);
 		question.setCreated(null);
@@ -80,9 +80,9 @@ public class QuestionTest {
 	
 	@Test
 	public void questionAddAnswerTestFunction() {
-		HashSet<String> domains = new HashSet<String>();
 		
-		Question question = new Question(domains, "test","what is the framework of the test?");
+		
+		Question question = new Question("domain", "test","what is the framework of the test?");
 				
 		Answer answer = new Answer("junit",question);
 		
@@ -97,11 +97,11 @@ public class QuestionTest {
 	
 	@Test
 	public void questionotherAddAnswerTestFunction() {
-		HashSet<String> domains = new HashSet<String>();
 		
-		Question question = new Question(domains, "test","what is the framework of the test?");
 		
-		Question otherQuestion = new Question(domains, "test","which type of software to use for test?");
+		Question question = new Question("domain", "test","what is the framework of the test?");
+		
+		Question otherQuestion = new Question("domain", "test","which type of software to use for test?");
 		
 		Answer answer = new Answer("junit",question);
 		
@@ -117,9 +117,9 @@ public class QuestionTest {
 	
 	@Test
 	public void questionRemoveAnswerTestFunction() {
-		HashSet<String> domains = new HashSet<String>();
 		
-		Question question = new Question(domains, "test","what is the framework of the test?");
+		
+		Question question = new Question("domain", "test","what is the framework of the test?");
 		
 		Answer answer = new Answer("junit",question);
 		
@@ -136,9 +136,9 @@ public class QuestionTest {
 	
 	@Test
 	public void questionOtherRemoveAnswerTestFunction() {
-		HashSet<String> domains = new HashSet<String>();
 		
-		Question question = new Question(domains, "test","what is the framework of the test?");
+		
+		Question question = new Question("domain", "test","what is the framework of the test?");
 		
 		Answer answer = new Answer("junit",question);
 		
@@ -156,42 +156,42 @@ public class QuestionTest {
 	}	
 	@Test
 	public void questionTestFunctionOfGetText() {
-		HashSet<String> domains = new HashSet<String>();
 		
-		Question question = new Question(domains, "test","what is the framework of the test?");
+		
+		Question question = new Question("domain", "test","what is the framework of the test?");
 		
 	   Assert.assertEquals(question.getText(),"what is the framework of the test?");//we removed 1 answer
 	}	
 	@Test
 	public void questionTestFunctionOfGetTitle() {
-		HashSet<String> domains = new HashSet<String>();
 		
-		Question question = new Question(domains, "test","what is the framework of the test?");
+		
+		Question question = new Question("domain", "test","what is the framework of the test?");
 		
 	   Assert.assertEquals(question.getTitle(),"test");//we removed 1 answer
 	}
 	@Test
 	public void questionTestFunctionOfGetDomain() {
-		HashSet<String> domains = new HashSet<String>();
 		
-		Question question = new Question(domains, "test","what is the framework of the test?");
 		
-	   Assert.assertEquals(question.getDomains(),domains);//we removed 1 answer
+		Question question = new Question("domain", "test","what is the framework of the test?");
+		
+	   Assert.assertEquals(question.getDomain(),"domain");//we removed 1 answer
 	   
 	}
 	@Test
 	public void questionTestFunctionOfGetCreated() {
-		HashSet<String> domains = new HashSet<String>();
 		
-		Question question = new Question(domains, "test","what is the framework of the test?");
+		
+		Question question = new Question("domain", "test","what is the framework of the test?");
 		
 	   Assert.assertEquals(question.getCreated(),null);
 	}
 	@Test
 	public void questionTestFunctionOfAddAndRemoveUpvoted() {
-		HashSet<String> domains = new HashSet<String>();
 		
-		Question question = new Question(domains, "test","what is the framework of the test?");
+		
+		Question question = new Question("domain", "test","what is the framework of the test?");
 		User user = new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
 				"baba");
 		question.addUpvote(user);
@@ -203,9 +203,9 @@ public class QuestionTest {
 	}
 	@Test
 	public void questionTestFunctionOfGetPopularity() {
-		HashSet<String> domains = new HashSet<String>();
 		
-		Question question = new Question(domains, "test","what is the framework of the test?");
+		
+		Question question = new Question("domain", "test","what is the framework of the test?");
 		User user = new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
 				"baba");
 		question.addUpvote(user);
@@ -216,9 +216,9 @@ public class QuestionTest {
 	
 	@Test
 	public void questionTestFunctionOfAddAndRemoveFollowers() {
-		HashSet<String> domains = new HashSet<String>();
 		
-		Question question = new Question(domains, "test","what is the framework of the test?");
+		
+		Question question = new Question("domain", "test","what is the framework of the test?");
 		User user = new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
 				"baba");
 		question.addFollower(user);
@@ -230,9 +230,9 @@ public class QuestionTest {
 	}
 	@Test
 	public void questionTestFunctionOfSetText() {
-		HashSet<String> domains = new HashSet<String>();
 		
-		Question question = new Question(domains, "test","what is the framework of the test?");
+		
+		Question question = new Question("domain", "test","what is the framework of the test?");
 		
 		question.setText("what is the framework of the test for unit test?");
 		
@@ -240,9 +240,9 @@ public class QuestionTest {
 	}
 	@Test
 	public void questionTestFunctionOfSetCreated() {
-		HashSet<String> domains = new HashSet<String>();
 		
-		Question question = new Question(domains, "test","what is the framework of the test?");
+		
+		Question question = new Question("domain", "test","what is the framework of the test?");
 		
 		question.setCreated(null);
 		
@@ -251,12 +251,12 @@ public class QuestionTest {
 	
 	@Test
 	public void QuestionTestBuilderMethod() {
-		HashSet<String> domains = new HashSet<String>();
-		Question question = new Question(domains, "test","what is the framework of the test?");		
+		
+		Question question = new Question("domain", "test","what is the framework of the test?");		
 			
 		
 		Question.Builder questionBuilder = new Question.Builder();
-		questionBuilder.domains = domains;
+		questionBuilder.domain = "domain";
 		questionBuilder.title = "test";
 		questionBuilder.text = "what is the framework of the test?";
 		Question questionFromBuilder = questionBuilder.build(); 		
@@ -264,9 +264,9 @@ public class QuestionTest {
 	}
 	@Test
 	public void QuestionTestToStringMethod() {
-		HashSet<String> domains = new HashSet<String>();
-		Question question = new Question(domains, "test","what is the framework of the test?");
-		Question otherQuestion = new Question(domains, "test","what is the framework of the test?");
+		
+		Question question = new Question("domain", "test","what is the framework of the test?");
+		Question otherQuestion = new Question("domain", "test","what is the framework of the test?");
 			
 		Assert.assertEquals(question.toString(),otherQuestion.toString());
 	}
