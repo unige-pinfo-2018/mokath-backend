@@ -120,6 +120,29 @@ public class PostsServiceRs {
 	}
 	
 	@GET
+	@Path("/questions/top")
+	@Produces("application/json")
+	public Response getTopQuestions(@Context UriInfo info) {
+		try {
+			String snb = info.getQueryParameters().getFirst("nb");
+			
+			if (snb == null) {
+				return Response.ok(postsService.getTopQuestions(5).toString()).build();
+			} else {
+				int nb = Integer.parseInt(snb);
+				return Response.ok(postsService.getTopQuestions(nb).toString()).build();
+			}
+			
+		} catch (NumberFormatException e) {
+			try {
+	            return Response.ok(postsService.getTopQuestions(5).toString()).build();
+			} catch (Exception ee) {
+				return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+			}
+		}
+	}
+	
+	@GET
 	@Path("/questions/{id}")
 	@Produces("application/json")
 	public Response getQuestion(@PathParam("id") String id) {

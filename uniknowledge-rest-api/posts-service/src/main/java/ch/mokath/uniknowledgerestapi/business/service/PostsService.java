@@ -25,6 +25,7 @@ public interface PostsService {
 	
 	Question getQuestion(final String questionId) throws CustomException;
     List<Question> getQuestions();
+    List<Question> getTopQuestions(int nb);
     Set<Answer> getQuestionAnswers(final String questionId) throws CustomException;
     Set<User> getQuestionFollowers(final String questionId) throws CustomException;
     Set<User> getQuestionUpvoters(final String qid) throws CustomException;
