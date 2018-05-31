@@ -107,7 +107,7 @@
 			<artifactId>log4j-core</artifactId>
 			<version>2.5</version>
 		</dependency>
-        <dependency><!-- added by zue (@Email validator) -->
+        <dependency><!-- added by zue (@Email Validator) -->
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
 			<version>5.2.5.Final</version>
