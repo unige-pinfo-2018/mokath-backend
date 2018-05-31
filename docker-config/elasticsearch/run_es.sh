@@ -17,5 +17,5 @@ fi
 if [[ "$(docker ps -a -q -f "name=$CONT_NAME" 2> /dev/null)" != "" ]]; then
         docker start $CONT_NAME
 else
-	docker run -d --ip="172.18.0.5" --net="$NETWORK_NAME" -v es-data:/usr/share/elasticsearch/data -v $(pwd)/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" --name $CONT_NAME $IMG_NAME
+	docker run -d --ip="172.18.0.5" --net="$NETWORK_NAME" -e ES_JAVA_OPTS="-Xms512m -Xmx512m" -v es-data:/usr/share/elasticsearch/data -v $(pwd)/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" --name $CONT_NAME $IMG_NAME
 fi
