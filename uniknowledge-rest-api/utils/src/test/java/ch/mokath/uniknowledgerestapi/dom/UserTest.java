@@ -7,13 +7,45 @@ import org.junit.Test;
 
 import com.google.gson.Gson;
 //import com.google.gson.GsonBuilder;
-
+  
 
 /**
 * @author ornela
 * @author zue
 */
 public class UserTest {
+    /** HashCode Tests **/
+	@Test
+	public void UserHashcodeEqualsTest() {
+		User user1 = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
+				"mePassword");
+		User user2 = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
+				"mePassword");
+        user1.setID(1L);
+        user2.setID(1L);
+		Assert.assertTrue(user1.hashCode() == user2.hashCode());
+	}
+	@Test
+	public void UserHashcodeNotEqualsTest() {
+		User user1 = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
+				"mePassword");
+		User user2 = new User("meUsername2", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
+				"mePassword");
+		Assert.assertFalse(user1.hashCode() == user2.hashCode());
+	}
+	@Test
+	public void NullUserHashcodeEqualsTest() {
+		User user1 = new User(null,null,null,null,null,null);
+		User user2 = new User(null,null,null,null,null,null);
+		Assert.assertTrue(user1.hashCode() == user2.hashCode());
+	}
+	@Test
+	public void NullUserHashcodeNotEqualsTest() {
+		User user1 = new User(null,null,null,null,null,null);
+		User user2 = new User(null,null,null,null,null,"0");
+		Assert.assertFalse(user1.hashCode() == user2.hashCode());
+	}
+
 	
 	//test of equal function
 	@Test
@@ -78,6 +110,79 @@ public class UserTest {
 				"otherPassword");
 		Assert.assertEquals(user.equals(otherUser), false);//2 users can't have same password
 	}
+	/** complete equals **/
+	@Test
+	public void UserTestDifferentObjectClass() {
+		User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
+				"mePassword");
+		String otherUser = "blabla";
+		Assert.assertEquals(user.equals(otherUser), false);
+	}
+	@Test
+	public void UserTestOfEqualsMethodWithEmailNull() {
+		User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", null,
+				"mePassword");
+		User otherUser = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "otherEmail",
+				"mePassword");
+		User otherUserNull = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", null,
+				"mePassword");
+		Assert.assertEquals(user.equals(otherUser), false);
+		Assert.assertEquals(user.equals(otherUserNull), true);
+	}
+	@Test
+	public void UserTestOfEqualsMethodWithFirstNameNull() {
+		User user = new User("meUsername", null, "meLastName", "http:/me/profile/Picture", "meEmail",
+				"mePassword");
+		User otherUser = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
+				"mePassword");
+		User otherUserNull = new User("meUsername", null, "meLastName", "http:/me/profile/Picture", "meEmail",
+				"mePassword");
+		Assert.assertEquals(user.equals(otherUser), false);
+		Assert.assertEquals(user.equals(otherUserNull), true);
+	}
+	@Test
+	public void UserTestOfEqualsMethodWithLastNameNull() {
+		User user = new User("meUsername", "meFirstName",null, "http:/me/profile/Picture", "meEmail",
+				"mePassword");
+		User otherUser = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
+				"mePassword");
+		User otherUserNull = new User("meUsername", "meFirstName",null, "http:/me/profile/Picture", "meEmail",
+				"mePassword");
+		Assert.assertEquals(user.equals(otherUser), false);
+		Assert.assertEquals(user.equals(otherUserNull), true);
+	}
+	@Test
+	public void UserTestOfEqualsMethodWithUserNameNull() {
+		User user = new User( null, "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
+				"mePassword");
+		User otherUser = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
+				"mePassword");
+		User otherUserNull = new User(null, "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",
+				"mePassword");
+		Assert.assertEquals(user.equals(otherUser), false);
+		Assert.assertEquals(user.equals(otherUserNull), true);
+	}
+	@Test
+	public void UserTestOfEqualsMethodWithPasswordNull() {
+		User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",null);
+		User otherUser = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail","mePassword");
+		User otherUserNull = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail",null);
+		Assert.assertEquals(user.equals(otherUser), false);
+		Assert.assertEquals(user.equals(otherUserNull), true);
+	}
+	@Test
+	public void UserTestOfEqualsMethodWithId() {
+		User user = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail","mePassword");
+		User otherUser = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail","mePassword");
+		otherUser.setID(1L);
+		User otherUserNull = new User("meUsername", "meFirstName", "meLastName", "http:/me/profile/Picture", "meEmail","mePassword");
+		Assert.assertEquals(user.equals(otherUser), false);
+		Assert.assertEquals(user.equals(otherUserNull), true);
+		user.setID(2L);
+		Assert.assertEquals(user.equals(otherUser), false);
+		otherUser.setID(2L);
+		Assert.assertEquals(user.equals(otherUser), true);
+	}
 	
 	//test of setters and getters
 	@Test
@@ -140,9 +245,9 @@ public class UserTest {
 		
 		Question question = new Question(domains, "test","what is the framework of the test?");
 		question.setAuthor(user);
-		Assert.assertTrue(question.getAuthor()==user);//??
+		Assert.assertTrue(question.getAuthor()==user);
 		
-		Assert.assertTrue(user.getQuestions().size()==0);//??
+		Assert.assertTrue(user.getQuestions().size()==0);
 	}
 	
 public void UserTestOfgettersMethodOfAnswer() {
@@ -156,7 +261,7 @@ public void UserTestOfgettersMethodOfAnswer() {
 		Answer answer = new Answer("junit",question);
 		answer.setAuthor(user);
 		
-		Assert.assertTrue(user.getAnswers().size()==0);//??
+		Assert.assertTrue(user.getAnswers().size()==0);
 	}
 
 //test of add and remove functions
