@@ -69,11 +69,11 @@ public class Question implements Serializable {
 	@Expose(serialize = true, deserialize= true)
 	private String text;
 	
-	@Column(name = "popularity")
+	@Column(name = "popularity", nullable = false)
 	@Expose(serialize = true, deserialize= false)
 	private int popularity;
 	
-	@Column(name = "nb_answers")
+	@Column(name = "nb_answers", nullable = false)
 	@Expose (serialize = true, deserialize= false)
 	private int nbAnswers;
 	
