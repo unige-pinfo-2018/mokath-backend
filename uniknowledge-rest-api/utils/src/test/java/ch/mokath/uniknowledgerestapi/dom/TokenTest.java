@@ -103,6 +103,20 @@ public class TokenTest {
 	Assert.assertFalse(token.getSigningKey()!=otherToken.getSigningKey() && token.getUser() == otherToken.getUser());//same use cant have 2 different keys
 	
 	}
+	@Test
+	public void TokenTestBuilderMethod() {
+		
+		User user = new User("baba", "baba","baba","http:/baba/picture","baba@yahoo.fr",
+				"baba");
+		Token token = new Token( "babaToken","babaKey",user);		
+			
+		Token.Builder tokenBuilder = new Token.Builder();
+		tokenBuilder.token = "babaToken";
+		tokenBuilder.signingKey = "babaKey";
+		tokenBuilder.user = user;
+		Token tokenFromBuilder = tokenBuilder.build(); 		
+		Assert.assertEquals(token.equals(tokenFromBuilder),false);//??
+	}
 	
    
 }
