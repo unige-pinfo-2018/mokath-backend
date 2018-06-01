@@ -9,6 +9,8 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -17,6 +19,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -33,14 +36,18 @@ import ch.mokath.uniknowledgerestapi.dom.AuthInfos;
 import ch.mokath.uniknowledgerestapi.dom.Token;
 import ch.mokath.uniknowledgerestapi.dom.User;
 import ch.mokath.uniknowledgerestapi.utils.CustomErrorResponse;
+import ch.mokath.uniknowledgerestapi.utils.CustomException;
 import ch.mokath.uniknowledgerestapi.utils.Secured;
 
 /**
  * @author tv0g
- *
+ * @author zue
  */
 @Path("")
 public class UsersServiceRs {
+	
+	@PersistenceContext
+	private EntityManager em;
 
 	@Inject
 	private UsersService usersService;
@@ -74,6 +81,8 @@ public class UsersServiceRs {
 		} catch (JsonSyntaxException e) {
 			log.error("Invalid JSON Format for object : " + u.toString()+ " : "+e.getMessage());
 			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
 			log.error("Error thrown while creating a new user : "+e.getMessage());
 			return CustomErrorResponse.IDENTIFIER_ALREADY_USED.getHTTPResponse();
@@ -155,36 +164,39 @@ public class UsersServiceRs {
 	@Consumes("application/json")
 	public Response updateUser(@Context HttpServletRequest req, @NotNull final String requestBody) {
 
-		// Retrieve user from signed Token
-		User trustedUser = (User) req.getAttribute("user");
+        // Retrieve user from signed Token
+        User trustedUser = (User) req.getAttribute("user");
 
-		GsonBuilder builder = new GsonBuilder();  
-		builder.excludeFieldsWithoutExposeAnnotation();  
-		Gson gson = builder.create();  
-		
-		// Retrieve User informations from request body
-		User requestUpdatedUser = gson.fromJson(requestBody, User.class);
-
-		if (requestUpdatedUser.getId() != null) {
-			Long untrustedID = requestUpdatedUser.getId();
-			
-			// If the issuer of the request is not the targeted user
-			if (trustedUser.getId() != untrustedID) {
-				return CustomErrorResponse.PERMISSION_DENIED.getHTTPResponse();
-			}
-		}
-		
-		// Make sure ID and password remain unchanged
-		requestUpdatedUser.setID(trustedUser.getId());
-		requestUpdatedUser.setPassword(trustedUser.getPassword());
-
-		// If all checks pass, we update the user
 		try {
-			User updatedUser = usersService.updateUser(requestUpdatedUser);
-			return Response.ok(updatedUser.toString()).build();
-		} catch (Exception e) {
-			log.info("Exception thrown while updating user with id : " + requestUpdatedUser.getId() + " : " + e.getMessage());
-			return CustomErrorResponse.IDENTIFIER_ALREADY_USED.getHTTPResponse();
+            GsonBuilder builder = new GsonBuilder();  
+            builder.excludeFieldsWithoutExposeAnnotation();  
+            Gson gson = builder.create();  
+		
+            // Retrieve User informations from request body
+            User requestUpdatedUser = gson.fromJson(requestBody, User.class);
+
+            if (requestUpdatedUser.getId() != null) {
+                Long untrustedID = requestUpdatedUser.getId();
+			
+                // If the issuer of the request is not the targeted user
+                if (trustedUser.getId() != untrustedID) {
+                    return CustomErrorResponse.PERMISSION_DENIED.getHTTPResponse();
+                }
+            }
+            // Make sure ID and password remain unchanged
+            requestUpdatedUser.setID(trustedUser.getId());
+            requestUpdatedUser.setPassword(trustedUser.getPassword());
+            // also pass earned Points
+            requestUpdatedUser.setPoints(trustedUser.getPoints());
+
+            // If all checks pass, we update the user
+            User updatedUser = usersService.updateUser(requestUpdatedUser);
+            return Response.ok(updatedUser.toString()).build();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
+        } catch (Exception e) {
+            log.info("Exception thrown while updating user with id : " + trustedUser.getId() + " : " + e.getMessage());
+            return CustomErrorResponse.IDENTIFIER_ALREADY_USED.getHTTPResponse();
 		}
 	}
 
@@ -208,5 +220,15 @@ public class UsersServiceRs {
 			log.error("Exception thrown while deleting user with id : "+trustedUser.getId()+ " : "+e.getMessage());
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
+	}
+	
+	@GET
+	@Secured
+	@Path("/users/me")
+	@Produces("application/json")
+	public Response getUser(@Context HttpServletRequest req) {
+		User trustedUser = (User) req.getAttribute("user");
+		
+		return Response.ok(trustedUser.toString()).build();
 	}
 }

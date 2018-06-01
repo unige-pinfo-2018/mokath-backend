@@ -43,10 +43,16 @@ You can launch a test database (MySQL), a web interface (phpMyAdmin) with data p
 
 Note that the wildfly container maps `/tmp/wildfly-deployments` on the host with the autodeploy folder of the wildfly instance.
 
+If an error occurs during the deployment process make sure the right user owns `/tmp/wildfly-deployments`. If it's not the case you can do `sudo chown {your username} /tmp/wildfly-deployments`
+
 The default ports are :
 - 8080 : wildfly
 - 8081 : phpMyAdmin
 - 3306 : MySQL
+
+You can acces the phpMyAdmin interface on http://localhost:8081 with :
+- username : uni-user
+- password : Uniknowledge-2018
 
 Ports can be modified as needed in the individuals bash scripts. But if you do so be sure **NOT TO COMMIT** those changes!
 

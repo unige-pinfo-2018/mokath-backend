@@ -3,20 +3,8 @@
  */
 package ch.mokath.uniknowledgerestapi.business.service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -30,12 +18,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
+import ch.mokath.uniknowledgerestapi.dom.Answer;
 import ch.mokath.uniknowledgerestapi.dom.Question;
 import ch.mokath.uniknowledgerestapi.dom.User;
 import ch.mokath.uniknowledgerestapi.utils.CustomErrorResponse;
-import ch.mokath.uniknowledgerestapi.utils.DBHelper;
+import ch.mokath.uniknowledgerestapi.utils.CustomException;
 import ch.mokath.uniknowledgerestapi.utils.Secured;
 
 /**
@@ -44,132 +34,354 @@ import ch.mokath.uniknowledgerestapi.utils.Secured;
  */
 @Path("")
 public class PostsServiceRs {
-	@PersistenceContext
-	private EntityManager em;
 
 	@Inject
 	private PostsService postsService;
-	private DBHelper DBHelper = new DBHelper();
 
 	@POST
 	@Secured
 	@Path("/questions")
 	@Consumes("application/json")
 	@Produces("application/json")
-	public Response newQuestion(@Context HttpServletRequest req, @NotNull final String requestBody) {
-
-		Question question;
-		User trustedUserAsAuthor;
-
+	public Response newQuestion(@Context HttpServletRequest req,final String requestBody) {
 		try {
-			question = new Gson().fromJson(requestBody, Question.class);
-			trustedUserAsAuthor = (User) req.getAttribute("user");
+			Question question = new Gson().fromJson(requestBody, Question.class);
+			User trustedUserAsAuthor = (User) req.getAttribute("user");
 			postsService.createQuestion(question, trustedUserAsAuthor);
-
+            return Response.ok(question.toString()).build();
 		} catch (JsonSyntaxException e) {
 			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
+		} catch (Exception e) {
+           return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
-
-		// TODO add toString
-		return Response.ok().build();
 	}
 
 	@PUT
 	@Secured
 	@Path("/questions/{id}")
 	@Produces("application/json")
-	public Response onQuestion(@Context HttpServletRequest req, @PathParam("id") String id, @Context UriInfo info) {
-
-		String action = info.getQueryParameters().getFirst("action");
-		User trustedUser = (User) req.getAttribute("user");
-
+	@Consumes("application/json")
+	public Response modifyQuestion(@Context HttpServletRequest req, @PathParam("id") String questionId, @Context UriInfo info,
+			final String requestBody) {
 		try {
-			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-			wherePredicatesMap.put("id", id);
-			Optional<Question> wrappedQuestion = DBHelper.getEntityFromFields(wherePredicatesMap, Question.class, em);
-
-			if (wrappedQuestion.isPresent()) {
-				Question unwrappedQuestion = wrappedQuestion.get();
-
-				if (action == null) {
-					// TODO add update user
-				} else {
-					switch (action) {
-					case "upvote":
-						postsService.upvoteQuestion(unwrappedQuestion, trustedUser);
-						break;
-
-					case "follow":
-						postsService.followQuestion(unwrappedQuestion, trustedUser);
-						break;
-
-					default:
-						return CustomErrorResponse.INVALID_ACTION.getHTTPResponse();
-					}
+            String action = info.getQueryParameters().getFirst("action");
+            User trustedUser = (User) req.getAttribute("user");
+            if (action == null) {
+                Question updatedQuestion = new Gson().fromJson(requestBody, Question.class);
+                return Response.ok(postsService.editQuestion(questionId, updatedQuestion, trustedUser).toString()).build();
+            }else{
+				switch (action) {
+				case "follow":
+					postsService.followQuestion(questionId, trustedUser);
+					return CustomErrorResponse.OPERATION_SUCCESS.getHTTPResponse();
+				case "upvote":
+					postsService.upvoteQuestion(questionId, trustedUser);
+					return CustomErrorResponse.OPERATION_SUCCESS.getHTTPResponse();
+				default:
+					return CustomErrorResponse.INVALID_ACTION.getHTTPResponse();
 				}
-
-			} else {
-				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-			}
+            }
+		} catch (JsonSyntaxException e) {
+			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
-
-		// TODO add toString
-		return Response.ok().build();
 	}
-	
-	
+
 	@DELETE
 	@Secured
 	@Path("/questions/{id}")
 	@Produces("application/json")
-	public Response deleteQuestion(@Context HttpServletRequest req, @PathParam("id") String id) {
-		User trustedUser = (User) req.getAttribute("user");
-		
+	public Response deleteQuestion(@Context HttpServletRequest req, @PathParam("id") String questionId) {
 		try {
-			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-			wherePredicatesMap.put("id", id);
-			Optional<Question> wrappedQuestion = DBHelper.getEntityFromFields(wherePredicatesMap, Question.class, em);
+            User trustedUser = (User) req.getAttribute("user");
+			postsService.deleteQuestion(questionId, trustedUser);
+            return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+    }
+
+	@GET
+	@Secured
+	@Path("/questions")
+	@Produces("application/json")
+	public Response getQuestions(@Context UriInfo info) {
+		try {
+			String domain = info.getQueryParameters().getFirst("domain");
 			
-			if (wrappedQuestion.isPresent()) {
-				Question unwrappedQuestion = wrappedQuestion.get();
-				
-				if (unwrappedQuestion.getAuthor().equals(trustedUser)) {
-					postsService.deleteQuestion(unwrappedQuestion, trustedUser);
-				} else {
-					return CustomErrorResponse.PERMISSION_DENIED.getHTTPResponse();
-				}
+			if (domain != null) {
+				return Response.ok(postsService.getQuestionsDomain(domain).toString()).build();
 			} else {
-				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
+				return Response.ok(postsService.getQuestions().toString()).build();
 			}
 		} catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
-		
-		// TODO add toString
-		return Response.ok().build();
+	}
+	
+	@GET
+	@Secured
+	@Path("/questions/top")
+	@Produces("application/json")
+	public Response getTopQuestions(@Context UriInfo info) {
+		try {
+			String snb = info.getQueryParameters().getFirst("nb");
+			
+			if (snb == null) {
+				return Response.ok(postsService.getTopQuestions(5).toString()).build();
+			} else {
+				int nb = Integer.parseInt(snb);
+				return Response.ok(postsService.getTopQuestions(nb).toString()).build();
+			}
+			
+		} catch (NumberFormatException e) {
+			try {
+	            return Response.ok(postsService.getTopQuestions(5).toString()).build();
+			} catch (Exception ee) {
+				return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+			}
+		}
 	}
 	
 	
 	@GET
+	@Secured
 	@Path("/questions/{id}")
 	@Produces("application/json")
 	public Response getQuestion(@PathParam("id") String id) {
-		Question unwrappedQuestion;
 		try {
-			Map<String, Object> wherePredicatesMap = new HashMap<String, Object>();
-			wherePredicatesMap.put("id", id);
-			Optional<Question> wrappedQuestion = DBHelper.getEntityFromFields(wherePredicatesMap, Question.class, em);
-			
-			if (wrappedQuestion.isPresent()) {
-				unwrappedQuestion = wrappedQuestion.get();
-			} else {
-				return CustomErrorResponse.RESSOURCE_NOT_FOUND.getHTTPResponse();
-			}
+            return Response.ok(postsService.getQuestion(id).toString()).build();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
 		} catch (Exception e) {
 			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
 		}
-		return Response.ok(unwrappedQuestion.toString()).build();
 	}
+	
+	@GET
+	@Secured
+	@Path("/questions/{id}/followers")
+	@Produces("application/json")
+	public Response getQuestionFollowers(@PathParam("id") String id) {
+		try {
+            return Response.ok(postsService.getQuestionFollowers(id).toString()).build();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+	
+	@GET
+	@Secured
+	@Path("/questions/{id}/upvoters")
+	@Produces("application/json")
+	public Response getQuestionUpvoters(@PathParam("id") String id) {
+		try {
+            return Response.ok(postsService.getQuestionUpvoters(id).toString()).build();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+	
+	@GET
+	@Secured
+	@Path("/questions/me")
+	@Produces("application/json")
+	public Response getMyQuestions(@Context HttpServletRequest req) {
+		try {
+            User trustedUser = (User) req.getAttribute("user");
+            return Response.ok(postsService.getMyQuestions(trustedUser).toString()).build();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+
+	@GET
+	@Secured
+	@Path("/questions/me/followed")
+	@Produces("application/json")
+	public Response getMyFollowedQuestions(@Context HttpServletRequest req) {
+		try {
+            User trustedUser = (User) req.getAttribute("user");
+            return Response.ok(postsService.getMyFollowedQuestions(trustedUser).toString()).build();
+		} catch (Exception e) {
+return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
+//			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+
+	@GET
+	@Secured
+	@Path("/questions/me/upvoted")
+	@Produces("application/json")
+	public Response getMyUpvotedQuestions(@Context HttpServletRequest req) {
+		try {
+            User trustedUser = (User) req.getAttribute("user");
+            return Response.ok(postsService.getMyUpvotedQuestions(trustedUser).toString()).build();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+	
+//	@GET
+//	@Path("/questions")
+//	@Produces("application/json")
+//	public Response getQuestions() {
+//		GsonBuilder gBuilder = new GsonBuilder();
+//		gBuilder.excludeFieldsWithoutExposeAnnotation();
+//		
+//		Gson gson = gBuilder.create();
+//		
+//		List<Question> questions = DBHelper.getAllEntities(Question.class, em);
+//		
+//		return Response.ok(gson.toJson(questions)).build();
+//	}
+
+	
+	/** ANSWER **/
+	@POST
+	@Secured
+	@Path("/questions/{qid}/answers")
+	@Consumes("application/json")
+	public Response newAnswer(@PathParam("qid") String id, @Context HttpServletRequest req,final String requestBody) {
+		try {
+            User trustedUser = (User) req.getAttribute("user");
+            Answer answer = new Gson().fromJson(requestBody, Answer.class);
+            postsService.createAnswer(id, answer, trustedUser);
+            return Response.ok(answer.toString()).build();
+		} catch (JsonSyntaxException e) {
+			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+        }
+	}
+
+	@PUT
+	@Secured
+	@Path("/answers/{aid}")
+	@Consumes("application/json")
+	public Response modifyAnswer(@PathParam("aid") String answerId, @Context UriInfo info,
+			@Context HttpServletRequest req, final String requestBody) {
+		try {
+            String action = info.getQueryParameters().getFirst("action");
+            User trustedUser = (User) req.getAttribute("user");
+			if (action == null) {
+                Answer updatedAnswer = new Gson().fromJson(requestBody, Answer.class);
+                return Response.ok(postsService.editAnswer(answerId, updatedAnswer, trustedUser).toString()).build();
+			} else {
+				switch (action) {
+				case "validate":
+					postsService.validateAnswer(answerId, trustedUser);
+					return CustomErrorResponse.OPERATION_SUCCESS.getHTTPResponse();
+				case "upvote":
+					postsService.upvoteAnswer(answerId, trustedUser);
+					return CustomErrorResponse.OPERATION_SUCCESS.getHTTPResponse();
+				default:
+					return CustomErrorResponse.INVALID_ACTION.getHTTPResponse();
+				}
+            }
+		} catch (JsonSyntaxException e) {
+			return CustomErrorResponse.INVALID_JSON_OBJECT.getHTTPResponse();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+
+	@DELETE
+	@Secured
+	@Path("/answers/{id}")
+	public Response deleteAnswer(@Context HttpServletRequest req, @PathParam("id") String answerId) {
+        try {
+            User trustedUser = (User) req.getAttribute("user");
+			postsService.deleteAnswer(answerId, trustedUser);
+            return CustomErrorResponse.DELETE_SUCCESS.getHTTPResponse();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
+        } catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+
+	@GET
+	@Secured
+	@Path("/answers/{id}")
+	@Produces("application/json")
+	public Response getAnswer(@PathParam("id") String id) {
+		try {
+            return Response.ok(postsService.getAnswer(id).toString()).build();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+
+	@GET
+	@Secured
+	@Path("/answers/{id}/updvoters")
+	@Produces("application/json")
+	public Response getAnswerUpvoters(@PathParam("id") String id) {
+		try {
+            return Response.ok(postsService.getAnswerUpvoters(id).toString()).build();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+
+	@GET
+	@Secured
+	@Path("/questions/{qid}/answers")
+	@Produces("application/json")
+	public Response getAllAnswersOfQuestion(@PathParam("qid") String questionId) {
+		try {
+            return Response.ok(postsService.getQuestionAnswers(questionId).toString()).build();
+        } catch (CustomException ce) {
+            return ce.getHTTPJsonResponse();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+    }
+	
+	@GET
+	@Secured
+	@Path("/answers/me")
+	@Produces("application/json")
+	public Response getMyAnswers(@Context HttpServletRequest req) {
+		try {
+            User trustedUser = (User) req.getAttribute("user");
+            return Response.ok(postsService.getMyAnswers(trustedUser).toString()).build();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+
+	@GET
+	@Secured
+	@Path("/answers/me/upvoted")
+	@Produces("application/json")
+	public Response getMyUpvotedAnswers(@Context HttpServletRequest req) {
+		try {
+            User trustedUser = (User) req.getAttribute("user");
+            return Response.ok(postsService.getMyUpvotedAnswers(trustedUser).toString()).build();
+		} catch (Exception e) {
+			return CustomErrorResponse.ERROR_OCCURED.getHTTPResponse();
+		}
+	}
+
 }

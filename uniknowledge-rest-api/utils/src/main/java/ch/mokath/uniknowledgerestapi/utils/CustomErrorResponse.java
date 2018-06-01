@@ -10,7 +10,7 @@ import com.google.gson.JsonObject;
 
 /**
  * @author tv0g
- *
+ * @author zue
  */
 
 public enum CustomErrorResponse {
@@ -25,10 +25,14 @@ public enum CustomErrorResponse {
 	INVALID_ACTION(false, Response.Status.BAD_REQUEST, "Invalid action !"),
 	PERMISSION_DENIED(false, Response.Status.UNAUTHORIZED, "Permission Denied !"),
 	IDENTIFIER_ALREADY_USED(false, Response.Status.BAD_REQUEST, "Email or Username already in use !"),
-	
+//	BAD_REQUEST(false, Response.Status.BAD_REQUEST, "Bad request"),
+	INVALID_INPUT(false, Response.Status.BAD_REQUEST, "Invalid input"),
+	CONSTRAINT_VIOLATION(false, Response.Status.BAD_REQUEST, "Constraint violation"),
+
 	// SUCCESS
 	LOGOUT_SUCCESS(true,Response.Status.OK, "Logout Successful !"),
-	DELETE_SUCCESS(true, Response.Status.OK, "Deleted resource Successfully");
+	DELETE_SUCCESS(true, Response.Status.OK, "Deleted resource Successfully"),
+	OPERATION_SUCCESS(true, Response.Status.OK, "Operation Successful");
 
 	private String successOrError;
 	private String message;

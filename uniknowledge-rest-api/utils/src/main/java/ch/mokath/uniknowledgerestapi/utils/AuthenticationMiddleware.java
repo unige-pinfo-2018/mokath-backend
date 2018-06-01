@@ -13,6 +13,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.ext.Provider;
+import javax.ws.rs.container.ContainerRequestContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,6 +95,7 @@ public class AuthenticationMiddleware implements ContainerRequestFilter {
 			}
 
 		} catch (Exception e) {
+			log.error("Exception thrown during the authenticatin process : " + e.toString());
 			requestContext.abortWith(CustomErrorResponse.INVALID_TOKEN.getHTTPResponse());
 		}
 	}

@@ -24,13 +24,15 @@ import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 
 /**
  * @author matteo113
- *
+ * @author zue
  */
 @Entity
 public class Question implements Serializable {
@@ -43,43 +45,50 @@ public class Question implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Expose(serialize = false, deserialize= true)
+	@Expose(serialize = true, deserialize= true)
 	private long id;
 
-    @Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "created")
+	@Temporal(TemporalType.TIMESTAMP)
+	@Expose(serialize = true, deserialize = false)
 	private Date created;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "author_id")
     @Expose(serialize = true, deserialize= true)
 	private User author;
 
-	@ElementCollection(targetClass = String.class)
+	@Column(name = "domain")
 	@Expose(serialize = true, deserialize= true)
-	private Set<String> domains;
+	private String domain;
 
 	@Column(name = "title")
 	@Expose(serialize = true, deserialize= true)
 	private String title;
 
-	@Column(name = "text")
+	@Column(name = "text", columnDefinition="text")
 	@Expose(serialize = true, deserialize= true)
 	private String text;
+	
+	@Column(name = "popularity", nullable = false)
+	@Expose(serialize = true, deserialize= false)
+	private int popularity;
+	
+	@Column(name = "nb_answers", nullable = false)
+	@Expose (serialize = true, deserialize= false)
+	private int nbAnswers;
+	
+	@Column(name = "isClosed")
+	@Expose(serialize = true, deserialize = false)
+	private Boolean isClosed;
 
-	@ElementCollection(targetClass = Answer.class)
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "question", orphanRemoval = true)
-	@Expose(serialize = true, deserialize= true)
+	@OneToMany(mappedBy = "question",cascade = CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
 	private Set<Answer> answers;
 	
-	@ManyToMany(mappedBy = "likedQuestions")
-	@ElementCollection(targetClass = User.class)
-	@Expose(serialize = true, deserialize= true)
-	private Set<User> upvote;
+	@ManyToMany(mappedBy = "likedQuestions",cascade={CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST},fetch = FetchType.LAZY)
+	private Set<User> upvoters;
 	
-	@ManyToMany(mappedBy = "followedQuestions")
-	@ElementCollection(targetClass = User.class)
-	@Expose(serialize = true, deserialize= true)
+	@ManyToMany(mappedBy = "followedQuestions",cascade={CascadeType.DETACH,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.PERSIST},fetch = FetchType.LAZY)
 	private Set<User> followers;
 
 	/*
@@ -106,39 +115,27 @@ public class Question implements Serializable {
 	 * @param text
 	 *            Text of the Question
 	 */
-	public Question(Set<String> domains, String title, String text) {
-		this.domains = domains;
+	public Question(String domain, String title, String text) {
+		this.domain = domain;
 		this.title = title;
 		this.text = text;
+		this.popularity = 0;
+		this.nbAnswers = 0;
+		this.isClosed = false;
 
 		//TODO choose between HashSet or SortedSet
 		this.answers = new HashSet<Answer>();
-		this.upvote = new HashSet<User>();
+		this.upvoters = new HashSet<User>();
 		this.followers =  new HashSet<User>();
 	}
 	
 	@Override
 	public String toString() {
-		
-		GsonBuilder builder = new GsonBuilder();  
-	    builder.excludeFieldsWithoutExposeAnnotation();
+		GsonBuilder builder = new GsonBuilder();
+		builder.excludeFieldsWithoutExposeAnnotation();
 		Gson gson = builder.create();  
 		
 		return gson.toJson(this);
-	}
-
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((author == null) ? 0 : author.hashCode());
-		result = prime * result + ((created == null) ? 0 : created.hashCode());
-		result = prime * result + ((domains == null) ? 0 : domains.hashCode());
-		result = prime * result + (int) (id ^ (id >>> 32));
-		result = prime * result + ((text == null) ? 0 : text.hashCode());
-		result = prime * result + ((title == null) ? 0 : title.hashCode());
-		return result;
 	}
 
 	@Override
@@ -160,10 +157,10 @@ public class Question implements Serializable {
 				return false;
 		} else if (!created.equals(other.created))
 			return false;
-		if (domains == null) {
-			if (other.domains != null)
+		if (domain == null) {
+			if (other.domain != null)
 				return false;
-		} else if (!domains.equals(other.domains))
+		} else if (!domain.equals(other.domain))
 			return false;
 		if (id != other.id)
 			return false;
@@ -179,11 +176,46 @@ public class Question implements Serializable {
 			return false;
 		return true;
 	}
+	
 
 	/*
 	 * Getters/ Setters
 	 */
+	public boolean getIsClosed() {
+		return this.isClosed;
+	}
 	
+	public void close() {
+		this.isClosed = true;
+	}
+	
+	public void reopen() {
+		this.isClosed = false;
+	}
+	
+	public void seIsClosed(boolean isClosed) {
+		this.isClosed = isClosed;
+	}
+	
+	public int getNbAnswers() {
+		return this.nbAnswers;
+	}
+	
+	public void addNbAnswers() {
+		this.nbAnswers ++;
+	}
+	
+	public void removeNbAnswers() {
+		this.nbAnswers --;
+	}
+	
+	public int getPopularity() {
+		return upvoters.size();
+	}
+	
+	public void addPopularity() {
+		this.popularity ++;
+	}
 	
 	public long getId() {
 		return id;
@@ -192,31 +224,36 @@ public class Question implements Serializable {
 	public Set<User> getFollowers() {
 		return followers;
 	}
-
 	public void addFollower(User follow) {
 		this.followers.add(follow);
+	}
+	public void removeFollower(User follow) {
+		this.followers.remove(follow);
 	}
 
 	public Set<Answer> getAnswers() {
 		return answers;
 	}
-
-	public void addAnswer(Answer ans) {
-		this.answers.add(ans);
+	public void addAnswer(Answer a) {
+		this.answers.add(a);
+	}
+	public void removeAnswer(Answer a) {
+		this.answers.remove(a);
 	}
 
-	public Set<User> getLikes() {
-		return upvote;
+	public Set<User> getUpvoters() {
+		return upvoters;
 	}
-
-	public void addLike(User like) {
-		this.upvote.add(like);
+	public void addUpvote(User like) {
+		this.upvoters.add(like);
+	}
+	public void removeUpvote(User like) {
+		this.upvoters.remove(like);
 	}
 
 	public Date getCreated() {
 		return created;
 	}
-	
 	public void setCreated(Date date) {
 		this.created = date;
 	}
@@ -224,23 +261,20 @@ public class Question implements Serializable {
 	public User getAuthor() {
 		return this.author;
 	}
-
 	public void setAuthor(User author) {
 		this.author = author;
 	}
 
-	public Set<String> getDomains() {
-		return domains;
+	public String getDomain() {
+		return this.domain;
 	}
-
-	public void setDomains(Set<String> domains) {
-		this.domains = domains;
+	public void setDomain(String domain) {
+		this.domain = domain;
 	}
 
 	public String getTitle() {
 		return title;
 	}
-
 	public void setTitle(String title) {
 		this.title = title;
 	}
@@ -248,14 +282,13 @@ public class Question implements Serializable {
 	public String getText() {
 		return text;
 	}
-
 	public void setText(String text) {
 		this.text = text;
 	}
 
 
 	public static class Builder{
-		public Set<String> domains;
+		public String domain;
 		public String title;
 		public String text;
 
@@ -265,7 +298,7 @@ public class Question implements Serializable {
 		}
 
 		public Question build() {
-			return new Question( domains, title, text);
+			return new Question(domain, title, text);
 		}
 	}
 

@@ -5,6 +5,8 @@ CONT_NAME="uniknowledge-wildfly"
 
 echoerr() { echo "$1" 1>&2; }
 
+mkdir /tmp/wildfly-deployments 1>/dev/null 2>/dev/null
+
 docker network inspect uniknowledge-network 1>/dev/null 2>/dev/null
 if [ $? -ne 0 ]; then
 	docker network create --subnet 172.18.0.0/16   uniknowledge-network
