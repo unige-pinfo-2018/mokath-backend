@@ -50,6 +50,7 @@ public class Question implements Serializable {
 
 	@Column(name = "created")
 	@Temporal(TemporalType.TIMESTAMP)
+	@Expose(serialize = true, deserialize = false)
 	private Date created;
 
     @ManyToOne(fetch = FetchType.EAGER)
